@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Calendar, Clock, ArrowRight, Star, AlertCircle } from 'lucide-react';
+import { Calendar, Clock, ArrowRight, Star, AlertCircle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { usePosts } from '@/hooks/useWordPress';
 import { useIntersectionObserver } from '@/hooks/useIntersectionObserver';
@@ -9,8 +9,8 @@ import { useIntersectionObserver } from '@/hooks/useIntersectionObserver';
 const FeaturedPosts = () => {
   const [ref, isIntersecting, hasIntersected] = useIntersectionObserver();
   
-  // Fetch featured posts from WordPress - with debugging
-  const { posts: featuredPosts, loading, error } = usePosts({ 
+  // Fetch featured posts from WordPress - with debugging and refresh capability
+  const { posts: featuredPosts, loading, error, refresh } = usePosts({ 
     featured: false, // Start with all posts since featured might not be set
     per_page: 6 
   });
@@ -43,10 +43,18 @@ const FeaturedPosts = () => {
           <div className="flex flex-col items-center justify-center py-20 text-red-400">
             <AlertCircle className="h-6 w-6 mr-2" />
             <span className="mb-4">Error loading featured posts: {error}</span>
-            <div className="text-sm text-gray-500 max-w-md text-center">
+            <div className="text-sm text-gray-500 max-w-md text-center mb-4">
               <p>Trying to fetch from: https://app.dataengineerhub.blog/wp-json/wp/v2/posts</p>
               <p>Check browser console for more details</p>
             </div>
+            <Button 
+              onClick={refresh} 
+              variant="outline" 
+              className="border-red-400/50 text-red-300 hover:bg-red-500/20"
+            >
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Retry
+            </Button>
           </div>
         </div>
       </section>
@@ -59,10 +67,18 @@ const FeaturedPosts = () => {
         <div className="container mx-auto px-6">
           <div className="flex flex-col items-center justify-center py-20 text-yellow-400">
             <span className="mb-4">No posts found</span>
-            <div className="text-sm text-gray-500 max-w-md text-center">
+            <div className="text-sm text-gray-500 max-w-md text-center mb-4">
               <p>Make sure you have published posts in WordPress</p>
               <p>Check: https://app.dataengineerhub.blog/wp-json/wp/v2/posts</p>
             </div>
+            <Button 
+              onClick={refresh} 
+              variant="outline" 
+              className="border-yellow-400/50 text-yellow-300 hover:bg-yellow-500/20"
+            >
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Refresh
+            </Button>
           </div>
         </div>
       </section>
@@ -80,9 +96,21 @@ const FeaturedPosts = () => {
               transition={{ duration: 0.3 }}
               className="text-center mb-3"
             >
-              <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 backdrop-blur-sm border border-yellow-500/30 rounded-full px-4 py-2 mb-3">
-                <Star className="h-4 w-4 text-yellow-400" />
-                <span className="text-xs font-medium text-yellow-200">Featured Content</span>
+              <div className="flex items-center justify-center gap-4 mb-3">
+                <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 backdrop-blur-sm border border-yellow-500/30 rounded-full px-4 py-2">
+                  <Star className="h-4 w-4 text-yellow-400" />
+                  <span className="text-xs font-medium text-yellow-200">Featured Content</span>
+                </div>
+                {/* Debug refresh button - only in development */}
+                {process.env.NODE_ENV === 'development' && (
+                  <button
+                    onClick={refresh}
+                    className="p-2 bg-blue-500/20 rounded-full hover:bg-blue-500/30 transition-colors"
+                    title="Refresh featured posts"
+                  >
+                    <RefreshCw className="h-4 w-4 text-blue-400" />
+                  </button>
+                )}
               </div>
               <h2 className="text-xl md:text-2xl font-bold mb-2">
                 <span className="gradient-text">Must-Read</span> Articles
@@ -95,7 +123,7 @@ const FeaturedPosts = () => {
         </AnimatePresence>
 
         <div className="grid lg:grid-cols-2 gap-6 mb-8">
-          {hasIntersected && (
+          {hasIntersected && finalPosts.length > 0 && (
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
@@ -199,6 +227,20 @@ const FeaturedPosts = () => {
               </Link>
             </Button>
           </motion.div>
+        )}
+
+        {/* Debug info in development */}
+        {process.env.NODE_ENV === 'development' && (
+          <div className="mt-8 p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+            <h4 className="text-sm font-semibold text-gray-300 mb-2">Debug Info</h4>
+            <div className="text-xs text-gray-400 space-y-1">
+              <div>Total posts: {featuredPosts.length}</div>
+              <div>Featured posts: {displayPosts.length}</div>
+              <div>Final posts shown: {finalPosts.length}</div>
+              <div>Loading: {loading.toString()}</div>
+              <div>Error: {error || 'None'}</div>
+            </div>
+          </div>
         )}
       </div>
     </section>
