@@ -13,14 +13,14 @@ const AdsenseAd = ({
   useEffect(() => {
     if (showTestAd) {
       // Show beautiful test ad
-      showTestAd();
+      renderTestAd();
     } else {
       // Try to load real AdSense (only if script is in index.html)
       loadRealAd();
     }
   }, [location.pathname]);
 
-  const showTestAd = () => {
+  const renderTestAd = () => {
     if (adRef.current) {
       const adStyles = {
         header: {
@@ -107,7 +107,7 @@ const AdsenseAd = ({
       }
     } else {
       // No AdSense script found, show test ad
-      showTestAd();
+      renderTestAd();
     }
   };
 
