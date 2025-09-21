@@ -84,7 +84,7 @@ const Hero = () => {
             className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto"
           >
             {[
-              { number: '127+', label: 'Expert Articles' },
+              { number: '15+', label: 'Expert Articles' },
               { number: '15.2K+', label: 'Monthly Readers' },
               { number: '32+', label: 'Technologies Covered' },
               { number: '98.7%', label: 'Success Rate' }
