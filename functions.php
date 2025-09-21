@@ -20,7 +20,8 @@ function handle_cors_requests() {
         if (strpos($origin, 'localhost') !== false || 
             strpos($origin, 'bolt.new') !== false || 
             strpos($origin, 'staticblitz.com') !== false ||
-            strpos($origin, 'stackblitz.com') !== false) {
+            strpos($origin, 'stackblitz.com') !== false ||
+            strpos($origin, 'local-credent') !== false) {
             header("Access-Control-Allow-Origin: " . $origin);
         }
     }
