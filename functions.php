@@ -1,5 +1,5 @@
 <?php
-// FINAL COMPLETE functions.php for DataEngineer Hub
+// UPDATED functions.php for DataEngineer Hub with Cache Invalidation
 // Copy this entire code and replace your current functions.php
 
 // Enable CORS for frontend applications
@@ -37,7 +37,46 @@ function handle_cors_requests() {
 add_action('init', 'handle_cors_requests');
 
 // =================================================================
-// AUTO CATEGORY ASSIGNMENT SYSTEM
+// CACHE INVALIDATION SYSTEM
+// =================================================================
+
+// Function to clear WordPress object cache and external caches
+function clear_all_caches() {
+    // Clear WordPress object cache
+    if (function_exists('wp_cache_flush')) {
+        wp_cache_flush();
+    }
+    
+    // Clear any transients related to posts and categories
+    delete_transient('category_counts');
+    delete_transient('recent_posts');
+    
+    // Clear database query cache
+    global $wpdb;
+    $wpdb->flush();
+    
+    // Log cache clearing
+    error_log("🧹 CACHE: All caches cleared");
+}
+
+// Hook to clear cache when posts are saved/updated
+add_action('save_post', 'clear_cache_on_post_save', 999);
+function clear_cache_on_post_save($post_id) {
+    if (wp_is_post_revision($post_id)) return;
+    clear_all_caches();
+    error_log("🧹 CACHE: Cleared cache after post save: $post_id");
+}
+
+// Hook to clear cache when categories are updated
+add_action('edited_category', 'clear_cache_on_category_update', 999);
+add_action('create_category', 'clear_cache_on_category_update', 999);
+function clear_cache_on_category_update($term_id) {
+    clear_all_caches();
+    error_log("🧹 CACHE: Cleared cache after category update: $term_id");
+}
+
+// =================================================================
+// AUTO CATEGORY ASSIGNMENT SYSTEM - IMPROVED
 // =================================================================
 
 // Main auto-categorization function
@@ -69,7 +108,6 @@ function auto_assign_categories_on_save($post_id, $post) {
     $combined_text = strtolower($title . ' ' . $content);
     
     error_log("🤖 AUTO-CATEGORIZATION: Analyzing content (length: " . strlen($combined_text) . " chars)");
-    error_log("🤖 AUTO-CATEGORIZATION: First 200 chars: " . substr($combined_text, 0, 200));
     
     // Simple, effective keyword mapping
     $category_mappings = array(
@@ -159,6 +197,13 @@ function auto_assign_categories_on_save($post_id, $post) {
             // Mark as auto-categorized
             update_post_meta($post_id, '_auto_categorized', '1');
             update_post_meta($post_id, '_detected_keywords', json_encode($detected_info));
+            
+            // IMPORTANT: Update category counts manually
+            foreach ($categories_to_assign as $term_id) {
+                wp_update_term_count_now(array($term_id), 'category');
+                error_log("🔄 Updated category count for term ID: $term_id");
+            }
+            
         } else {
             error_log("🤖 AUTO-CATEGORIZATION: ❌ Failed to set categories");
         }
@@ -176,6 +221,7 @@ function auto_assign_categories_on_save($post_id, $post) {
             if ($uncategorized) {
                 remove_action('save_post', 'auto_assign_categories_on_save', 10, 2);
                 wp_set_post_categories($post_id, array($uncategorized->term_id), false);
+                wp_update_term_count_now(array($uncategorized->term_id), 'category');
                 add_action('save_post', 'auto_assign_categories_on_save', 10, 2);
             }
         }
@@ -183,6 +229,21 @@ function auto_assign_categories_on_save($post_id, $post) {
     
     // Cleanup
     delete_transient('processing_auto_categories_' . $post_id);
+    
+    // Clear all caches to ensure UI updates
+    clear_all_caches();
+}
+
+// Force category count updates
+add_action('wp_insert_post', 'force_update_category_counts', 999);
+function force_update_category_counts($post_id) {
+    if (wp_is_post_revision($post_id)) return;
+    
+    $categories = wp_get_post_categories($post_id);
+    if (!empty($categories)) {
+        wp_update_term_count_now($categories, 'category');
+        error_log("🔄 FORCE: Updated category counts for post $post_id");
+    }
 }
 
 // Add admin meta box to show detection results
@@ -275,10 +336,11 @@ function auto_category_detection_callback($post) {
         echo '</div>';
     }
     
-    // Manual test button
+    // Manual test button with cache clearing
     if ($post->ID) {
         echo '<hr style="margin: 10px 0;">';
         echo '<button type="button" onclick="testAutoCategories(' . $post->ID . ')" class="button button-primary" style="width: 100%;">🔄 Test Categorization</button>';
+        echo '<button type="button" onclick="clearAllCaches()" class="button" style="width: 100%; margin-top: 5px;">🧹 Clear Caches</button>';
         
         ?>
         <script>
@@ -297,6 +359,23 @@ function auto_category_detection_callback($post) {
                     }
                 }).fail(function() {
                     alert('❌ Request failed. Check console for details.');
+                });
+            }
+        }
+        
+        function clearAllCaches() {
+            if (confirm('Clear all caches? This will refresh the data for the frontend.')) {
+                jQuery.post(ajaxurl, {
+                    action: 'clear_all_caches',
+                    nonce: '<?php echo wp_create_nonce("clear_caches"); ?>'
+                }, function(response) {
+                    if (response.success) {
+                        alert('✅ Caches cleared successfully!');
+                    } else {
+                        alert('❌ Error clearing caches: ' + response.data);
+                    }
+                }).fail(function() {
+                    alert('❌ Cache clear request failed.');
                 });
             }
         }
@@ -340,22 +419,38 @@ function handle_manual_categorization() {
     $categories = get_the_category($post_id);
     $category_names = array_map(function($cat) { return $cat->name; }, $categories);
     
+    // Clear all caches after manual categorization
+    clear_all_caches();
+    
     wp_send_json_success(array(
-        'message' => 'Categories updated',
+        'message' => 'Categories updated and caches cleared',
         'categories' => $category_names,
         'post_title' => $post->post_title
     ));
 }
 
-// Add admin notice
-add_action('admin_notices', function() {
-    $screen = get_current_screen();
-    if ($screen && in_array($screen->id, array('post', 'edit-post'))) {
-        echo '<div class="notice notice-info is-dismissible">';
-        echo '<p><strong>🤖 Auto-Categorization Active:</strong> Posts will be automatically categorized based on content keywords when published.</p>';
-        echo '</div>';
+// AJAX handler for cache clearing
+add_action('wp_ajax_clear_all_caches', 'handle_clear_all_caches');
+
+function handle_clear_all_caches() {
+    $nonce = $_POST['nonce'];
+    
+    if (!wp_verify_nonce($nonce, 'clear_caches')) {
+        wp_send_json_error('Security check failed');
+        return;
     }
-});
+    
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error('Insufficient permissions');
+        return;
+    }
+    
+    clear_all_caches();
+    
+    wp_send_json_success(array(
+        'message' => 'All caches cleared successfully'
+    ));
+}
 
 // =================================================================
 // END AUTO CATEGORY ASSIGNMENT SYSTEM
@@ -606,5 +701,16 @@ function ensure_json_response($response, $server, $request) {
     return $response;
 }
 add_filter('rest_pre_serve_request', 'ensure_json_response', 10, 3);
+
+// Add cache-busting headers for REST API responses
+function add_cache_busting_headers($response, $server, $request) {
+    if (strpos($request->get_route(), '/wp/v2/') !== false) {
+        $response->header('Cache-Control', 'no-cache, must-revalidate, max-age=0');
+        $response->header('Pragma', 'no-cache');
+        $response->header('Expires', 'Thu, 01 Jan 1970 00:00:00 GMT');
+    }
+    return $response;
+}
+add_filter('rest_post_dispatch', 'add_cache_busting_headers', 10, 3);
 
 ?>
