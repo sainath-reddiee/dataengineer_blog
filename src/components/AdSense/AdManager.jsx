@@ -74,7 +74,7 @@ const AdManager = ({ position, postIndex, category }) => {
         style={getAdStyle()}
         className={`ad-${position} relative z-[1]`}
         adFormat={position === 'sidebar' ? 'rectangle' : 'auto'}
-        adTest="off"
+        adTest="on"
       />
     </div>
   );
