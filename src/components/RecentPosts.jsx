@@ -170,9 +170,9 @@ const RecentPosts = ({ category, initialLimit, showCategoryError = false }) => {
                 {showCategoryError && category && (
                   <>
                     <p className="font-semibold">Category Issue Detected:</p>
-                    <p>1. Check if "Snowflake" category exists in WordPress</p>
+                    <p>1. Check if "{category.charAt(0).toUpperCase() + category.slice(1)}" category exists in WordPress</p>
                     <p>2. Verify the post is assigned to the correct category</p>
-                    <p>3. Check category slug matches: "snowflake"</p>
+                    <p>3. Check category slug matches: "{category.toLowerCase()}"</p>
                   </>
                 )}
                 <p>API URL: https://app.dataengineerhub.blog/wp-json/wp/v2/posts{category ? `?categories=${category}` : ''}</p>
