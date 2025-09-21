@@ -44,9 +44,14 @@ export const usePosts = ({
       }
       
       if (categories) {
-        filteredArticles = filteredArticles.filter(post => 
-          post.category.toLowerCase() === categories.toLowerCase()
-        );
+        // Handle both category name and slug matching
+        filteredArticles = filteredArticles.filter(post => {
+          const postCategory = post.category.toLowerCase();
+          const searchCategory = categories.toLowerCase();
+          return postCategory === searchCategory || 
+                 postCategory.replace(/\s+/g, '-') === searchCategory ||
+                 postCategory === searchCategory.replace(/-/g, ' ');
+        });
       }
       
       setData(filteredArticles.slice((page - 1) * per_page, page * per_page));

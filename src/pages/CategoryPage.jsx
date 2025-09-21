@@ -49,7 +49,7 @@ const CategoryPage = () => {
             Showing all articles for the "{formattedCategoryName}" category.
           </motion.p>
           
-          <RecentPosts category={categoryName} />
+          <RecentPosts category={categoryName.toLowerCase()} />
         </div>
       </div>
     </>

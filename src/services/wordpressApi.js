@@ -99,10 +99,17 @@ class WordPressAPI {
   // Get posts by category
   async getPostsByCategory(categorySlug, { page = 1, per_page = 10 } = {}) {
     const categories = await this.getCategories();
-    const category = categories.find(cat => cat.slug === categorySlug);
+    const category = categories.find(cat => 
+      cat.slug === categorySlug || 
+      cat.slug === categorySlug.toLowerCase() ||
+      cat.name.toLowerCase() === categorySlug.toLowerCase() ||
+      cat.name.toLowerCase().replace(/\s+/g, '-') === categorySlug.toLowerCase()
+    );
     
     if (!category) {
-      throw new Error('Category not found');
+      console.warn(`Category not found for slug: ${categorySlug}`);
+      // Return empty results instead of throwing error
+      return [];
     }
 
     return this.getPosts({ page, per_page, categories: category.id });
@@ -156,7 +163,14 @@ class WordPressAPI {
   transformPost(wpPost) {
     const featuredImage = wpPost._embedded?.['wp:featuredmedia']?.[0];
     const categories = wpPost._embedded?.['wp:term']?.[0] || [];
-    const primaryCategory = categories.length > 0 ? categories[0].name : 'Uncategorized';
+    
+    // Get the primary category, handling both single and multiple categories
+    let primaryCategory = 'Uncategorized';
+    if (categories.length > 0) {
+      // Find the category that's not "Uncategorized" if multiple exist
+      const nonUncategorized = categories.find(cat => cat.name !== 'Uncategorized');
+      primaryCategory = nonUncategorized ? nonUncategorized.name : categories[0].name;
+    }
 
     return {
       id: wpPost.id,
