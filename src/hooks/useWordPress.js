@@ -5,7 +5,7 @@ import wordpressApi from '@/services/wordpressApi';
 export const usePosts = ({ 
   page = 1, 
   per_page = 10, 
-  categories = null, 
+  categorySlug = null, 
   search = null,
   featured = null,
   enabled = true 
@@ -15,6 +15,7 @@ export const usePosts = ({
   const [error, setError] = useState(null);
   const [hasMore, setHasMore] = useState(false);
   const [totalPages, setTotalPages] = useState(0);
+  const [totalPosts, setTotalPosts] = useState(0);
 
   const fetchPosts = useCallback(async () => {
     if (!enabled) return;
@@ -23,28 +24,41 @@ export const usePosts = ({
       setLoading(true);
       setError(null);
       
-      console.log('Fetching posts with params:', { page, per_page, categories, search, featured });
+      console.log('Fetching posts with params:', { page, per_page, categorySlug, search, featured });
       
+      let categoryId = null;
+      if (categorySlug) {
+        try {
+          categoryId = await wordpressApi.getCategoryIdBySlug(categorySlug);
+          console.log(`Category "${categorySlug}" resolved to ID: ${categoryId}`);
+        } catch (categoryError) {
+          console.error('Category resolution error:', categoryError);
+          throw new Error(`Category "${categorySlug}" not found. Please check if the category exists in WordPress.`);
+        }
+      }
+
       const response = await wordpressApi.getPosts({
         page,
         per_page,
-        categories,
+        categoryId,
         search,
         featured
       });
-
       console.log('WordPress API response:', response);
-      setData(response);
-      setHasMore(page < totalPages);
+      setData(response.posts);
+      setTotalPages(response.totalPages);
+      setTotalPosts(response.totalPosts);
+      setHasMore(page < response.totalPages);
     } catch (err) {
       console.error('WordPress API Error:', err);
       setError(err.message);
-      // Don't use fallback data for category pages - show the error instead
       setData([]);
+      setTotalPages(0);
+      setTotalPosts(0);
     } finally {
       setLoading(false);
     }
-  }, [page, per_page, categories, search, featured, enabled, totalPages]);
+  }, [page, per_page, categorySlug, search, featured, enabled]);
 
   useEffect(() => {
     fetchPosts();
@@ -55,29 +69,37 @@ export const usePosts = ({
     
     try {
       setLoading(true);
+      
+      let categoryId = null;
+      if (categorySlug) {
+        categoryId = await wordpressApi.getCategoryIdBySlug(categorySlug);
+      }
+      
       const nextPage = Math.floor(data.length / per_page) + 1;
       const response = await wordpressApi.getPosts({
         page: nextPage,
         per_page,
-        categories,
+        categoryId,
         search,
         featured
       });
 
-      setData(prev => [...prev, ...response]);
-      setHasMore(nextPage < totalPages);
+      setData(prev => [...prev, ...response.posts]);
+      setHasMore(nextPage < response.totalPages);
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
-  }, [data.length, per_page, categories, search, featured, loading, hasMore, totalPages]);
+  }, [data.length, per_page, categorySlug, search, featured, loading, hasMore, totalPages]);
 
   return {
     posts: data,
     loading,
     error,
     hasMore,
+    totalPages,
+    totalPosts,
     loadMore,
     refetch: fetchPosts
   };
@@ -100,19 +122,9 @@ export const usePost = (slug, enabled = true) => {
         const response = await wordpressApi.getPostBySlug(slug);
         setPost(response);
       } catch (err) {
+        console.error('Post fetch error:', err);
         setError(err.message);
-        // Fallback to static data
-        const { allArticles } = await import('@/data/articles');
-        const fallbackPost = allArticles.find(article => article.slug === slug);
-        
-        if (fallbackPost) {
-          setPost({
-            ...fallbackPost,
-            content: `<p>This is a sample article about ${fallbackPost.title}. In a real implementation, this content would come from WordPress.</p>`
-          });
-        } else {
-          setPost(null);
-        }
+        setPost(null);
       } finally {
         setLoading(false);
       }
@@ -141,37 +153,9 @@ export const useCategories = (enabled = true) => {
         const response = await wordpressApi.getCategories();
         setCategories(response);
       } catch (err) {
+        console.error('Categories fetch error:', err);
         setError(err.message);
-        // Fallback categories with dynamic counts from articles
-        const { allArticles } = await import('@/data/articles');
-        const categoryMap = {};
-        
-        // Count articles per category
-        allArticles.forEach(article => {
-          const categoryName = article.category;
-          if (categoryMap[categoryName]) {
-            categoryMap[categoryName]++;
-          } else {
-            categoryMap[categoryName] = 1;
-          }
-        });
-        
-        // Create categories array with dynamic counts
-        const fallbackCategories = [
-          { id: 1, name: 'AWS', slug: 'aws' },
-          { id: 2, name: 'Snowflake', slug: 'snowflake' },
-          { id: 3, name: 'Azure', slug: 'azure' },
-          { id: 4, name: 'SQL', slug: 'sql' },
-          { id: 5, name: 'Airflow', slug: 'airflow' },
-          { id: 6, name: 'dbt', slug: 'dbt' },
-          { id: 7, name: 'Python', slug: 'python' },
-          { id: 8, name: 'Analytics', slug: 'analytics' },
-        ].map(category => ({
-          ...category,
-          count: categoryMap[category.name] || 0
-        }));
-        
-        setCategories(fallbackCategories);
+        setCategories([]);
       } finally {
         setLoading(false);
       }

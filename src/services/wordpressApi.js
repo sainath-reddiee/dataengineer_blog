@@ -55,19 +55,39 @@ class WordPressAPI {
       console.log('WordPress API Response Status:', response.status);
       
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        let errorMessage = `HTTP error! status: ${response.status}`;
+        
+        try {
+          const errorData = JSON.parse(errorText);
+          if (errorData.message) {
+            errorMessage += ` - ${errorData.message}`;
+          }
+          if (errorData.data && errorData.data.params) {
+            errorMessage += ` - ${JSON.stringify(errorData.data.params)}`;
+          }
+        } catch (e) {
+          errorMessage += ` - ${errorText}`;
+        }
+        
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
       console.log('WordPress API Data:', data);
       
+      // Extract pagination info from headers
+      const totalPages = parseInt(response.headers.get('X-WP-TotalPages') || '1');
+      const totalPosts = parseInt(response.headers.get('X-WP-Total') || '0');
+      
       // Cache the result
+      const result = Array.isArray(data) ? { posts: data, totalPages, totalPosts } : data;
       this.cache.set(cacheKey, {
-        data,
+        data: result,
         timestamp: Date.now(),
       });
 
-      return data;
+      return result;
     } catch (error) {
       if (error.name === 'AbortError') {
         console.warn('Request timeout:', endpoint);
@@ -82,7 +102,7 @@ class WordPressAPI {
   async getPosts({ 
     page = 1, 
     per_page = 10, 
-    categories = null, 
+    categoryId = null, 
     search = null,
     featured = null 
   } = {}) {
@@ -92,28 +112,39 @@ class WordPressAPI {
       _embed: 'true', // Include featured images and categories
     });
 
-    if (categories) {
-      params.append('categories', categories);
+    if (categoryId) {
+      params.append('categories', categoryId.toString());
     }
     if (search) {
       params.append('search', search);
     }
 
-    const posts = await this.fetchWithCache(`/posts?${params.toString()}`);
+    const result = await this.fetchWithCache(`/posts?${params.toString()}`);
+    const posts = result.posts || result; // Handle both new and old response formats
     const transformedPosts = this.transformPosts(posts);
     
     // Filter featured posts after transformation if needed
     if (featured !== null) {
-      return transformedPosts.filter(post => post.featured === featured);
+      const filteredPosts = transformedPosts.filter(post => post.featured === featured);
+      return {
+        posts: filteredPosts,
+        totalPages: result.totalPages || 1,
+        totalPosts: filteredPosts.length
+      };
     }
     
-    return transformedPosts;
+    return {
+      posts: transformedPosts,
+      totalPages: result.totalPages || 1,
+      totalPosts: result.totalPosts || transformedPosts.length
+    };
   }
 
   // Get single post by slug
   async getPostBySlug(slug) {
-    const posts = await this.fetchWithCache(`/posts?slug=${slug}&_embed=true`);
-    if (posts.length === 0) {
+    const result = await this.fetchWithCache(`/posts?slug=${slug}&_embed=true`);
+    const posts = result.posts || result; // Handle both new and old response formats
+    if (!posts || posts.length === 0) {
       throw new Error('Post not found');
     }
     return this.transformPost(posts[0]);
@@ -132,7 +163,12 @@ class WordPressAPI {
   }
 
   // Get posts by category
-  async getPostsByCategory(categorySlug, { page = 1, per_page = 10 } = {}) {
+  async getPostsByCategory(categoryId, { page = 1, per_page = 10 } = {}) {
+    return this.getPosts({ page, per_page, categoryId });
+  }
+
+  // Get category ID by slug
+  async getCategoryIdBySlug(categorySlug) {
     const categories = await this.getCategories();
     console.log('Available categories:', categories);
     console.log('Looking for category slug:', categorySlug);
@@ -146,19 +182,11 @@ class WordPressAPI {
     
     if (!category) {
       console.warn(`Category not found for slug: ${categorySlug}. Available categories:`, categories.map(c => ({name: c.name, slug: c.slug, id: c.id})));
-      // Try to get posts anyway and filter client-side
-      const allPosts = await this.getPosts({ page, per_page: 100 });
-      return allPosts.filter(post => {
-        const postCategory = post.category.toLowerCase();
-        const searchCategory = categorySlug.toLowerCase();
-        return postCategory === searchCategory || 
-               postCategory.replace(/\s+/g, '-') === searchCategory ||
-               postCategory === searchCategory.replace(/-/g, ' ');
-      });
+      throw new Error(`Category "${categorySlug}" not found`);
     }
 
     console.log('Found category:', category);
-    return this.getPosts({ page, per_page, categories: category.id });
+    return category.id;
   }
 
   // Subscribe to newsletter (custom endpoint)

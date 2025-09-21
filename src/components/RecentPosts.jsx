@@ -14,10 +14,10 @@ const RecentPosts = ({ category, initialLimit, showCategoryError = false }) => {
   const [ref, isIntersecting, hasIntersected] = useIntersectionObserver();
 
   // Fetch posts from WordPress
-  const { posts: allPosts, loading, error, hasMore, loadMore } = usePosts({
+  const { posts: allPosts, loading, error, hasMore, totalPages, totalPosts, loadMore } = usePosts({
     per_page: POSTS_PER_PAGE,
     featured: null, // Get all posts
-    categories: category ? category : null,
+    categorySlug: category ? category : null,
     enabled: true
   });
 
@@ -26,11 +26,12 @@ const RecentPosts = ({ category, initialLimit, showCategoryError = false }) => {
   console.log('RecentPosts - Loading:', loading);
   console.log('RecentPosts - Error:', error);
   console.log('RecentPosts - Category:', category);
+  console.log('RecentPosts - Total Posts:', totalPosts);
 
   // Apply visible count (don't filter featured for now)
   const articles = allPosts;
   const visiblePosts = articles.slice(0, visibleCount);
-  const hasMoreLocal = visibleCount < articles.length || hasMore;
+  const hasMoreLocal = visibleCount < totalPosts;
 
   const handleLoadMore = () => {
     if (visibleCount < articles.length) {
@@ -175,7 +176,7 @@ const RecentPosts = ({ category, initialLimit, showCategoryError = false }) => {
                     <p>3. Check category slug matches: "{category.toLowerCase()}"</p>
                   </>
                 )}
-                <p>API URL: https://app.dataengineerhub.blog/wp-json/wp/v2/posts{category ? `?categories=${category}` : ''}</p>
+                <p>API URL: https://app.dataengineerhub.blog/wp-json/wp/v2/posts</p>
                 <p>Categories API: https://app.dataengineerhub.blog/wp-json/wp/v2/categories</p>
                 <p>Check browser console for detailed logs</p>
               </div>
