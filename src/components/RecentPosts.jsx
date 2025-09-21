@@ -174,36 +174,20 @@ const RecentPosts = ({ category, initialLimit }) => {
         )}
 
         <AnimatePresence>
-          {hasMoreLocal && !loading && (
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -30 }}
-              transition={{ duration: 0.5 }}
-              className="text-center"
-            >
-              <Button
-                onClick={handleLoadMore}
-                size="lg"
-                variant="outline"
-                className="border-2 border-blue-400/50 text-blue-300 hover:bg-blue-500/20 px-8 py-4 rounded-full font-bold backdrop-blur-sm group"
-                disabled={loading}
-              >
-                {loading ? (
-                  <>
-                    <Loader className="mr-2 h-5 w-5 animate-spin" />
-                    Loading...
-                  </>
-                ) : (
-                  <>
-                    Load More Articles
-                    <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                  </>
-                )}
-              </Button>
-            </motion.div>
-          )}
-        </AnimatePresence>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center text-gray-400 py-12"
+          >
+            <div>
+              <p className="mb-2">No articles found{category ? ` for "${category}" category` : ''}</p>
+              <div className="text-sm text-gray-500">
+                <p>Make sure you have published posts in WordPress</p>
+                <p>API: https://app.dataengineerhub.blog/wp-json/wp/v2/posts</p>
+              </div>
+            </div>
+          </motion.div>
+        )}
       </div>
     </section>
   );
