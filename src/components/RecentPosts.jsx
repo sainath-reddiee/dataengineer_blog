@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Calendar, Clock, ArrowRight, TrendingUp, Loader } from 'lucide-react';
+import { Calendar, Clock, ArrowRight, TrendingUp, Loader, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { usePosts } from '@/hooks/useWordPress';
 import AdManager from '@/components/AdSense/AdManager';
@@ -138,7 +138,7 @@ const RecentPosts = ({ category, initialLimit }) => {
           </AnimatePresence>
         </div>
 
-        {articles.length === 0 && (
+        {articles.length === 0 && !loading && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -173,20 +173,21 @@ const RecentPosts = ({ category, initialLimit }) => {
           </div>
         )}
 
-        <AnimatePresence>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center text-gray-400 py-12"
-          >
-            <div>
-              <p className="mb-2">No articles found{category ? ` for "${category}" category` : ''}</p>
-              <div className="text-sm text-gray-500">
-                <p>Make sure you have published posts in WordPress</p>
-                <p>API: https://app.dataengineerhub.blog/wp-json/wp/v2/posts</p>
-              </div>
-            </div>
-          </motion.div>
+        {hasMoreLocal && !loading && articles.length > 0 && (
+          <AnimatePresence>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center mt-8"
+            >
+              <Button
+                onClick={handleLoadMore}
+                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-3 rounded-full font-semibold transition-all duration-300 transform hover:scale-105"
+              >
+                Load More Articles
+              </Button>
+            </motion.div>
+          </AnimatePresence>
         )}
       </div>
     </section>
