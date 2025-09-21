@@ -78,6 +78,7 @@ const FeaturedPosts = () => {
               className="lg:row-span-2"
             >
               <Link to={`/articles/${featuredPosts[0].slug}`} className="block blog-card rounded-2xl overflow-hidden group h-full">
+                <div className="relative">
                 <LazyImage
                   src={featuredPosts[0].image}
                   alt={featuredPosts[0].title}
@@ -89,7 +90,7 @@ const FeaturedPosts = () => {
                     {featuredPosts[0].category}
                   </span>
                 </div>
-              </div>
+                </div>
               <div className="p-8">
                 <h3 className="text-xl lg:text-2xl font-bold mb-3 group-hover:text-blue-400 transition-colors">
                   {featuredPosts[0].title}
@@ -111,7 +112,7 @@ const FeaturedPosts = () => {
                   <ArrowRight className="h-5 w-5 group-hover:translate-x-2 transition-transform" />
                 </div>
               </div>
-              </Link>
+               </Link>
             </motion.div>
           )}
 
