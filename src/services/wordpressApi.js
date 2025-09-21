@@ -42,8 +42,10 @@ class WordPressAPI {
       console.log('WordPress API Request:', `${this.baseURL}${endpoint}`);
       
       const response = await fetch(`${this.baseURL}${endpoint}`, {
+        mode: 'cors',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
           ...options.headers,
         },
         signal: AbortSignal.timeout(10000), // 10 second timeout

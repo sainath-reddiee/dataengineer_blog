@@ -174,19 +174,14 @@ const RecentPosts = ({ category, initialLimit }) => {
         )}
 
         {hasMoreLocal && !loading && articles.length > 0 && (
-          <AnimatePresence>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-center mt-8"
+          <div className="text-center mt-8">
+            <Button
+              onClick={handleLoadMore}
+              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-3 rounded-full font-semibold transition-all duration-300 transform hover:scale-105"
             >
-              <Button
-                onClick={handleLoadMore}
-                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-3 rounded-full font-semibold transition-all duration-300 transform hover:scale-105"
-              >
-                Load More Articles
-              </Button>
-            </motion.div>
+              Load More Articles
+            </Button>
+          </div>
           </AnimatePresence>
         )}
       </div>

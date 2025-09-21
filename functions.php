@@ -5,13 +5,20 @@
 function handle_cors_requests() {
     $allowed_origins = array(
         'https://app.dataengineerhub.blog',
-        'https://dataengineerhub.blog'
+        'https://dataengineerhub.blog',
+        'http://localhost:5173',
+        'https://localhost:5173'
     );
     
     $origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
     
     if (in_array($origin, $allowed_origins)) {
         header("Access-Control-Allow-Origin: " . $origin);
+    } else {
+        // For development, allow localhost
+        if (strpos($origin, 'localhost') !== false) {
+            header("Access-Control-Allow-Origin: " . $origin);
+        }
     }
     
     header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
