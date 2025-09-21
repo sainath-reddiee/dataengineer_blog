@@ -171,9 +171,48 @@ class WordPressAPI {
   async getCategoryIdBySlug(categorySlug) {
     console.log('🔍 Looking for category slug:', categorySlug);
     
-    // First attempt: try with cached categories
-    let categories = await this.getCategories();
-    console.log('📋 Available categories (cached):', categories.map(c => ({name: c.name, slug: c.slug, id: c.id})));
+    try {
+      // First attempt: try with cached categories
+      let categories = await this.getCategories();
+      console.log('📋 Available categories (cached):', categories.map(c => ({
+        name: c.name, 
+        slug: c.slug, 
+        id: c.id,
+        count: c.count
+      })));
+      
+      let category = this.findCategoryBySlug(categories, categorySlug);
+      
+      if (!category) {
+        console.log('⚠️ Category not found in cache, refreshing categories...');
+        
+        // Clear cache and fetch fresh categories
+        this.clearCategoriesCache();
+        categories = await this.getCategories();
+        console.log('📋 Available categories (fresh):', categories.map(c => ({
+          name: c.name, 
+          slug: c.slug, 
+          id: c.id,
+          count: c.count
+        })));
+        
+        // Second attempt: try with fresh categories
+        category = this.findCategoryBySlug(categories, categorySlug);
+      }
+      
+      if (!category) {
+        const availableCategories = categories.map(c => ({name: c.name, slug: c.slug, id: c.id, count: c.count}));
+        console.error(`❌ Category not found for slug: ${categorySlug}. Available categories:`, availableCategories);
+        throw new Error(`Category "${categorySlug}" not found. Available categories: ${availableCategories.map(c => c.slug).join(', ')}`);
+      }
+
+      console.log('✅ Found category:', {name: category.name, slug: category.slug, id: category.id, count: category.count});
+      return category.id;
+    } catch (error) {
+      console.error('❌ Error in getCategoryIdBySlug:', error);
+      throw error;
+    }
+  }
     
     let category = this.findCategoryBySlug(categories, categorySlug);
     
@@ -200,12 +239,47 @@ class WordPressAPI {
 
   // Helper method to find category by slug with multiple matching strategies
   findCategoryBySlug(categories, categorySlug) {
-    return categories.find(cat => 
-      cat.slug === categorySlug || 
-      cat.slug === categorySlug.toLowerCase() ||
-      cat.name.toLowerCase() === categorySlug.toLowerCase() ||
-      cat.name.toLowerCase().replace(/\s+/g, '-') === categorySlug.toLowerCase()
-    );
+    console.log('🔍 Searching for category slug:', categorySlug);
+    console.log('📋 Available categories for matching:', categories.map(c => ({
+      id: c.id,
+      name: c.name,
+      slug: c.slug,
+      count: c.count
+    })));
+    
+    const searchSlug = categorySlug.toLowerCase().trim();
+    
+    // Try multiple matching strategies
+    const strategies = [
+      // Exact slug match
+      cat => cat.slug === searchSlug,
+      // Case insensitive slug match
+      cat => cat.slug.toLowerCase() === searchSlug,
+      // Name to slug conversion match
+      cat => cat.name.toLowerCase().replace(/\s+/g, '-') === searchSlug,
+      // Direct name match
+      cat => cat.name.toLowerCase() === searchSlug,
+      // Partial slug match
+      cat => cat.slug.toLowerCase().includes(searchSlug),
+      // Partial name match
+      cat => cat.name.toLowerCase().includes(searchSlug)
+    ];
+    
+    for (let i = 0; i < strategies.length; i++) {
+      const found = categories.find(strategies[i]);
+      if (found) {
+        console.log(`✅ Found category using strategy ${i + 1}:`, {
+          id: found.id,
+          name: found.name,
+          slug: found.slug,
+          count: found.count
+        });
+        return found;
+      }
+    }
+    
+    console.log('❌ No category found for slug:', searchSlug);
+    return null;
   }
 
   // Helper method to clear categories from cache
@@ -215,6 +289,14 @@ class WordPressAPI {
     categoryKeys.forEach(key => {
       this.cache.delete(key);
       console.log('🗑️ Cleared cache key:', key);
+    });
+    
+    // Also clear from request queue to force fresh requests
+    const queueKeys = Array.from(this.requestQueue.keys());
+    const categoryQueueKeys = queueKeys.filter(key => key.includes('/categories'));
+    categoryQueueKeys.forEach(key => {
+      this.requestQueue.delete(key);
+      console.log('🗑️ Cleared request queue key:', key);
     });
   }
 
