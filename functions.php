@@ -5,7 +5,10 @@
 function handle_cors_requests() {
     $allowed_origins = array(
         'https://app.dataengineerhub.blog',
-        'https://dataengineerhub.blog'
+        'https://dataengineerhub.blog',
+        'https://bolt.new',
+        'https://w-credentialless-staticblitz.com',
+        'https://stackblitz.com'
     );
     
     $origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
@@ -14,7 +17,10 @@ function handle_cors_requests() {
         header("Access-Control-Allow-Origin: " . $origin);
     } else {
         // For development, allow localhost
-        if (strpos($origin, 'localhost') !== false) {
+        if (strpos($origin, 'localhost') !== false || 
+            strpos($origin, 'bolt.new') !== false || 
+            strpos($origin, 'staticblitz.com') !== false ||
+            strpos($origin, 'stackblitz.com') !== false) {
             header("Access-Control-Allow-Origin: " . $origin);
         }
     }
