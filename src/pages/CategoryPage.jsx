@@ -23,7 +23,7 @@ const CategoryPage = () => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="mb-2"
+            className="mb-1"
           >
             <Button asChild variant="outline" className="border-2 border-blue-400/50 text-blue-300 hover:bg-blue-500/20 backdrop-blur-sm">
               <Link to="/">
@@ -36,7 +36,7 @@ const CategoryPage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-2xl md:text-3xl font-black mb-1"
+            className="text-xl md:text-2xl font-black mb-1"
           >
             <span className="gradient-text">{formattedCategoryName}</span>
           </motion.h1>
@@ -44,7 +44,7 @@ const CategoryPage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-sm text-gray-300 mb-3"
+            className="text-xs text-gray-300 mb-2"
           >
             Showing all articles for the "{formattedCategoryName}" category.
           </motion.p>

@@ -42,23 +42,23 @@ const RecentPosts = ({ category, initialLimit }) => {
   const hasMore = visibleCount < articles.length;
 
   return (
-    <section className="py-4 relative">
+    <section className="py-1 relative">
       <div className="container mx-auto px-6">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
-          className="text-center mb-4"
+          className="text-center mb-2"
         >
-          <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-green-500/20 to-blue-500/20 backdrop-blur-sm border border-green-500/30 rounded-full px-6 py-3 mb-6">
+          <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-green-500/20 to-blue-500/20 backdrop-blur-sm border border-green-500/30 rounded-full px-4 py-2 mb-3">
             <TrendingUp className="h-5 w-5 text-green-400" />
             <span className="text-sm font-medium text-green-200">Fresh Content</span>
           </div>
-          <h2 className="text-xl md:text-2xl font-bold mb-2">
+          <h2 className="text-lg md:text-xl font-bold mb-1">
             <span className="gradient-text">Latest</span> Articles
           </h2>
-          <p className="text-sm text-gray-300 max-w-2xl mx-auto">
+          <p className="text-xs text-gray-300 max-w-2xl mx-auto">
             Stay updated with the newest insights and tutorials in data engineering
           </p>
         </motion.div>
@@ -119,7 +119,7 @@ const RecentPosts = ({ category, initialLimit }) => {
                 </motion.div>
                 
                 {/* Show ad between posts */}
-                {(index + 1) % 6 === 0 && (
+                {(index + 1) % 3 === 0 && (
                   <motion.div
                     key={`ad-${index}`}
                     initial={{ opacity: 0, y: 20 }}
