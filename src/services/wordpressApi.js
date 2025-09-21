@@ -6,17 +6,59 @@ class WordPressAPI {
   constructor() {
     this.baseURL = WP_API_BASE;
     this.cache = new Map();
-    this.cacheTimeout = 10 * 60 * 1000; // 10 minutes - increased cache time
+    this.cacheTimeout = 2 * 60 * 1000; // Reduced to 2 minutes for faster updates
     this.requestQueue = new Map();
+    this.lastCacheTime = new Map();
+    this.forceRefresh = false;
+  }
+
+  // Force refresh next request (useful after post updates)
+  invalidateCache(pattern = null) {
+    console.log('🧹 Invalidating cache', pattern ? `for pattern: ${pattern}` : '(all)');
+    if (pattern) {
+      // Clear specific cache entries matching pattern
+      for (const [key, value] of this.cache.entries()) {
+        if (key.includes(pattern)) {
+          this.cache.delete(key);
+          this.lastCacheTime.delete(key);
+          console.log(`🗑️ Cleared cache key: ${key}`);
+        }
+      }
+    } else {
+      // Clear all cache
+      this.cache.clear();
+      this.lastCacheTime.clear();
+      console.log('🗑️ Cleared all cache');
+    }
+  }
+
+  // Set force refresh flag
+  setForceRefresh(value = true) {
+    this.forceRefresh = value;
+    console.log('🔄 Force refresh set to:', value);
   }
 
   async fetchWithCache(endpoint, options = {}) {
     const cacheKey = `${endpoint}_${JSON.stringify(options)}`;
     const cached = this.cache.get(cacheKey);
+    const cacheTime = this.lastCacheTime.get(cacheKey) || 0;
+    const now = Date.now();
+    
+    // Check if we should use cache
+    const shouldUseCache = cached && 
+                          !this.forceRefresh && 
+                          (now - cacheTime < this.cacheTimeout);
     
     // Return cached data if available and not expired
-    if (cached && Date.now() - cached.timestamp < this.cacheTimeout) {
+    if (shouldUseCache) {
+      console.log('📦 Using cached data for:', endpoint);
       return cached.data;
+    }
+
+    // Reset force refresh flag after use
+    if (this.forceRefresh) {
+      this.forceRefresh = false;
+      console.log('🔄 Force refresh flag reset');
     }
 
     // Prevent duplicate requests
@@ -39,20 +81,26 @@ class WordPressAPI {
 
   async makeRequest(endpoint, options, cacheKey) {
     try {
-      console.log('WordPress API Request:', `${this.baseURL}${endpoint}`);
+      console.log('📡 WordPress API Request:', `${this.baseURL}${endpoint}`);
       
-      const response = await fetch(`${this.baseURL}${endpoint}`, {
+      // Add cache-busting parameter to ensure fresh data
+      const separator = endpoint.includes('?') ? '&' : '?';
+      const cacheBuster = `${separator}_t=${Date.now()}`;
+      
+      const response = await fetch(`${this.baseURL}${endpoint}${cacheBuster}`, {
         mode: 'cors',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache',
           ...options.headers,
         },
-        signal: AbortSignal.timeout(10000), // 10 second timeout
+        signal: AbortSignal.timeout(15000), // Increased timeout
         ...options,
       });
 
-      console.log('WordPress API Response Status:', response.status);
+      console.log('📡 WordPress API Response Status:', response.status);
       
       if (!response.ok) {
         const errorText = await response.text();
@@ -74,25 +122,27 @@ class WordPressAPI {
       }
 
       const data = await response.json();
-      console.log('WordPress API Data:', data);
+      console.log('📡 WordPress API Data received:', Array.isArray(data) ? `${data.length} items` : 'single item');
       
       // Extract pagination info from headers
       const totalPages = parseInt(response.headers.get('X-WP-TotalPages') || '1');
       const totalPosts = parseInt(response.headers.get('X-WP-Total') || '0');
       
-      // Cache the result
+      // Cache the result with timestamp
       const result = Array.isArray(data) ? { posts: data, totalPages, totalPosts } : data;
       this.cache.set(cacheKey, {
         data: result,
         timestamp: Date.now(),
       });
+      this.lastCacheTime.set(cacheKey, Date.now());
 
+      console.log('💾 Cached result for:', endpoint);
       return result;
     } catch (error) {
       if (error.name === 'AbortError') {
-        console.warn('Request timeout:', endpoint);
+        console.warn('⏰ Request timeout:', endpoint);
       } else {
-        console.error('WordPress API Error:', error);
+        console.error('❌ WordPress API Error:', error);
       }
       throw error;
     }
@@ -104,12 +154,17 @@ class WordPressAPI {
     per_page = 10, 
     categoryId = null, 
     search = null,
-    featured = null 
+    featured = null,
+    forceRefresh = false
   } = {}) {
+    if (forceRefresh) {
+      this.setForceRefresh(true);
+    }
+
     const params = new URLSearchParams({
       page: page.toString(),
       per_page: per_page.toString(),
-      _embed: 'true', // Include featured images and categories
+      _embed: 'true',
     });
 
     if (categoryId) {
@@ -119,8 +174,9 @@ class WordPressAPI {
       params.append('search', search);
     }
 
+    console.log('📋 Fetching posts with params:', Object.fromEntries(params));
     const result = await this.fetchWithCache(`/posts?${params.toString()}`);
-    const posts = result.posts || result; // Handle both new and old response formats
+    const posts = result.posts || result;
     const transformedPosts = this.transformPosts(posts);
     
     // Filter featured posts after transformation if needed
@@ -133,6 +189,7 @@ class WordPressAPI {
       };
     }
     
+    console.log('✅ Returning posts:', transformedPosts.length);
     return {
       posts: transformedPosts,
       totalPages: result.totalPages || 1,
@@ -141,37 +198,40 @@ class WordPressAPI {
   }
 
   // Get single post by slug
-  async getPostBySlug(slug) {
+  async getPostBySlug(slug, forceRefresh = false) {
+    if (forceRefresh) {
+      this.setForceRefresh(true);
+    }
+
     const result = await this.fetchWithCache(`/posts?slug=${slug}&_embed=true`);
-    const posts = result.posts || result; // Handle both new and old response formats
+    const posts = result.posts || result;
     if (!posts || posts.length === 0) {
       throw new Error('Post not found');
     }
     return this.transformPost(posts[0]);
   }
 
-  // Get categories
-  async getCategories() {
-    console.log('📡 getCategories() called');
+  // Get categories with force refresh option
+  async getCategories(forceRefresh = false) {
+    console.log('📡 getCategories() called with forceRefresh:', forceRefresh);
+    
+    if (forceRefresh) {
+      this.setForceRefresh(true);
+      this.invalidateCache('categories');
+    }
+    
     const fetchedResult = await this.fetchWithCache('/categories?per_page=100');
     console.log('📡 getCategories() raw response:', fetchedResult);
-    console.log('📡 getCategories() response type:', typeof fetchedResult);
-    console.log('📡 getCategories() is array:', Array.isArray(fetchedResult));
     
     // Extract categories array from result
-    // fetchWithCache wraps arrays in {posts, totalPages, totalPosts} for pagination
-    // but categories endpoint returns direct array, so we need to handle both cases
     let categoriesArray;
     if (Array.isArray(fetchedResult)) {
-      // Direct array response
       categoriesArray = fetchedResult;
       console.log('📡 getCategories() using direct array response');
     } else if (fetchedResult && Array.isArray(fetchedResult.posts)) {
-      // Wrapped response from fetchWithCache
       categoriesArray = fetchedResult.posts;
       console.log('📡 getCategories() extracting from wrapped response');
     } else {
-      // Fallback - empty array
       categoriesArray = [];
       console.log('📡 getCategories() fallback to empty array');
     }
@@ -184,218 +244,117 @@ class WordPressAPI {
       description: category.description,
     }));
     
-    console.log('📡 getCategories() transformed:', transformedCategories);
+    console.log('📡 getCategories() transformed:', transformedCategories.length, 'categories');
+    console.log('📊 Category counts:', transformedCategories.map(c => `${c.name}: ${c.count}`).join(', '));
     return transformedCategories;
   }
 
   // Get posts by category
-  async getPostsByCategory(categoryId, { page = 1, per_page = 10 } = {}) {
-    return this.getPosts({ page, per_page, categoryId });
+  async getPostsByCategory(categoryId, { page = 1, per_page = 10, forceRefresh = false } = {}) {
+    return this.getPosts({ page, per_page, categoryId, forceRefresh });
   }
 
-  // Get category ID by slug
-  async getCategoryIdBySlug(categorySlug) {
+  // Get category ID by slug with better error handling and refresh capability
+  async getCategoryIdBySlug(categorySlug, forceRefresh = false) {
     console.log('🔍 getCategoryIdBySlug called with:', {
       categorySlug,
+      forceRefresh,
       type: typeof categorySlug,
-      length: categorySlug?.length,
-      trimmed: categorySlug?.trim(),
-      lowercase: categorySlug?.toLowerCase()
     });
     
-    console.log('🔍 Looking for category slug:', categorySlug);
-    
     try {
-      // First attempt: try with cached categories
-      let categories = await this.getCategories();
-      console.log('📋 Raw categories from getCategories():', categories);
-      console.log('📋 Categories array length:', categories.length);
-      console.log('📋 First few categories:', categories.slice(0, 3));
-      
-      // Show exact data being passed to findCategoryBySlug
-      console.log('📋 EXACT categories data being passed to findCategoryBySlug:', 
-        categories.map(c => ({
-          id: c.id,
-          name: c.name,
-          slug: c.slug,
-          count: c.count,
-          nameType: typeof c.name,
-          slugType: typeof c.slug
-        }))
-      );
-      console.log('📋 Available categories (cached):', categories.map(c => ({
-        name: c.name, 
-        slug: c.slug, 
-        id: c.id,
-        count: c.count
-      })));
+      // First attempt: try with current cache
+      let categories = await this.getCategories(forceRefresh);
+      console.log('📋 Categories found:', categories.length);
       
       let category = this.findCategoryBySlug(categories, categorySlug);
       console.log('🎯 findCategoryBySlug result (first attempt):', category);
       
-      if (!category) {
-        console.log('⚠️ Category not found in cache, refreshing categories...');
+      if (!category && !forceRefresh) {
+        console.log('⚠️ Category not found, trying with fresh data...');
         
-        // Clear cache and fetch fresh categories
-        this.clearCategoriesCache();
-        categories = await this.getCategories();
-        console.log('📋 Fresh categories after cache clear:', categories);
-        console.log('📋 Fresh categories array length:', categories.length);
+        // Second attempt: force refresh
+        categories = await this.getCategories(true);
+        console.log('📋 Fresh categories after refresh:', categories.length);
         
-        // Show exact data being passed to findCategoryBySlug (second attempt)
-        console.log('📋 EXACT fresh categories data being passed to findCategoryBySlug:', 
-          categories.map(c => ({
-            id: c.id,
-            name: c.name,
-            slug: c.slug,
-            count: c.count,
-            nameType: typeof c.name,
-            slugType: typeof c.slug
-          }))
-        );
-        console.log('📋 Available categories (fresh):', categories.map(c => ({
-          name: c.name, 
-          slug: c.slug, 
-          id: c.id,
-          count: c.count
-        })));
-        
-        // Second attempt: try with fresh categories
         category = this.findCategoryBySlug(categories, categorySlug);
         console.log('🎯 findCategoryBySlug result (second attempt):', category);
       }
       
       if (!category) {
-        const availableCategories = categories.map(c => ({name: c.name, slug: c.slug, id: c.id, count: c.count}));
+        const availableCategories = categories.map(c => ({
+          name: c.name, 
+          slug: c.slug, 
+          id: c.id, 
+          count: c.count
+        }));
         console.error('❌ FINAL FAILURE: Category lookup failed');
         console.error('❌ Searched for:', categorySlug);
         console.error('❌ Available categories:', availableCategories);
-        console.error('❌ Total categories found:', categories.length);
-        console.error(`❌ Category not found for slug: ${categorySlug}. Available categories:`, availableCategories);
         throw new Error(`Category "${categorySlug}" not found. Available categories: ${availableCategories.map(c => c.slug).join(', ')}`);
       }
 
-      console.log('✅ Found category:', {name: category.name, slug: category.slug, id: category.id, count: category.count});
+      console.log('✅ Found category:', {
+        name: category.name, 
+        slug: category.slug, 
+        id: category.id, 
+        count: category.count
+      });
       return category.id;
     } catch (error) {
       console.error('❌ Error in getCategoryIdBySlug:', error);
-      console.error('❌ Error details:', {
-        message: error.message,
-        stack: error.stack,
-        categorySlug,
-        timestamp: new Date().toISOString()
-      });
       throw error;
     }
   }
 
   // Helper method to find category by slug with multiple matching strategies
   findCategoryBySlug(categories, categorySlug) {
-    console.log('🔍 Attempting to match category slug:', categorySlug);
-    console.log('📋 Categories available for matching:', categories.length);
-    console.log('📋 DETAILED categories received in findCategoryBySlug:', 
-      categories.map((c, index) => ({
-        index,
-        id: c.id,
-        name: c.name,
-        slug: c.slug,
-        count: c.count,
-        nameType: typeof c.name,
-        slugType: typeof c.slug,
-        nameLength: c.name?.length,
-        slugLength: c.slug?.length
-      }))
-    );
+    console.log('🔍 Finding category for slug:', categorySlug);
+    console.log('📋 Available categories:', categories.map(c => ({ name: c.name, slug: c.slug, count: c.count })));
     
     const searchSlug = categorySlug.toLowerCase().trim();
-    console.log('🎯 Normalized search slug:', searchSlug);
-    console.log('🎯 Search slug details:', {
-      original: categorySlug,
-      normalized: searchSlug,
-      length: searchSlug.length,
-      type: typeof searchSlug
-    });
     
-    // Enhanced matching strategies - try each one systematically
+    // Enhanced matching strategies
     const strategies = [
-      // Exact slug match
       { name: 'exact-slug', fn: cat => cat.slug === searchSlug },
-      // Case insensitive slug match
       { name: 'case-insensitive-slug', fn: cat => cat.slug.toLowerCase() === searchSlug },
-      // Name to slug conversion match
       { name: 'name-to-slug', fn: cat => cat.name.toLowerCase().replace(/\s+/g, '-') === searchSlug },
-      // Direct name match
       { name: 'direct-name', fn: cat => cat.name.toLowerCase() === searchSlug },
-      // Partial slug match
       { name: 'partial-slug', fn: cat => cat.slug.toLowerCase().includes(searchSlug) },
-      // Partial name match
       { name: 'partial-name', fn: cat => cat.name.toLowerCase().includes(searchSlug) }
     ];
     
     // Try each strategy
-    for (let i = 0; i < strategies.length; i++) {
-      const strategy = strategies[i];
-      console.log(`🔄 Trying strategy ${i + 1}: ${strategy.name}`);
+    for (const strategy of strategies) {
+      console.log(`🔄 Trying strategy: ${strategy.name}`);
       
-      // Check each category with current strategy
-      for (let j = 0; j < categories.length; j++) {
-        const cat = categories[j];
-        console.log(`  📝 Checking category ${j + 1}:`, {
-          name: cat.name,
-          slug: cat.slug,
-          id: cat.id,
-          searchSlug: searchSlug,
-          strategy: strategy.name
-        });
-        
+      const match = categories.find(cat => {
         try {
-          const isMatch = strategy.fn(cat);
-          console.log(`    ✓ Strategy "${strategy.name}" result for "${cat.name}/${cat.slug}": ${isMatch}`);
-          
-          if (isMatch) {
-            console.log(`✅ SUCCESS! Found category using strategy "${strategy.name}":`, {
-              id: cat.id,
-              name: cat.name,
-              slug: cat.slug,
-              count: cat.count
-            });
-            return cat;
-          }
+          return strategy.fn(cat);
         } catch (error) {
-          console.log(`    ❌ Strategy "${strategy.name}" failed for "${cat.name}/${cat.slug}":`, error.message);
+          console.log(`❌ Strategy "${strategy.name}" failed:`, error.message);
+          return false;
         }
+      });
+      
+      if (match) {
+        console.log(`✅ Found match using strategy "${strategy.name}":`, {
+          id: match.id,
+          name: match.name,
+          slug: match.slug,
+          count: match.count
+        });
+        return match;
       }
-      console.log(`  ❌ Strategy "${strategy.name}" found no matches`);
     }
     
-    console.log('❌ FAILED: No category found for slug:', searchSlug);
-    console.log('❌ All strategies exhausted. Final category list:');
-    categories.forEach((cat, index) => {
-      console.log(`  ${index + 1}. Name: "${cat.name}", Slug: "${cat.slug}", ID: ${cat.id}`);
-    });
+    console.log('❌ No category found for slug:', searchSlug);
     return null;
   }
 
-  // Helper method to clear categories from cache
+  // Helper method to clear specific cache patterns
   clearCategoriesCache() {
-    console.log('🧹 Starting cache cleanup...');
-    const cacheKeys = Array.from(this.cache.keys());
-    const categoryKeys = cacheKeys.filter(key => key.includes('/categories'));
-    console.log('🗑️ Found cache keys to clear:', categoryKeys.length);
-    
-    categoryKeys.forEach(key => {
-      this.cache.delete(key);
-      console.log('🗑️ Cleared cache key:', key);
-    });
-    
-    // Also clear from request queue to force fresh requests
-    const queueKeys = Array.from(this.requestQueue.keys());
-    const categoryQueueKeys = queueKeys.filter(key => key.includes('/categories'));
-    console.log('🗑️ Found request queue keys to clear:', categoryQueueKeys.length);
-    categoryQueueKeys.forEach(key => {
-      this.requestQueue.delete(key);
-      console.log('🗑️ Cleared request queue key:', key);
-    });
+    this.invalidateCache('categories');
   }
 
   // Subscribe to newsletter (custom endpoint)
@@ -448,7 +407,6 @@ class WordPressAPI {
     const categories = wpPost._embedded?.['wp:term']?.[0] || [];
     
     console.log('🖼️ Processing post images for:', wpPost.title?.rendered);
-    console.log('📸 Featured image data:', featuredImage);
     
     // Get the primary category, handling both single and multiple categories
     let primaryCategory = 'Uncategorized';
@@ -459,7 +417,7 @@ class WordPressAPI {
     }
 
     // Enhanced image handling with multiple fallbacks
-    let imageUrl = 'https://images.unsplash.com/photo-1595872018818-97555653a011?w=800&h=600&fit=crop'; // Default fallback
+    let imageUrl = 'https://images.unsplash.com/photo-1595872018818-97555653a011?w=800&h=600&fit=crop';
     
     if (featuredImage?.source_url) {
       imageUrl = featuredImage.source_url;
@@ -478,8 +436,8 @@ class WordPressAPI {
       readTime: this.calculateReadTime(wpPost.content.rendered),
       date: wpPost.date,
       image: imageUrl,
-      featured: wpPost.meta?.featured === '1' || false,
-      trending: wpPost.meta?.trending === '1' || false,
+      featured: wpPost.meta?.featured === '1' || wpPost.featured === true || false,
+      trending: wpPost.meta?.trending === '1' || wpPost.trending === true || false,
       author: wpPost._embedded?.author?.[0]?.name || 'DataEngineer Hub',
     };
   }
@@ -499,6 +457,18 @@ class WordPressAPI {
   // Clear cache
   clearCache() {
     this.cache.clear();
+    this.lastCacheTime.clear();
+    console.log('🧹 All cache cleared');
+  }
+
+  // Get cache status for debugging
+  getCacheStatus() {
+    return {
+      cacheSize: this.cache.size,
+      requestQueueSize: this.requestQueue.size,
+      cacheKeys: Array.from(this.cache.keys()),
+      forceRefresh: this.forceRefresh
+    };
   }
 }
 
