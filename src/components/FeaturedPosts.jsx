@@ -41,23 +41,23 @@ const FeaturedPosts = () => {
   }
 
   return (
-    <section className="py-20 relative">
+    <section className="py-8 relative">
       <div className="container mx-auto px-6">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0.4 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
+          className="text-center mb-8"
         >
           <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 backdrop-blur-sm border border-yellow-500/30 rounded-full px-6 py-3 mb-6">
             <Star className="h-5 w-5 text-yellow-400" />
             <span className="text-sm font-medium text-yellow-200">Featured Content</span>
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">
+          <h2 className="text-2xl md:text-3xl font-bold mb-3">
             <span className="gradient-text">Must-Read</span> Articles
           </h2>
-          <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+          <p className="text-sm text-gray-300 max-w-2xl mx-auto">
             Handpicked articles covering the latest trends and best practices in data engineering
           </p>
         </motion.div>
@@ -66,7 +66,7 @@ const FeaturedPosts = () => {
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.4 }}
             viewport={{ once: true }}
             className="lg:row-span-2"
           >
@@ -88,10 +88,10 @@ const FeaturedPosts = () => {
                 </div>
               </div>
               <div className="p-8">
-                <h3 className="text-2xl lg:text-3xl font-bold mb-4 group-hover:text-blue-400 transition-colors">
+                <h3 className="text-xl lg:text-2xl font-bold mb-3 group-hover:text-blue-400 transition-colors">
                   {featuredPosts[0].title}
                 </h3>
-                <p className="text-gray-300 mb-6 text-lg leading-relaxed">
+                <p className="text-gray-300 mb-4 text-sm leading-relaxed">
                   {featuredPosts[0].excerpt}
                 </p>
                 <div className="flex items-center justify-between text-sm text-gray-400">

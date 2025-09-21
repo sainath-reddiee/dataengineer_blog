@@ -95,7 +95,7 @@ const Newsletter = () => {
   };
 
   return (
-    <section className="py-20 relative overflow-hidden">
+    <section className="py-8 relative overflow-hidden">
       <div className="absolute inset-0">
         <div className="absolute top-10 left-1/4 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl floating-animation"></div>
         <div className="absolute bottom-10 right-1/4 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl floating-animation" style={{ animationDelay: '3s' }}></div>
@@ -105,27 +105,27 @@ const Newsletter = () => {
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0.4 }}
           viewport={{ once: true }}
           className="max-w-4xl mx-auto"
         >
-          <div className="glass-effect rounded-3xl p-8 md:p-12 text-center">
+          <div className="glass-effect rounded-2xl p-6 md:p-8 text-center">
             <motion.div
               initial={{ scale: 0 }}
               whileInView={{ scale: 1 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
+              transition={{ duration: 0.3, delay: 0.1 }}
               viewport={{ once: true }}
-              className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mb-6"
+              className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mb-4"
             >
-              <Mail className="h-8 w-8 text-white" />
+              <Mail className="h-6 w-6 text-white" />
             </motion.div>
 
             <motion.h2
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
+              transition={{ duration: 0.4, delay: 0.2 }}
               viewport={{ once: true }}
-              className="text-3xl md:text-4xl font-bold mb-4"
+              className="text-2xl md:text-3xl font-bold mb-3"
             >
               Stay Ahead of the <span className="gradient-text">Data Curve</span>
             </motion.h2>
@@ -133,9 +133,9 @@ const Newsletter = () => {
             <motion.p
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
+              transition={{ duration: 0.4, delay: 0.3 }}
               viewport={{ once: true }}
-              className="text-lg text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed"
+              className="text-sm text-gray-300 mb-6 max-w-2xl mx-auto leading-relaxed"
             >
               Join 10,000+ data professionals who get weekly insights, tutorials, and industry updates 
               delivered straight to their inbox. No spam, just pure data engineering gold.

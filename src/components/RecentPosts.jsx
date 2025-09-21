@@ -31,23 +31,19 @@ const RecentPosts = ({ category, initialLimit }) => {
   }, [category]);
 
   const handleLoadMore = () => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setVisibleCount(prevCount => prevCount + POSTS_PER_PAGE);
-      setIsLoading(false);
-    }, 500);
+    setVisibleCount(prevCount => prevCount + POSTS_PER_PAGE);
   };
 
   const visiblePosts = articles.slice(0, visibleCount);
   const hasMore = visibleCount < articles.length;
 
   return (
-    <section className="py-1 relative">
+    <section className="py-2 relative">
       <div className="container mx-auto px-6">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0.3 }}
           viewport={{ once: true }}
           className="text-center mb-2"
         >
@@ -70,8 +66,7 @@ const RecentPosts = ({ category, initialLimit }) => {
                 <motion.div
                   initial={{ opacity: 0, y: 50 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -50 }}
-                  transition={{ duration: 0.5, delay: (index % POSTS_PER_PAGE) * 0.1 }}
+                  transition={{ duration: 0.3, delay: (index % POSTS_PER_PAGE) * 0.05 }}
                   layout
                 >
                   <Link to={`/articles/${post.slug}`} className="block blog-card rounded-2xl overflow-hidden group h-full">
@@ -95,10 +90,10 @@ const RecentPosts = ({ category, initialLimit }) => {
                     </div>
                     
                     <div className="p-6 flex flex-col">
-                      <h3 className="text-xl font-bold mb-3 group-hover:text-blue-400 transition-colors line-clamp-2 flex-grow">
+                      <h3 className="text-lg font-semibold mb-2 group-hover:text-blue-400 transition-colors line-clamp-2 flex-grow">
                         {post.title}
                       </h3>
-                      <p className="text-gray-400 mb-4 line-clamp-3 leading-relaxed">
+                      <p className="text-gray-400 mb-3 text-sm line-clamp-2 leading-relaxed">
                         {post.excerpt}
                       </p>
                       <div className="flex items-center justify-between text-sm text-gray-500 mt-auto">
