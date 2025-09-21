@@ -213,29 +213,6 @@ class WordPressAPI {
       throw error;
     }
   }
-    
-    let category = this.findCategoryBySlug(categories, categorySlug);
-    
-    if (!category) {
-      console.log('⚠️ Category not found in cache, refreshing categories...');
-      
-      // Clear cache and fetch fresh categories
-      this.clearCategoriesCache();
-      categories = await this.getCategories();
-      console.log('📋 Available categories (fresh):', categories.map(c => ({name: c.name, slug: c.slug, id: c.id})));
-      
-      // Second attempt: try with fresh categories
-      category = this.findCategoryBySlug(categories, categorySlug);
-      
-      if (!category) {
-        console.error(`❌ Category not found for slug: ${categorySlug}. Available categories:`, categories.map(c => ({name: c.name, slug: c.slug, id: c.id})));
-        throw new Error(`Category "${categorySlug}" not found. Please check if the category exists in WordPress.`);
-      }
-    }
-
-    console.log('✅ Found category:', {name: category.name, slug: category.slug, id: category.id});
-    return category.id;
-  }
 
   // Helper method to find category by slug with multiple matching strategies
   findCategoryBySlug(categories, categorySlug) {
