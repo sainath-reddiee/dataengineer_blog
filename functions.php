@@ -47,7 +47,7 @@ function show_custom_meta_fields($post) {
 }
 
 function save_custom_meta_fields($post_id) {
-    if (!verify_nonce($_POST['post_meta_nonce'] ?? '', basename(__FILE__))) {
+    if (!isset($_POST['post_meta_nonce']) || !wp_verify_nonce($_POST['post_meta_nonce'], basename(__FILE__))) {
         return;
     }
     
