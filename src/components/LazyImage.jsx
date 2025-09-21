@@ -4,7 +4,7 @@ const LazyImage = ({
   src, 
   alt, 
   className = '', 
-  fallbackSrc = 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop&auto=format',
+  fallbackSrc = 'https://picsum.photos/800/600?random=1',
   ...props 
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -32,25 +32,24 @@ const LazyImage = ({
   }, []);
 
   useEffect(() => {
-    if (isInView && src) {
+    if (isInView) {
+      // Try original source first
       const img = new Image();
-      img.crossOrigin = 'anonymous';
       img.onload = () => {
         setImageSrc(src);
         setIsLoaded(true);
         setHasError(false);
       };
       img.onerror = () => {
-        console.warn('Image failed to load, trying fallback:', src);
-        if (!hasError) {
-          setImageSrc(fallbackSrc);
-          setIsLoaded(true);
-          setHasError(true);
-        }
+        console.warn('Primary image failed, using fallback:', src);
+        // Use fallback immediately
+        setImageSrc(fallbackSrc);
+        setIsLoaded(true);
+        setHasError(true);
       };
       img.src = src;
     }
-  }, [isInView, src, fallbackSrc, hasError]);
+  }, [isInView, src, fallbackSrc]);
 
   return (
     <div ref={imgRef} className={`relative overflow-hidden ${className}`} {...props}>
@@ -63,12 +62,11 @@ const LazyImage = ({
         <img
           src={imageSrc}
           alt={alt}
-          className={`transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'} ${className}`}
+          className={`transition-opacity duration-300 w-full h-full object-cover ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
           loading="lazy"
-          decoding="async"
-          crossOrigin="anonymous"
           onError={() => {
-            if (!hasError) {
+            if (!hasError && imageSrc !== fallbackSrc) {
+              console.warn('Image failed, switching to fallback');
               setImageSrc(fallbackSrc);
               setHasError(true);
             }
