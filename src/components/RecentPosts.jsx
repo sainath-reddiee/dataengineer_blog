@@ -182,7 +182,6 @@ const RecentPosts = ({ category, initialLimit }) => {
               Load More Articles
             </Button>
           </div>
-          </AnimatePresence>
         )}
       </div>
     </section>
