@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 
 const Hero = () => {
   return (
-    <section className="relative pt-4 pb-6 overflow-hidden">
+    <section className="relative pt-20 pb-6 overflow-hidden">
       <div className="absolute inset-0">
         <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500/20 rounded-full blur-3xl floating-animation"></div>
         <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl floating-animation" style={{ animationDelay: '2s' }}></div>
@@ -21,7 +21,7 @@ const Hero = () => {
             transition={{ duration: 0.4 }}
             className="mb-4"
           >
-            <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-500/20 to-purple-500/20 backdrop-blur-sm border border-blue-500/30 rounded-full px-4 py-2 mb-2 relative z-[10000]">
+            <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-500/20 to-purple-500/20 backdrop-blur-sm border border-blue-500/30 rounded-full px-4 py-2 mb-2">
               <Sparkles className="h-5 w-5 text-yellow-400" />
               <span className="text-sm font-medium text-white">Latest in Data Engineering</span>
               <TrendingUp className="h-4 w-4 text-green-400" />

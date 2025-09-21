@@ -15,7 +15,7 @@ const HomePage = () => {
         keywords="data engineering, AWS, Snowflake, Azure, SQL, Airflow, dbt, Python, analytics, data warehouse, ETL, data pipeline"
         type="website"
       />
-      <div className="-mt-8">
+      <div>
         <Hero />
       </div>
       <FeaturedPosts />
