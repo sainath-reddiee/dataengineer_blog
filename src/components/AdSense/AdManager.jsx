@@ -44,17 +44,17 @@ const AdManager = ({ position, postIndex, category }) => {
   const getAdStyle = () => {
     switch (position) {
       case 'header':
-        return { minHeight: '50px', maxWidth: '728px', margin: '5px auto' };
+        return { minHeight: '50px', maxWidth: '728px', margin: '0 auto' };
       case 'sidebar':
         return { minHeight: '250px', maxWidth: '300px' };
       case 'in-article':
-        return { minHeight: '100px', margin: '10px 0' };
+        return { minHeight: '100px', margin: '5px 0' };
       case 'footer':
-        return { minHeight: '50px', maxWidth: '728px', margin: '5px auto' };
+        return { minHeight: '50px', maxWidth: '728px', margin: '0 auto' };
       case 'between-posts':
-        return { minHeight: '100px', margin: '15px 0' };
+        return { minHeight: '100px', margin: '5px 0' };
       default:
-        return { minHeight: '80px' };
+        return { minHeight: '50px', margin: '0' };
     }
   };
 
