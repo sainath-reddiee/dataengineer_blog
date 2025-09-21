@@ -79,10 +79,46 @@ The app includes Google AdSense integration with:
 
 Make sure your WordPress site has the following:
 
-1. **Custom Fields**: Add `featured` and `trending` meta fields to posts
-2. **CORS Headers**: Enable CORS for your subdomain
-3. **Custom Endpoints**: Newsletter and contact form endpoints
-4. **Featured Images**: Enable post thumbnails
+### 1. **Basic Setup**
+- **Featured Images**: Enable post thumbnails in your theme
+- **CORS Headers**: Enable CORS for your subdomain (see functions.php)
+- **Custom Endpoints**: Newsletter and contact form endpoints
+
+### 2. **Category Setup** 
+Create these exact categories in WordPress Admin → Posts → Categories:
+
+| Category Name | Slug | Description |
+|---------------|------|-------------|
+| AWS | aws | Amazon Web Services tutorials and guides |
+| Snowflake | snowflake | Snowflake data warehouse content |
+| Azure | azure | Microsoft Azure cloud platform |
+| SQL | sql | SQL queries and database optimization |
+| Airflow | airflow | Apache Airflow workflow orchestration |
+| dbt | dbt | Data build tool transformation |
+| Python | python | Python for data engineering |
+| Analytics | analytics | Data visualization and BI tools |
+
+**Important**: Use the exact category names and slugs above for proper integration.
+
+### 3. **Custom Fields Setup**
+Add these meta fields to posts (see functions.php):
+- **Featured**: Checkbox to mark posts as featured
+- **Trending**: Checkbox to mark posts as trending
+
+### 4. **Testing Your Setup**
+1. **Create a test post** in WordPress
+2. **Assign it to a category** (e.g., "Snowflake")
+3. **Publish the post**
+4. **Test the API**: Visit `https://app.dataengineerhub.blog/wp-json/wp/v2/posts`
+5. **Check your React site**: The post should appear
+
+### 5. **Troubleshooting**
+If posts don't appear:
+- Check browser console for API errors
+- Verify CORS headers are working
+- Ensure WordPress REST API is enabled
+- Check that posts are published (not draft)
+- Verify category assignments
 
 ## Content Categories
 

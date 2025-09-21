@@ -16,12 +16,18 @@ const RecentPosts = ({ category, initialLimit }) => {
   // Fetch posts from WordPress
   const { posts: allPosts, loading, error, hasMore, loadMore } = usePosts({
     per_page: POSTS_PER_PAGE,
-    featured: false, // Exclude featured posts
+    featured: null, // Get all posts
     categories: category ? category : null
   });
 
-  // Filter out featured posts and apply visible count
-  const articles = allPosts.filter(p => !p.featured);
+  // Debug logging
+  console.log('RecentPosts - All Posts:', allPosts);
+  console.log('RecentPosts - Loading:', loading);
+  console.log('RecentPosts - Error:', error);
+  console.log('RecentPosts - Category:', category);
+
+  // Apply visible count (don't filter featured for now)
+  const articles = allPosts;
   const visiblePosts = articles.slice(0, visibleCount);
   const hasMoreLocal = visibleCount < articles.length || hasMore;
 
@@ -138,7 +144,13 @@ const RecentPosts = ({ category, initialLimit }) => {
             animate={{ opacity: 1 }}
             className="text-center text-gray-400 py-12"
           >
-            <p>No articles found for this category yet. Check back soon!</p>
+            <div>
+              <p className="mb-2">No articles found{category ? ` for "${category}" category` : ''}</p>
+              <div className="text-sm text-gray-500">
+                <p>Make sure you have published posts in WordPress</p>
+                <p>API: https://app.dataengineerhub.blog/wp-json/wp/v2/posts</p>
+              </div>
+            </div>
           </motion.div>
         )}
 
@@ -150,12 +162,18 @@ const RecentPosts = ({ category, initialLimit }) => {
 
         {error && (
           <div className="text-center text-red-400 py-8">
-            <AlertCircle className="h-6 w-6 mx-auto mb-2" />
-            <p>Error loading posts: {error}</p>
+            <div className="flex flex-col items-center">
+              <AlertCircle className="h-6 w-6 mb-2" />
+              <p className="mb-2">Error loading posts: {error}</p>
+              <div className="text-sm text-gray-500 max-w-md text-center">
+                <p>API URL: https://app.dataengineerhub.blog/wp-json/wp/v2/posts</p>
+                <p>Check browser console for details</p>
+              </div>
+            </div>
           </div>
         )}
 
-        <AnimatePresence>
+        {articles.length === 0 && !loading && !error && (
           {hasMoreLocal && !loading && (
             <motion.div
               initial={{ opacity: 0, y: 30 }}

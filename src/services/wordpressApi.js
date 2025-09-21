@@ -39,6 +39,8 @@ class WordPressAPI {
 
   async makeRequest(endpoint, options, cacheKey) {
     try {
+      console.log('WordPress API Request:', `${this.baseURL}${endpoint}`);
+      
       const response = await fetch(`${this.baseURL}${endpoint}`, {
         headers: {
           'Content-Type': 'application/json',
@@ -48,11 +50,14 @@ class WordPressAPI {
         ...options,
       });
 
+      console.log('WordPress API Response Status:', response.status);
+      
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
+      console.log('WordPress API Data:', data);
       
       // Cache the result
       this.cache.set(cacheKey, {

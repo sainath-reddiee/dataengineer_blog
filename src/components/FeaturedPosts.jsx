@@ -9,11 +9,20 @@ import { useIntersectionObserver } from '@/hooks/useIntersectionObserver';
 const FeaturedPosts = () => {
   const [ref, isIntersecting, hasIntersected] = useIntersectionObserver();
   
-  // Fetch featured posts from WordPress
+  // Fetch featured posts from WordPress - with debugging
   const { posts: featuredPosts, loading, error } = usePosts({ 
-    featured: true, 
-    per_page: 3 
+    featured: false, // Start with all posts since featured might not be set
+    per_page: 6 
   });
+
+  // Debug logging
+  console.log('FeaturedPosts - Posts:', featuredPosts);
+  console.log('FeaturedPosts - Loading:', loading);
+  console.log('FeaturedPosts - Error:', error);
+
+  // Filter featured posts or use first 3 if no featured posts
+  const displayPosts = featuredPosts.filter(post => post.featured).slice(0, 3);
+  const finalPosts = displayPosts.length > 0 ? displayPosts : featuredPosts.slice(0, 3);
 
   if (loading) {
     return (
@@ -31,17 +40,33 @@ const FeaturedPosts = () => {
     return (
       <section className="py-20 relative">
         <div className="container mx-auto px-6">
-          <div className="flex items-center justify-center py-20 text-red-400">
+          <div className="flex flex-col items-center justify-center py-20 text-red-400">
             <AlertCircle className="h-6 w-6 mr-2" />
-            <span>Error loading featured posts: {error}</span>
+            <span className="mb-4">Error loading featured posts: {error}</span>
+            <div className="text-sm text-gray-500 max-w-md text-center">
+              <p>Trying to fetch from: https://app.dataengineerhub.blog/wp-json/wp/v2/posts</p>
+              <p>Check browser console for more details</p>
+            </div>
           </div>
         </div>
       </section>
     );
   }
 
-  if (featuredPosts.length === 0) {
-    return null;
+  if (finalPosts.length === 0 && !loading) {
+    return (
+      <section className="py-20 relative">
+        <div className="container mx-auto px-6">
+          <div className="flex flex-col items-center justify-center py-20 text-yellow-400">
+            <span className="mb-4">No posts found</span>
+            <div className="text-sm text-gray-500 max-w-md text-center">
+              <p>Make sure you have published posts in WordPress</p>
+              <p>Check: https://app.dataengineerhub.blog/wp-json/wp/v2/posts</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
   }
 
   return (
@@ -77,36 +102,36 @@ const FeaturedPosts = () => {
               transition={{ duration: 0.3 }}
               className="lg:row-span-2"
             >
-              <Link to={`/articles/${featuredPosts[0].slug}`} className="block blog-card rounded-2xl overflow-hidden group h-full">
+              <Link to={`/articles/${finalPosts[0].slug}`} className="block blog-card rounded-2xl overflow-hidden group h-full">
                 <div className="relative">
                   <img
-                    src={featuredPosts[0].image}
-                    alt={featuredPosts[0].title}
+                    src={finalPosts[0].image}
+                    alt={finalPosts[0].title}
                     className="w-full h-64 lg:h-80 object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
                   <div className="absolute top-4 left-4">
                     <span className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-semibold">
-                      {featuredPosts[0].category}
+                      {finalPosts[0].category}
                     </span>
                   </div>
                 </div>
                 <div className="p-8">
                   <h3 className="text-xl lg:text-2xl font-bold mb-3 group-hover:text-blue-400 transition-colors">
-                    {featuredPosts[0].title}
+                    {finalPosts[0].title}
                   </h3>
                   <p className="text-gray-300 mb-4 text-sm leading-relaxed">
-                    {featuredPosts[0].excerpt}
+                    {finalPosts[0].excerpt}
                   </p>
                   <div className="flex items-center justify-between text-sm text-gray-400">
                     <div className="flex items-center space-x-4">
                       <div className="flex items-center space-x-1">
                         <Calendar className="h-4 w-4" />
-                        <span>{new Date(featuredPosts[0].date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                        <span>{new Date(finalPosts[0].date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                       </div>
                       <div className="flex items-center space-x-1">
                         <Clock className="h-4 w-4" />
-                        <span>{featuredPosts[0].readTime}</span>
+                        <span>{finalPosts[0].readTime}</span>
                       </div>
                     </div>
                     <ArrowRight className="h-5 w-5 group-hover:translate-x-2 transition-transform" />
@@ -117,7 +142,7 @@ const FeaturedPosts = () => {
           )}
 
           <div className="space-y-8">
-            {featuredPosts.slice(1, 3).map((post, index) => (
+            {finalPosts.slice(1, 3).map((post, index) => (
               hasIntersected && (
                 <motion.div
                   key={post.id}
