@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Users, Target, Code, Heart } from 'lucide-react';
 import MetaTags from '@/components/SEO/MetaTags';
+import AdManager from '@/components/AdSense/AdManager';
 
 const AboutPage = () => {
   return (
@@ -10,7 +11,7 @@ const AboutPage = () => {
         title="About - DataTech Hub"
         description="Learn about DataTech Hub's mission to provide the best data engineering content."
       />
-      <div className="pt-32 pb-20 overflow-hidden">
+      <div className="pt-8 pb-20 overflow-hidden">
         <div className="container mx-auto px-6">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -25,6 +26,9 @@ const AboutPage = () => {
               Your ultimate resource for mastering data engineering technologies. From AWS to dbt, we cover it all with practical insights and expert guidance.
             </p>
           </motion.div>
+
+          {/* In-content Ad */}
+          <AdManager position="in-article" />
 
           <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto mt-16">
             <motion.div
@@ -60,6 +64,9 @@ const AboutPage = () => {
               </p>
             </motion.div>
           </div>
+
+          {/* Another in-content Ad */}
+          <AdManager position="in-article" />
 
           <motion.div
             initial={{ opacity: 0, y: 50 }}

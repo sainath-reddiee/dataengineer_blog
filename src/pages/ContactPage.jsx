@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
 import MetaTags from '@/components/SEO/MetaTags';
+import AdManager from '@/components/AdSense/AdManager';
 
 const ContactPage = () => {
   const { toast } = useToast();
@@ -41,7 +42,7 @@ const ContactPage = () => {
         title="Contact Us - DataEngineer Hub"
         description="Get in touch with the DataEngineer Hub team."
       />
-      <div className="pt-32 pb-20 overflow-hidden">
+      <div className="pt-8 pb-20 overflow-hidden">
         <div className="container mx-auto px-6">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -56,6 +57,9 @@ const ContactPage = () => {
               Have a question, suggestion, or just want to say hi? We'd love to hear from you.
             </p>
           </motion.div>
+
+          {/* In-content Ad */}
+          <AdManager position="in-article" />
 
           <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 mt-16">
             <motion.div

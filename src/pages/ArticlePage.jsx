@@ -79,7 +79,7 @@ with DAG(
         category={article.category}
         tags={article.tags}
       />
-      <div className="pt-32 pb-20">
+      <div className="pt-8 pb-20">
         <div className="container mx-auto px-6 max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
@@ -94,6 +94,9 @@ with DAG(
               </Link>
             </Button>
           </motion.div>
+
+          {/* In-article Ad */}
+          <AdManager position="in-article" />
 
           <motion.article
             initial={{ opacity: 0, y: 20 }}
@@ -132,7 +135,13 @@ with DAG(
               <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/50 to-transparent"></div>
             </div>
 
+            {/* Mid-article Ad */}
+            <AdManager position="in-article" />
+
             <div className="prose prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: article.content }} />
+            
+            {/* End-article Ad */}
+            <AdManager position="in-article" />
           </motion.article>
           
           <div className="mt-20">

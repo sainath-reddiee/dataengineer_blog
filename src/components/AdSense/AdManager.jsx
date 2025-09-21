@@ -9,17 +9,17 @@ const AdManager = ({ position, postIndex, category }) => {
   const getAdSlot = (position) => {
     switch (position) {
       case 'header':
-        return '1234567890';
+        return '1111111111';
       case 'sidebar':
-        return '2345678901';
+        return '2222222222';
       case 'in-article':
-        return '3456789012';
+        return '3333333333';
       case 'footer':
-        return '4567890123';
+        return '4444444444';
       case 'between-posts':
-        return '5678901234';
+        return '5555555555';
       default:
-        return '6789012345';
+        return '6666666666';
     }
   };
 
@@ -44,17 +44,17 @@ const AdManager = ({ position, postIndex, category }) => {
   const getAdStyle = () => {
     switch (position) {
       case 'header':
-        return { minHeight: '60px', maxWidth: '728px', margin: '10px auto' };
+        return { minHeight: '50px', maxWidth: '728px', margin: '5px auto' };
       case 'sidebar':
         return { minHeight: '250px', maxWidth: '300px' };
       case 'in-article':
-        return { minHeight: '120px', margin: '15px 0' };
+        return { minHeight: '100px', margin: '10px 0' };
       case 'footer':
-        return { minHeight: '60px', maxWidth: '728px', margin: '10px auto' };
+        return { minHeight: '50px', maxWidth: '728px', margin: '5px auto' };
       case 'between-posts':
-        return { minHeight: '120px', margin: '20px 0' };
+        return { minHeight: '100px', margin: '15px 0' };
       default:
-        return { minHeight: '90px' };
+        return { minHeight: '80px' };
     }
   };
 

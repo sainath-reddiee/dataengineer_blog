@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import MetaTags from '@/components/SEO/MetaTags';
+import AdManager from '@/components/AdSense/AdManager';
 
 const TermsOfServicePage = () => {
   return (
@@ -9,7 +10,7 @@ const TermsOfServicePage = () => {
         title="Terms of Service - DataEngineer Hub"
         description="Read the Terms of Service for DataEngineer Hub."
       />
-      <div className="pt-32 pb-20">
+      <div className="pt-8 pb-20">
         <div className="container mx-auto px-6 max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -21,11 +22,17 @@ const TermsOfServicePage = () => {
             </h1>
             <p className="text-xl text-gray-300 mb-12 text-center">Last updated: September 19, 2025</p>
             
+            {/* In-content Ad */}
+            <AdManager position="in-article" />
+            
             <div className="prose prose-invert max-w-none text-lg text-gray-300 leading-relaxed space-y-6">
               <p>Please read these Terms of Service ("Terms", "Terms of Service") carefully before using the DataEngineer Hub website (the "Service") operated by us.</p>
               
               <h2 className="text-3xl font-bold mt-12 mb-4 gradient-text">1. Acceptance of Terms</h2>
               <p>By accessing and using our Service, you accept and agree to be bound by the terms and provision of this agreement. In addition, when using these particular services, you shall be subject to any posted guidelines or rules applicable to such services.</p>
+              
+              {/* Another in-content Ad */}
+              <AdManager position="in-article" />
               
               <h2 className="text-3xl font-bold mt-12 mb-4 gradient-text">2. Content</h2>
               <p>All content provided on this blog is for informational purposes only. The owner of this blog makes no representations as to the accuracy or completeness of any information on this site or found by following any link on this site. The owner will not be liable for any errors or omissions in this information nor for the availability of this information.</p>
