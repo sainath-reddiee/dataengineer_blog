@@ -24,19 +24,21 @@ export const usePosts = ({
       setLoading(true);
       setError(null);
       
-      console.log('Fetching posts with params:', { page, per_page, categorySlug, search, featured });
+      console.log('🚀 Starting post fetch with params:', { page, per_page, categorySlug, search, featured });
       
       let categoryId = null;
       if (categorySlug) {
+        console.log('🏷️ Category slug provided, resolving to ID...');
         try {
           categoryId = await wordpressApi.getCategoryIdBySlug(categorySlug);
-          console.log(`Category "${categorySlug}" resolved to ID: ${categoryId}`);
+          console.log(`✅ Category "${categorySlug}" resolved to ID: ${categoryId}`);
         } catch (categoryError) {
-          console.error('Category resolution error:', categoryError);
+          console.error('❌ Category resolution failed:', categoryError);
           throw new Error(`Category "${categorySlug}" not found. Please check if the category exists in WordPress.`);
         }
       }
 
+      console.log('📡 Making API call with categoryId:', categoryId);
       const response = await wordpressApi.getPosts({
         page,
         per_page,
@@ -44,7 +46,7 @@ export const usePosts = ({
         search,
         featured
       });
-      console.log('WordPress API response:', response);
+      console.log('✅ WordPress API response received:', { postsCount: response.posts.length, totalPages: response.totalPages, totalPosts: response.totalPosts });
       setData(response.posts);
       setTotalPages(response.totalPages);
       setTotalPosts(response.totalPosts);

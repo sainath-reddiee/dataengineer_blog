@@ -216,36 +216,36 @@ class WordPressAPI {
 
   // Helper method to find category by slug with multiple matching strategies
   findCategoryBySlug(categories, categorySlug) {
-    console.log('🔍 Searching for category slug:', categorySlug);
-    console.log('📋 Available categories for matching:', categories.map(c => ({
-      id: c.id,
-      name: c.name,
-      slug: c.slug,
-      count: c.count
-    })));
+    console.log('🔍 Attempting to match category slug:', categorySlug);
+    console.log('📋 Categories available for matching:', categories.length);
     
     const searchSlug = categorySlug.toLowerCase().trim();
+    console.log('🎯 Normalized search slug:', searchSlug);
     
-    // Try multiple matching strategies
+    // Enhanced matching strategies - try each one systematically
     const strategies = [
       // Exact slug match
-      cat => cat.slug === searchSlug,
+      { name: 'exact-slug', fn: cat => cat.slug === searchSlug },
       // Case insensitive slug match
-      cat => cat.slug.toLowerCase() === searchSlug,
+      { name: 'case-insensitive-slug', fn: cat => cat.slug.toLowerCase() === searchSlug },
       // Name to slug conversion match
-      cat => cat.name.toLowerCase().replace(/\s+/g, '-') === searchSlug,
+      { name: 'name-to-slug', fn: cat => cat.name.toLowerCase().replace(/\s+/g, '-') === searchSlug },
       // Direct name match
-      cat => cat.name.toLowerCase() === searchSlug,
+      { name: 'direct-name', fn: cat => cat.name.toLowerCase() === searchSlug },
       // Partial slug match
-      cat => cat.slug.toLowerCase().includes(searchSlug),
+      { name: 'partial-slug', fn: cat => cat.slug.toLowerCase().includes(searchSlug) },
       // Partial name match
-      cat => cat.name.toLowerCase().includes(searchSlug)
+      { name: 'partial-name', fn: cat => cat.name.toLowerCase().includes(searchSlug) }
     ];
     
+    // Try each strategy
     for (let i = 0; i < strategies.length; i++) {
-      const found = categories.find(strategies[i]);
+      const strategy = strategies[i];
+      console.log(`🔄 Trying strategy ${i + 1}: ${strategy.name}`);
+      
+      const found = categories.find(strategy.fn);
       if (found) {
-        console.log(`✅ Found category using strategy ${i + 1}:`, {
+        console.log(`✅ SUCCESS! Found category using strategy "${strategy.name}":`, {
           id: found.id,
           name: found.name,
           slug: found.slug,
@@ -255,14 +255,17 @@ class WordPressAPI {
       }
     }
     
-    console.log('❌ No category found for slug:', searchSlug);
+    console.log('❌ FAILED: No category found for slug:', searchSlug);
     return null;
   }
 
   // Helper method to clear categories from cache
   clearCategoriesCache() {
+    console.log('🧹 Starting cache cleanup...');
     const cacheKeys = Array.from(this.cache.keys());
     const categoryKeys = cacheKeys.filter(key => key.includes('/categories'));
+    console.log('🗑️ Found cache keys to clear:', categoryKeys.length);
+    
     categoryKeys.forEach(key => {
       this.cache.delete(key);
       console.log('🗑️ Cleared cache key:', key);
@@ -271,6 +274,7 @@ class WordPressAPI {
     // Also clear from request queue to force fresh requests
     const queueKeys = Array.from(this.requestQueue.keys());
     const categoryQueueKeys = queueKeys.filter(key => key.includes('/categories'));
+    console.log('🗑️ Found request queue keys to clear:', categoryQueueKeys.length);
     categoryQueueKeys.forEach(key => {
       this.requestQueue.delete(key);
       console.log('🗑️ Cleared request queue key:', key);
@@ -326,12 +330,25 @@ class WordPressAPI {
     const featuredImage = wpPost._embedded?.['wp:featuredmedia']?.[0];
     const categories = wpPost._embedded?.['wp:term']?.[0] || [];
     
+    console.log('🖼️ Processing post images for:', wpPost.title?.rendered);
+    console.log('📸 Featured image data:', featuredImage);
+    
     // Get the primary category, handling both single and multiple categories
     let primaryCategory = 'Uncategorized';
     if (categories.length > 0) {
       // Find the category that's not "Uncategorized" if multiple exist
       const nonUncategorized = categories.find(cat => cat.name !== 'Uncategorized');
       primaryCategory = nonUncategorized ? nonUncategorized.name : categories[0].name;
+    }
+
+    // Enhanced image handling with multiple fallbacks
+    let imageUrl = 'https://images.unsplash.com/photo-1595872018818-97555653a011?w=800&h=600&fit=crop'; // Default fallback
+    
+    if (featuredImage?.source_url) {
+      imageUrl = featuredImage.source_url;
+      console.log('✅ Using WordPress featured image:', imageUrl);
+    } else {
+      console.log('⚠️ No featured image found, using fallback:', imageUrl);
     }
 
     return {
@@ -343,7 +360,7 @@ class WordPressAPI {
       category: primaryCategory,
       readTime: this.calculateReadTime(wpPost.content.rendered),
       date: wpPost.date,
-      image: featuredImage?.source_url || 'https://images.unsplash.com/photo-1595872018818-97555653a011',
+      image: imageUrl,
       featured: wpPost.meta?.featured === '1' || false,
       trending: wpPost.meta?.trending === '1' || false,
       author: wpPost._embedded?.author?.[0]?.name || 'DataEngineer Hub',

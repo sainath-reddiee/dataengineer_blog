@@ -36,17 +36,19 @@ const LazyImage = ({
       // Try original source first
       const img = new Image();
       img.onload = () => {
+        console.log('✅ Image loaded successfully:', src);
         setImageSrc(src);
         setIsLoaded(true);
         setHasError(false);
       };
       img.onerror = () => {
-        console.warn('Primary image failed, using fallback:', src);
+        console.warn('⚠️ Primary image failed, using fallback. Original:', src, 'Fallback:', fallbackSrc);
         // Use fallback immediately
         setImageSrc(fallbackSrc);
         setIsLoaded(true);
         setHasError(true);
       };
+      console.log('🖼️ Attempting to load image:', src);
       img.src = src;
     }
   }, [isInView, src, fallbackSrc]);
@@ -66,7 +68,7 @@ const LazyImage = ({
           loading="lazy"
           onError={() => {
             if (!hasError && imageSrc !== fallbackSrc) {
-              console.warn('Image failed, switching to fallback');
+              console.warn('⚠️ Image render failed, switching to fallback. Current:', imageSrc, 'Fallback:', fallbackSrc);
               setImageSrc(fallbackSrc);
               setHasError(true);
             }

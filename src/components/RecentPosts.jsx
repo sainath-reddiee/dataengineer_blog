@@ -22,11 +22,15 @@ const RecentPosts = ({ category, initialLimit, showCategoryError = false }) => {
   });
 
   // Debug logging
-  console.log('RecentPosts - All Posts:', allPosts);
-  console.log('RecentPosts - Loading:', loading);
-  console.log('RecentPosts - Error:', error);
-  console.log('RecentPosts - Category:', category);
-  console.log('RecentPosts - Total Posts:', totalPosts);
+  console.log('📊 RecentPosts Debug Info:', {
+    postsCount: allPosts.length,
+    loading,
+    error,
+    category,
+    totalPosts,
+    hasMore,
+    totalPages
+  });
 
   // Apply visible count (don't filter featured for now)
   const articles = allPosts;
