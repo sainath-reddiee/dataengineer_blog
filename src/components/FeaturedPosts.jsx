@@ -82,7 +82,9 @@ const FeaturedPosts = () => {
                     src={featuredPosts[0].image}
                     alt={featuredPosts[0].title}
                     className="w-full h-64 lg:h-80 object-cover group-hover:scale-105 transition-transform duration-300"
-                    loading="lazy"
+                    onError={(e) => {
+                      e.target.src = `https://via.placeholder.com/800x600/1e3a8a/ffffff?text=${encodeURIComponent(featuredPosts[0].category)}`;
+                    }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
                   <div className="absolute top-4 left-4">
@@ -131,7 +133,9 @@ const FeaturedPosts = () => {
                         src={post.image}
                         alt={post.title}
                         className="w-32 h-32 flex-shrink-0 object-cover group-hover:scale-105 transition-transform duration-300"
-                        loading="lazy"
+                        onError={(e) => {
+                          e.target.src = `https://via.placeholder.com/800x600/059669/ffffff?text=${encodeURIComponent(post.category)}`;
+                        }}
                       />
                       <div className="p-6 flex-1">
                         <div className="mb-2">

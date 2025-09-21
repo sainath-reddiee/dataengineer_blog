@@ -9,7 +9,7 @@ export const allArticles = [
     category: 'Airflow',
     readTime: '12 min read',
     date: '2024-12-15',
-    image: 'https://picsum.photos/800/600?random=1',
+    image: 'https://via.placeholder.com/800x600/1e3a8a/ffffff?text=Apache+Airflow',
     featured: true,
     trending: false
   },
@@ -21,7 +21,7 @@ export const allArticles = [
     category: 'Snowflake',
     readTime: '15 min read',
     date: '2024-12-14',
-    image: 'https://picsum.photos/800/600?random=2',
+    image: 'https://via.placeholder.com/800x600/0ea5e9/ffffff?text=Snowflake+Optimization',
     featured: true,
     trending: true
   },
@@ -33,7 +33,7 @@ export const allArticles = [
     category: 'SQL',
     readTime: '8 min read',
     date: '2024-12-12',
-    image: 'https://picsum.photos/800/600?random=3',
+    image: 'https://via.placeholder.com/800x600/059669/ffffff?text=SQL+Window+Functions',
     featured: false,
     trending: false
   },
@@ -45,7 +45,7 @@ export const allArticles = [
     category: 'Azure',
     readTime: '11 min read',
     date: '2024-12-11',
-    image: 'https://picsum.photos/800/600?random=4',
+    image: 'https://via.placeholder.com/800x600/2563eb/ffffff?text=Azure+Data+Factory',
     featured: false,
     trending: true
   },
@@ -57,7 +57,7 @@ export const allArticles = [
     category: 'dbt',
     readTime: '14 min read',
     date: '2024-12-10',
-    image: 'https://picsum.photos/800/600?random=5',
+    image: 'https://via.placeholder.com/800x600/ec4899/ffffff?text=dbt+Transformation',
     featured: false,
     trending: false
   },
@@ -69,7 +69,7 @@ export const allArticles = [
     category: 'Python',
     readTime: '13 min read',
     date: '2024-12-09',
-    image: 'https://picsum.photos/800/600?random=6',
+    image: 'https://via.placeholder.com/800x600/eab308/ffffff?text=Python+Pandas',
     featured: false,
     trending: false
   },
@@ -81,7 +81,7 @@ export const allArticles = [
     category: 'Analytics',
     readTime: '9 min read',
     date: '2024-12-08',
-    image: 'https://picsum.photos/800/600?random=7',
+    image: 'https://via.placeholder.com/800x600/14b8a6/ffffff?text=Data+Analytics',
     featured: false,
     trending: false
   },
@@ -93,7 +93,7 @@ export const allArticles = [
     category: 'AWS',
     readTime: '16 min read',
     date: '2024-12-07',
-    image: 'https://picsum.photos/800/600?random=8',
+    image: 'https://via.placeholder.com/800x600/f97316/ffffff?text=AWS+Redshift',
     featured: false,
     trending: false
   },
@@ -105,7 +105,7 @@ export const allArticles = [
     category: 'Snowflake',
     readTime: '7 min read',
     date: '2024-12-06',
-    image: 'https://picsum.photos/800/600?random=9',
+    image: 'https://via.placeholder.com/800x600/0ea5e9/ffffff?text=Zero+Copy+Cloning',
     featured: false,
     trending: false
   },
@@ -117,11 +117,10 @@ export const allArticles = [
     category: 'Airflow',
     readTime: '12 min read',
     date: '2024-12-05',
-    image: 'https://picsum.photos/800/600?random=10',
+    image: 'https://via.placeholder.com/800x600/1e3a8a/ffffff?text=Dynamic+DAGs',
     featured: false,
     trending: false
-  }
-  ,
+  },
   {
     id: uuidv4(),
     slug: 'aws-glue-etl-best-practices',
@@ -130,7 +129,7 @@ export const allArticles = [
     category: 'AWS',
     readTime: '10 min read',
     date: '2024-12-13',
-    image: 'https://picsum.photos/800/600?random=11',
+    image: 'https://via.placeholder.com/800x600/f97316/ffffff?text=AWS+Glue+ETL',
     featured: true,
     trending: false
   }

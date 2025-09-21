@@ -131,7 +131,9 @@ with DAG(
                 className="w-full h-full object-cover"
                 alt={article.title}
                 src={article.image}
-                loading="lazy"
+                onError={(e) => {
+                  e.target.src = 'https://via.placeholder.com/800x600/1e3a8a/ffffff?text=Article+Image';
+                }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/50 to-transparent"></div>
             </div>
