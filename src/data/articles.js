@@ -121,6 +121,7 @@ export const allArticles = [
     featured: false,
     trending: false
   }
+  ,
   {
     id: uuidv4(),
     slug: 'aws-glue-etl-best-practices',
