@@ -11,13 +11,13 @@ const AllArticlesPage = () => {
         title="All Articles - DataEngineer Hub"
         description="Browse all articles and tutorials on DataEngineer Hub."
       />
-      <div className="pt-24 pb-12">
+      <div className="pt-20 pb-8">
         <div className="container mx-auto px-6">
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="text-4xl md:text-5xl font-black mb-3 text-center"
+            className="text-3xl md:text-4xl font-black mb-2 text-center"
           >
             All <span className="gradient-text">Articles</span>
           </motion.h1>
@@ -25,7 +25,7 @@ const AllArticlesPage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-lg text-gray-300 mb-8 text-center max-w-3xl mx-auto"
+            className="text-base text-gray-300 mb-4 text-center max-w-3xl mx-auto"
           >
             Explore our full library of content, from beginner tutorials to advanced deep dives into data engineering.
           </motion.p>
