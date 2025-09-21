@@ -13,7 +13,7 @@ const Layout = () => {
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 flex flex-col">
         <Header />
         {/* Removed header ad for better UX */}
-        <div className="pt-20"></div>
+        <div className="pt-16"></div>
         <main className="flex-grow">
           <Outlet />
         </main>

@@ -122,7 +122,7 @@ const TechCategories = () => {
     }
   };
   return (
-    <section ref={ref} className="py-4 relative">
+    <section ref={ref} className="py-2 relative">
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-900/10 to-transparent"></div>
       
       <div className="container mx-auto px-6 relative z-10">
@@ -132,7 +132,7 @@ const TechCategories = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
-              className="text-center mb-4"
+              className="text-center mb-3"
             >
               <h2 className="text-xl md:text-2xl font-bold mb-2">
                 Explore <span className="gradient-text">Technologies</span>

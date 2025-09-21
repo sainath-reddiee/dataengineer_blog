@@ -44,7 +44,7 @@ const FeaturedPosts = () => {
   }
 
   return (
-    <section ref={ref} className="py-4 relative">
+    <section ref={ref} className="py-2 relative">
       <div className="container mx-auto px-6">
         <AnimatePresence>
           {hasIntersected && (
@@ -52,7 +52,7 @@ const FeaturedPosts = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
-              className="text-center mb-4"
+              className="text-center mb-3"
             >
               <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 backdrop-blur-sm border border-yellow-500/30 rounded-full px-4 py-2 mb-3">
                 <Star className="h-4 w-4 text-yellow-400" />

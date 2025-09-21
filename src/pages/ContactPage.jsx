@@ -42,13 +42,13 @@ const ContactPage = () => {
         title="Contact Us - DataEngineer Hub"
         description="Get in touch with the DataEngineer Hub team."
       />
-      <div className="pt-8 pb-20 overflow-hidden">
+      <div className="pt-4 pb-12 overflow-hidden">
         <div className="container mx-auto px-6">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-center max-w-4xl mx-auto"
+            className="text-center max-w-4xl mx-auto mb-8"
           >
             <h1 className="text-5xl md:text-7xl font-black mb-8 leading-tight">
               Get In <span className="gradient-text">Touch</span>

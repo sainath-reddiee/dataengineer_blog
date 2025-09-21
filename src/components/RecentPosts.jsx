@@ -40,7 +40,7 @@ const RecentPosts = ({ category, initialLimit }) => {
   const hasMore = visibleCount < articles.length;
 
   return (
-    <section ref={ref} className="py-2 relative">
+    <section ref={ref} className="py-1 relative">
       <div className="container mx-auto px-6">
         <AnimatePresence>
           {hasIntersected && (
@@ -48,7 +48,7 @@ const RecentPosts = ({ category, initialLimit }) => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
-              className="text-center mb-2"
+              className="text-center mb-1"
             >
               <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-green-500/20 to-blue-500/20 backdrop-blur-sm border border-green-500/30 rounded-full px-3 py-1 mb-2">
                 <TrendingUp className="h-4 w-4 text-green-400" />

@@ -94,7 +94,7 @@ const Newsletter = () => {
   };
 
   return (
-    <section ref={ref} className="py-4 relative overflow-hidden">
+    <section ref={ref} className="py-2 relative overflow-hidden">
       <div className="absolute inset-0">
         <div className="absolute top-10 left-1/4 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl floating-animation"></div>
         <div className="absolute bottom-10 right-1/4 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl floating-animation" style={{ animationDelay: '3s' }}></div>
