@@ -179,7 +179,7 @@ const AdsenseAd = ({
       className={`adsense-container ${className}`}
       style={{
         textAlign: 'center',
-        margin: '5px 0',
+        margin: '0',
         minHeight: '90px',
         position: 'relative',
         zIndex: 1,
