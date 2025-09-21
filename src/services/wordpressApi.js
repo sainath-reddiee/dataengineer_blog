@@ -194,6 +194,17 @@ class WordPressAPI {
       console.log('📋 Categories array length:', categories.length);
       console.log('📋 First few categories:', categories.slice(0, 3));
       
+      // Show exact data being passed to findCategoryBySlug
+      console.log('📋 EXACT categories data being passed to findCategoryBySlug:', 
+        categories.map(c => ({
+          id: c.id,
+          name: c.name,
+          slug: c.slug,
+          count: c.count,
+          nameType: typeof c.name,
+          slugType: typeof c.slug
+        }))
+      );
       console.log('📋 Available categories (cached):', categories.map(c => ({
         name: c.name, 
         slug: c.slug, 
@@ -213,6 +224,17 @@ class WordPressAPI {
         console.log('📋 Fresh categories after cache clear:', categories);
         console.log('📋 Fresh categories array length:', categories.length);
         
+        // Show exact data being passed to findCategoryBySlug (second attempt)
+        console.log('📋 EXACT fresh categories data being passed to findCategoryBySlug:', 
+          categories.map(c => ({
+            id: c.id,
+            name: c.name,
+            slug: c.slug,
+            count: c.count,
+            nameType: typeof c.name,
+            slugType: typeof c.slug
+          }))
+        );
         console.log('📋 Available categories (fresh):', categories.map(c => ({
           name: c.name, 
           slug: c.slug, 
@@ -253,9 +275,28 @@ class WordPressAPI {
   findCategoryBySlug(categories, categorySlug) {
     console.log('🔍 Attempting to match category slug:', categorySlug);
     console.log('📋 Categories available for matching:', categories.length);
+    console.log('📋 DETAILED categories received in findCategoryBySlug:', 
+      categories.map((c, index) => ({
+        index,
+        id: c.id,
+        name: c.name,
+        slug: c.slug,
+        count: c.count,
+        nameType: typeof c.name,
+        slugType: typeof c.slug,
+        nameLength: c.name?.length,
+        slugLength: c.slug?.length
+      }))
+    );
     
     const searchSlug = categorySlug.toLowerCase().trim();
     console.log('🎯 Normalized search slug:', searchSlug);
+    console.log('🎯 Search slug details:', {
+      original: categorySlug,
+      normalized: searchSlug,
+      length: searchSlug.length,
+      type: typeof searchSlug
+    });
     
     // Enhanced matching strategies - try each one systematically
     const strategies = [
@@ -278,19 +319,42 @@ class WordPressAPI {
       const strategy = strategies[i];
       console.log(`🔄 Trying strategy ${i + 1}: ${strategy.name}`);
       
-      const found = categories.find(strategy.fn);
-      if (found) {
-        console.log(`✅ SUCCESS! Found category using strategy "${strategy.name}":`, {
-          id: found.id,
-          name: found.name,
-          slug: found.slug,
-          count: found.count
+      // Check each category with current strategy
+      for (let j = 0; j < categories.length; j++) {
+        const cat = categories[j];
+        console.log(`  📝 Checking category ${j + 1}:`, {
+          name: cat.name,
+          slug: cat.slug,
+          id: cat.id,
+          searchSlug: searchSlug,
+          strategy: strategy.name
         });
-        return found;
+        
+        try {
+          const isMatch = strategy.fn(cat);
+          console.log(`    ✓ Strategy "${strategy.name}" result for "${cat.name}/${cat.slug}": ${isMatch}`);
+          
+          if (isMatch) {
+            console.log(`✅ SUCCESS! Found category using strategy "${strategy.name}":`, {
+              id: cat.id,
+              name: cat.name,
+              slug: cat.slug,
+              count: cat.count
+            });
+            return cat;
+          }
+        } catch (error) {
+          console.log(`    ❌ Strategy "${strategy.name}" failed for "${cat.name}/${cat.slug}":`, error.message);
+        }
       }
+      console.log(`  ❌ Strategy "${strategy.name}" found no matches`);
     }
     
     console.log('❌ FAILED: No category found for slug:', searchSlug);
+    console.log('❌ All strategies exhausted. Final category list:');
+    categories.forEach((cat, index) => {
+      console.log(`  ${index + 1}. Name: "${cat.name}", Slug: "${cat.slug}", ID: ${cat.id}`);
+    });
     return null;
   }
 
