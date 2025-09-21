@@ -24,17 +24,17 @@ const AdManager = ({ position, postIndex, category }) => {
   const getAdStyle = () => {
     switch (position) {
       case 'header':
-        return { maxWidth: '728px', margin: '0 auto' };
+        return { maxWidth: '728px', margin: '0 auto', minHeight: '60px' };
       case 'sidebar':
-        return { maxWidth: '300px' };
+        return { maxWidth: '300px', minHeight: '200px' };
       case 'in-article':
-        return { margin: '20px 0' };
+        return { margin: '15px 0', minHeight: '80px' };
       case 'footer':
-        return { maxWidth: '728px', margin: '0 auto' };
+        return { maxWidth: '728px', margin: '0 auto', minHeight: '60px' };
       case 'between-posts':
-        return { margin: '30px 0' };
+        return { margin: '20px 0', minHeight: '90px' };
       default:
-        return { margin: '15px 0' };
+        return { margin: '10px 0', minHeight: '80px' };
     }
   };
 

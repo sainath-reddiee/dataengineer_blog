@@ -9,7 +9,7 @@ export const allArticles = [
     category: 'Airflow',
     readTime: '12 min read',
     date: '2024-12-15',
-    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop',
+    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop&auto=format&q=80',
     featured: true,
     trending: false
   },
@@ -21,7 +21,7 @@ export const allArticles = [
     category: 'Snowflake',
     readTime: '15 min read',
     date: '2024-12-14',
-    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop',
+    image: 'https://images.unsplash.com/photo-1518186285589-2f7649de83e0?w=800&h=600&fit=crop&auto=format&q=80',
     featured: true,
     trending: true
   },
@@ -33,7 +33,7 @@ export const allArticles = [
     category: 'SQL',
     readTime: '8 min read',
     date: '2024-12-12',
-    image: 'https://images.unsplash.com/photo-1544383835-bda2bc66a55d?w=800&h=600&fit=crop',
+    image: 'https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=800&h=600&fit=crop&auto=format&q=80',
     featured: false,
     trending: false
   },
@@ -45,7 +45,7 @@ export const allArticles = [
     category: 'Azure',
     readTime: '11 min read',
     date: '2024-12-11',
-    image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&h=600&fit=crop',
+    image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&h=600&fit=crop&auto=format&q=80',
     featured: false,
     trending: true
   },
@@ -57,7 +57,7 @@ export const allArticles = [
     category: 'dbt',
     readTime: '14 min read',
     date: '2024-12-10',
-    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop',
+    image: 'https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=800&h=600&fit=crop&auto=format&q=80',
     featured: false,
     trending: false
   },
@@ -69,7 +69,7 @@ export const allArticles = [
     category: 'Python',
     readTime: '13 min read',
     date: '2024-12-09',
-    image: 'https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=800&h=600&fit=crop',
+    image: 'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?w=800&h=600&fit=crop&auto=format&q=80',
     featured: false,
     trending: false
   },
@@ -81,7 +81,7 @@ export const allArticles = [
     category: 'Analytics',
     readTime: '9 min read',
     date: '2024-12-08',
-    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop',
+    image: 'https://images.unsplash.com/photo-1543286386-713bdd548da4?w=800&h=600&fit=crop&auto=format&q=80',
     featured: false,
     trending: false
   },
@@ -93,7 +93,7 @@ export const allArticles = [
     category: 'AWS',
     readTime: '16 min read',
     date: '2024-12-07',
-    image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&h=600&fit=crop',
+    image: 'https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?w=800&h=600&fit=crop&auto=format&q=80',
     featured: false,
     trending: false
   },
@@ -105,7 +105,7 @@ export const allArticles = [
     category: 'Snowflake',
     readTime: '7 min read',
     date: '2024-12-06',
-    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop',
+    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=600&fit=crop&auto=format&q=80',
     featured: false,
     trending: false
   },
@@ -117,7 +117,7 @@ export const allArticles = [
     category: 'Airflow',
     readTime: '12 min read',
     date: '2024-12-05',
-    image: 'https://images.unsplash.com/photo-1592181572975-1d0d8880d175?w=800&h=600&fit=crop',
+    image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&h=600&fit=crop&auto=format&q=80',
     featured: false,
     trending: false
   }
@@ -130,7 +130,7 @@ export const allArticles = [
     category: 'AWS',
     readTime: '10 min read',
     date: '2024-12-13',
-    image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&h=600&fit=crop',
+    image: 'https://images.unsplash.com/photo-1518186285589-2f7649de83e0?w=800&h=600&fit=crop&auto=format&q=80',
     featured: true,
     trending: false
   }
