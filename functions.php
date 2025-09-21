@@ -4,8 +4,6 @@
 // Enable CORS for frontend applications
 function handle_cors_requests() {
     $allowed_origins = array(
-        'https://localhost:5173',
-        'http://localhost:5173',
         'https://app.dataengineerhub.blog',
         'https://dataengineerhub.blog'
     );
