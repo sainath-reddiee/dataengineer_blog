@@ -10,6 +10,18 @@ const AdsenseAd = ({
   const adRef = useRef(null);
   const location = useLocation();
 
+  // Ad slot configuration for different positions
+  const getAdSlot = (position) => {
+    const adSlots = {
+      'header': 'YOUR_HEADER_AD_SLOT',
+      'sidebar': 'YOUR_SIDEBAR_AD_SLOT', 
+      'in-article': 'YOUR_IN_ARTICLE_AD_SLOT',
+      'footer': 'YOUR_FOOTER_AD_SLOT',
+      'between-posts': 'YOUR_BETWEEN_POSTS_AD_SLOT'
+    };
+    return adSlots[position] || 'YOUR_DEFAULT_AD_SLOT';
+  };
+
   useEffect(() => {
     if (showTestAd) {
       // Show beautiful test ad
@@ -96,6 +108,7 @@ const AdsenseAd = ({
         adElement.className = 'adsbygoogle';
         adElement.style.display = 'block';
         adElement.setAttribute('data-ad-client', 'ca-pub-YOUR_PUBLISHER_ID'); // Replace with your ID
+        adElement.setAttribute('data-ad-slot', getAdSlot(position)); // Use position-specific slot
         adElement.setAttribute('data-ad-format', 'auto');
         adElement.setAttribute('data-full-width-responsive', 'true');
         
@@ -103,7 +116,7 @@ const AdsenseAd = ({
         (window.adsbygoogle = window.adsbygoogle || []).push({});
       } catch (error) {
         console.warn('AdSense loading failed, showing fallback');
-        showTestAd();
+        renderTestAd();
       }
     } else {
       // No AdSense script found, show test ad
