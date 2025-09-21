@@ -54,7 +54,10 @@ export const usePosts = ({
         });
       }
       
-      setData(filteredArticles.slice((page - 1) * per_page, page * per_page));
+      const startIndex = (page - 1) * per_page;
+      const endIndex = startIndex + per_page;
+      setData(filteredArticles.slice(startIndex, endIndex));
+      setTotalPages(Math.ceil(filteredArticles.length / per_page));
     } finally {
       setLoading(false);
     }

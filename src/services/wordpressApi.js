@@ -65,14 +65,16 @@ class WordPressAPI {
     if (search) {
       params.append('search', search);
     }
-    if (featured !== null) {
-      // Assuming you have a custom field for featured posts
-      params.append('meta_key', 'featured');
-      params.append('meta_value', featured ? '1' : '0');
-    }
 
     const posts = await this.fetchWithCache(`/posts?${params.toString()}`);
-    return this.transformPosts(posts);
+    const transformedPosts = this.transformPosts(posts);
+    
+    // Filter featured posts after transformation if needed
+    if (featured !== null) {
+      return transformedPosts.filter(post => post.featured === featured);
+    }
+    
+    return transformedPosts;
   }
 
   // Get single post by slug
