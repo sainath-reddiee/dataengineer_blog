@@ -123,7 +123,7 @@ const AdsenseAd = ({
           text-align: center;
           border-radius: 8px;
           font-family: Arial, sans-serif;
-          min-height: 220px;
+          min-height: 100px;
           display: flex;
           flex-direction: column;
           justify-content: center;
@@ -161,7 +161,7 @@ const AdsenseAd = ({
           text-align: center;
           border-radius: 8px;
           font-family: Arial, sans-serif;
-          min-height: 150px;
+          min-height: 80px;
           display: flex;
           flex-direction: column;
           justify-content: center;
@@ -181,7 +181,7 @@ const AdsenseAd = ({
       style={{
         textAlign: 'center',
         margin: '20px 0',
-        minHeight: '250px',
+        minHeight: '90px',
         position: 'relative',
         zIndex: 1,
         ...style

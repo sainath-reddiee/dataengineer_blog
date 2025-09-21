@@ -12,11 +12,9 @@ const Layout = () => {
       <MetaTags />
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 flex flex-col">
         <Header />
-        <AdManager position="header" />
         <main className="flex-grow">
           <Outlet />
         </main>
-        <AdManager position="footer" />
         <Footer />
         <Toaster />
       </div>

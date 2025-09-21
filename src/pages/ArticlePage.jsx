@@ -132,11 +132,7 @@ with DAG(
               <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/50 to-transparent"></div>
             </div>
 
-            <AdManager position="in-article" />
-
             <div className="prose prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: article.content }} />
-            
-            <AdManager position="in-article" />
           </motion.article>
           
           <div className="mt-20">
