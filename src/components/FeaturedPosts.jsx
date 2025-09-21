@@ -84,35 +84,35 @@ const FeaturedPosts = () => {
                     alt={featuredPosts[0].title}
                     className="w-full h-64 lg:h-80 object-cover group-hover:scale-105 transition-transform duration-300"
                   />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-                <div className="absolute top-4 left-4">
-                  <span className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-semibold">
-                    {featuredPosts[0].category}
-                  </span>
-                </div>
-                </div>
-              <div className="p-8">
-                <h3 className="text-xl lg:text-2xl font-bold mb-3 group-hover:text-blue-400 transition-colors">
-                  {featuredPosts[0].title}
-                </h3>
-                <p className="text-gray-300 mb-4 text-sm leading-relaxed">
-                  {featuredPosts[0].excerpt}
-                </p>
-                <div className="flex items-center justify-between text-sm text-gray-400">
-                  <div className="flex items-center space-x-4">
-                    <div className="flex items-center space-x-1">
-                      <Calendar className="h-4 w-4" />
-                      <span>{new Date(featuredPosts[0].date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <Clock className="h-4 w-4" />
-                      <span>{featuredPosts[0].readTime}</span>
-                    </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                  <div className="absolute top-4 left-4">
+                    <span className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-semibold">
+                      {featuredPosts[0].category}
+                    </span>
                   </div>
-                  <ArrowRight className="h-5 w-5 group-hover:translate-x-2 transition-transform" />
                 </div>
-              </div>
-               </Link>
+                <div className="p-8">
+                  <h3 className="text-xl lg:text-2xl font-bold mb-3 group-hover:text-blue-400 transition-colors">
+                    {featuredPosts[0].title}
+                  </h3>
+                  <p className="text-gray-300 mb-4 text-sm leading-relaxed">
+                    {featuredPosts[0].excerpt}
+                  </p>
+                  <div className="flex items-center justify-between text-sm text-gray-400">
+                    <div className="flex items-center space-x-4">
+                      <div className="flex items-center space-x-1">
+                        <Calendar className="h-4 w-4" />
+                        <span>{new Date(featuredPosts[0].date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <Clock className="h-4 w-4" />
+                        <span>{featuredPosts[0].readTime}</span>
+                      </div>
+                    </div>
+                    <ArrowRight className="h-5 w-5 group-hover:translate-x-2 transition-transform" />
+                  </div>
+                </div>
+              </Link>
             </motion.div>
           )}
 
@@ -132,27 +132,27 @@ const FeaturedPosts = () => {
                         alt={post.title}
                         className="w-32 h-32 flex-shrink-0 object-cover group-hover:scale-105 transition-transform duration-300"
                       />
-                    <div className="p-6 flex-1">
-                      <div className="mb-2">
-                        <span className="bg-gradient-to-r from-green-500 to-blue-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
-                          {post.category}
-                        </span>
-                      </div>
-                      <h3 className="text-lg font-bold mb-2 group-hover:text-blue-400 transition-colors line-clamp-2">
-                        {post.title}
-                      </h3>
-                      <p className="text-gray-400 text-sm mb-3 line-clamp-2">
-                        {post.excerpt}
-                      </p>
-                      <div className="flex items-center justify-between text-xs text-gray-500">
-                        <div className="flex items-center space-x-3">
-                          <span>{new Date(post.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
-                          <span>{post.readTime}</span>
+                      <div className="p-6 flex-1">
+                        <div className="mb-2">
+                          <span className="bg-gradient-to-r from-green-500 to-blue-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
+                            {post.category}
+                          </span>
                         </div>
-                        <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                        <h3 className="text-lg font-bold mb-2 group-hover:text-blue-400 transition-colors line-clamp-2">
+                          {post.title}
+                        </h3>
+                        <p className="text-gray-400 text-sm mb-3 line-clamp-2">
+                          {post.excerpt}
+                        </p>
+                        <div className="flex items-center justify-between text-xs text-gray-500">
+                          <div className="flex items-center space-x-3">
+                            <span>{new Date(post.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                            <span>{post.readTime}</span>
+                          </div>
+                          <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                        </div>
                       </div>
                     </div>
-                  </div>
                   </Link>
                 </motion.div>
               )

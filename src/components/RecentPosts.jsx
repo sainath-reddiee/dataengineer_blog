@@ -121,7 +121,7 @@ const RecentPosts = ({ category, initialLimit }) => {
                 </motion.div>
                 
                 {/* Show ad between posts - reduced frequency */}
-                {(index + 1) % 6 === 0 && (
+                {(index + 1) % 9 === 0 && (
                   <motion.div
                     key={`ad-${index}`}
                     initial={{ opacity: 0, y: 20 }}
