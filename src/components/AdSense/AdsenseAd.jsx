@@ -119,25 +119,24 @@ const AdsenseAd = ({
           border: 1px solid rgba(96, 165, 250, 0.2);
           backdrop-filter: blur(10px);
           color: white;
-          padding: 20px;
+          padding: 10px;
           text-align: center;
           border-radius: 8px;
           font-family: Arial, sans-serif;
-          min-height: 100px;
+          min-height: 50px;
           display: flex;
           flex-direction: column;
           justify-content: center;
           align-items: center;
-          gap: 8px;
+          gap: 4px;
         ">
-          <div style="font-size: 11px; opacity: 0.5; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">Advertisement</div>
-          <div style="font-size: 20px; font-weight: bold; margin-bottom: 6px; background: linear-gradient(135deg, #60a5fa, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">DataEngineer Hub</div>
-          <div style="font-size: 15px; opacity: 0.9; margin-bottom: 10px; line-height: 1.4;">Master Data Engineering Technologies</div>
+          <div style="font-size: 9px; opacity: 0.5; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px;">Advertisement</div>
+          <div style="font-size: 14px; font-weight: bold; margin-bottom: 3px; background: linear-gradient(135deg, #60a5fa, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">DataEngineer Hub</div>
           <div style="
             background: rgba(96, 165, 250, 0.2);
-            padding: 10px 20px;
+            padding: 4px 12px;
             border-radius: 20px;
-            font-size: 13px;
+            font-size: 10px;
             opacity: 0.8;
             border: 1px solid rgba(96, 165, 250, 0.1);
             font-weight: 500;

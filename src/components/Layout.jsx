@@ -13,7 +13,7 @@ const Layout = () => {
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 flex flex-col">
         <Header />
         {/* Header Ad - appears on all pages */}
-        <div className="pt-20">
+        <div className="pt-20 pb-2">
           <AdManager position="header" />
         </div>
         <main className="flex-grow">
