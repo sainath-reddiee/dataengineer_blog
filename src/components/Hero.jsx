@@ -21,7 +21,7 @@ const Hero = () => {
             transition={{ duration: 0.4 }}
             className="mb-4"
           >
-            <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-500/20 to-purple-500/20 backdrop-blur-sm border border-blue-500/30 rounded-full px-4 py-2 mb-2 relative z-30">
+            <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-500/20 to-purple-500/20 backdrop-blur-sm border border-blue-500/30 rounded-full px-4 py-2 mb-2 relative z-[10000]">
               <Sparkles className="h-5 w-5 text-yellow-400" />
               <span className="text-sm font-medium text-white">Latest in Data Engineering</span>
               <TrendingUp className="h-4 w-4 text-green-400" />

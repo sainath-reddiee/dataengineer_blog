@@ -30,7 +30,7 @@ const Header = () => {
       transition={{ duration: 0.8 }}
       className="fixed top-0 w-full z-[9999] glass-effect"
     >
-      <nav className="container mx-auto px-6 py-4">
+      <nav className="container mx-auto px-6 py-4 relative z-[9999]">
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center space-x-3">
             <motion.div whileHover={{ scale: 1.05 }}>
