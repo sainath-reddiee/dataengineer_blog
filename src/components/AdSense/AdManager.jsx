@@ -53,7 +53,7 @@ const AdManager = ({ position, postIndex, category }) => {
         position={position}
         style={getAdStyle()}
         className={`ad-${position}`}
-        showTestAd={false} // Change to false when you have real AdSense setup
+        showTestAd={true} // Change to false when you have real AdSense setup
       />
     </div>
   );
