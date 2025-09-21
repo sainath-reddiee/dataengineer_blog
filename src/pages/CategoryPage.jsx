@@ -17,13 +17,13 @@ const CategoryPage = () => {
         title={`${formattedCategoryName} Articles - DataEngineer Hub`}
         description={`Browse articles and tutorials about ${formattedCategoryName} on DataTech Hub.`}
       />
-      <div className="pt-32 pb-20">
+      <div className="pt-24 pb-12">
         <div className="container mx-auto px-6">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="mb-8"
+            className="mb-6"
           >
             <Button asChild variant="outline" className="border-2 border-blue-400/50 text-blue-300 hover:bg-blue-500/20 backdrop-blur-sm">
               <Link to="/">
@@ -36,7 +36,7 @@ const CategoryPage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-5xl md:text-7xl font-black mb-4"
+            className="text-4xl md:text-5xl font-black mb-3"
           >
             <span className="gradient-text">{formattedCategoryName}</span>
           </motion.h1>
@@ -44,7 +44,7 @@ const CategoryPage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-xl text-gray-300 mb-12"
+            className="text-lg text-gray-300 mb-8"
           >
             Showing all articles for the "{formattedCategoryName}" category.
           </motion.p>
