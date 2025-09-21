@@ -3,13 +3,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Send, CheckCircle, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
-import { useNewsletter } from '@/hooks/useWordPress';
 import { useIntersectionObserver } from '@/hooks/useIntersectionObserver';
 
 const Newsletter = () => {
   const [email, setEmail] = useState('');
   const [isSubscribed, setIsSubscribed] = useState(false);
-  const { subscribe, loading, error } = useNewsletter();
+  const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const [ref, isIntersecting, hasIntersected] = useIntersectionObserver();
 
@@ -38,61 +37,49 @@ const Newsletter = () => {
       return;
     }
 
+    setLoading(true);
+
     try {
-      const result = await subscribe(email);
+      // Check if already subscribed
+      const subscriptions = JSON.parse(localStorage.getItem('newsletterSubscriptions') || '[]');
+      if (subscriptions.includes(email)) {
+        toast({
+          title: "Already Subscribed",
+          description: "This email address is already on our list!",
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      // Save to localStorage
+      subscriptions.push(email);
+      localStorage.setItem('newsletterSubscriptions', JSON.stringify(subscriptions));
+
+      // Show success state
+      setIsSubscribed(true);
+      toast({
+        title: "🎉 Successfully Subscribed!",
+        description: "Welcome to DataEngineer Hub! You'll receive our latest articles and insights.",
+      });
       
-      if (result.success) {
-        setIsSubscribed(true);
-        toast({
-          title: "🎉 Successfully Subscribed!",
-          description: "Welcome to DataEngineer Hub! You'll receive our latest articles and insights.",
-        });
-        
-        setTimeout(() => {
-          setIsSubscribed(false);
-          setEmail('');
-        }, 3000);
-      } else {
-        toast({
-          title: "Subscription Failed",
-          description: result.error || "Could not subscribe. Please try again.",
-          variant: "destructive"
-        });
-      }
-    } catch (err) {
-      // Fallback to local storage for development/demo
-      try {
-        const subscriptions = JSON.parse(localStorage.getItem('newsletterSubscriptions') || '[]');
-        if (subscriptions.includes(email)) {
-          toast({
-            title: "Already Subscribed",
-            description: "This email address is already on our list!",
-          });
-          return;
-        }
+      // Reset form after 3 seconds
+      setTimeout(() => {
+        setIsSubscribed(false);
+        setEmail('');
+      }, 3000);
 
-        subscriptions.push(email);
-        localStorage.setItem('newsletterSubscriptions', JSON.stringify(subscriptions));
-
-        setIsSubscribed(true);
-        toast({
-          title: "🎉 Successfully Subscribed!",
-          description: "Welcome to DataEngineer Hub! You'll receive our latest articles and insights.",
-        });
-        
-        setTimeout(() => {
-          setIsSubscribed(false);
-          setEmail('');
-        }, 3000);
-
-      } catch (localError) {
-        console.error("Failed to save subscription:", localError);
-        toast({
-          title: "Subscription Failed",
-          description: "Could not save your subscription. Please try again.",
-          variant: "destructive"
-        });
-      }
+    } catch (error) {
+      console.error("Subscription error:", error);
+      toast({
+        title: "Subscription Failed",
+        description: "Could not save your subscription. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -196,16 +183,6 @@ const Newsletter = () => {
                     )}
                   </Button>
                 </motion.form>
-
-                {error && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="text-red-400 text-sm mb-4"
-                  >
-                    Error: {error}
-                  </motion.div>
-                )}
 
                 <motion.div
                   initial={{ opacity: 0 }}
