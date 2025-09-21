@@ -189,7 +189,7 @@ const TechCategories = () => {
                     </p>
                     
                     <div className="flex items-center justify-between mt-auto">
-                      <span className="text-xs text-gray-600">
+                      <span className="text-sm font-medium text-gray-300 bg-white/10 px-3 py-1 rounded-full backdrop-blur-sm">
                         {category.posts} articles
                       </span>
                       <motion.div 
