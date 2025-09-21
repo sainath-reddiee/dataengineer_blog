@@ -46,10 +46,10 @@ const Footer = () => {
   };
 
   const socialLinks = [
-    { name: 'GitHub', icon: Github, href: '#' },
-    { name: 'Twitter', icon: Twitter, href: '#' },
-    { name: 'LinkedIn', icon: Linkedin, href: '#' },
-    { name: 'Email', icon: Mail, href: '#' }
+    { name: 'GitHub', icon: Github, href: 'https://github.com/sainath-reddiee' },
+    { name: 'Twitter', icon: Twitter, href: 'https://twitter.com/sainath29' },
+    { name: 'LinkedIn', icon: Linkedin, href: 'https://www.linkedin.com/in/sainathreddypogaku/' },
+    { name: 'Email', icon: Mail, href: 'mailto:sainath@dataengineerhub.blog' }
   ];
 
   return (
@@ -83,15 +83,18 @@ const Footer = () => {
               {socialLinks.map((social) => {
                 const IconComponent = social.icon;
                 return (
-                  <motion.button
+                  <motion.a
                     key={social.name}
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     whileHover={{ scale: 1.1, y: -2 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={() => handleSocialClick(social.name)}
                     className="w-10 h-10 bg-white/10 hover:bg-blue-500/20 rounded-full flex items-center justify-center transition-colors group"
+                    aria-label={`Visit ${social.name}`}
                   >
                     <IconComponent className="h-5 w-5 text-gray-400 group-hover:text-blue-400 transition-colors" />
-                  </motion.button>
+                  </motion.a>
                 );
               })}
             </div>
@@ -115,7 +118,6 @@ const Footer = () => {
                   <li key={link.name}>
                     <Link
                       to={link.href}
-                      onClick={link.href === '#' ? () => handleSocialClick(link.name) : undefined}
                       className="text-gray-400 hover:text-blue-400 transition-colors flex items-center group"
                     >
                       {link.name}
