@@ -153,30 +153,30 @@ class WordPressAPI {
   // Get categories
   async getCategories() {
     console.log('📡 getCategories() called');
-    const categories = await this.fetchWithCache('/categories?per_page=100');
-    console.log('📡 getCategories() raw response:', categories);
-    console.log('📡 getCategories() response type:', typeof categories);
-    console.log('📡 getCategories() is array:', Array.isArray(categories));
+    const fetchedResult = await this.fetchWithCache('/categories?per_page=100');
+    console.log('📡 getCategories() raw response:', fetchedResult);
+    console.log('📡 getCategories() response type:', typeof fetchedResult);
+    console.log('📡 getCategories() is array:', Array.isArray(fetchedResult));
     
     // Extract categories array from result
     // fetchWithCache wraps arrays in {posts, totalPages, totalPosts} for pagination
     // but categories endpoint returns direct array, so we need to handle both cases
-    let categories;
-    if (Array.isArray(result)) {
+    let categoriesArray;
+    if (Array.isArray(fetchedResult)) {
       // Direct array response
-      categories = result;
+      categoriesArray = fetchedResult;
       console.log('📡 getCategories() using direct array response');
-    } else if (result && Array.isArray(result.posts)) {
+    } else if (fetchedResult && Array.isArray(fetchedResult.posts)) {
       // Wrapped response from fetchWithCache
-      categories = result.posts;
+      categoriesArray = fetchedResult.posts;
       console.log('📡 getCategories() extracting from wrapped response');
     } else {
       // Fallback - empty array
-      categories = [];
+      categoriesArray = [];
       console.log('📡 getCategories() fallback to empty array');
     }
     
-    const transformedCategories = categories.map(category => ({
+    const transformedCategories = categoriesArray.map(category => ({
       id: category.id,
       name: category.name,
       slug: category.slug,
