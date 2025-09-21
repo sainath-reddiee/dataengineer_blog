@@ -27,9 +27,6 @@ const AboutPage = () => {
             </p>
           </motion.div>
 
-          {/* In-content Ad */}
-          <AdManager position="in-article" />
-
           <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto mt-16">
             <motion.div
               initial={{ opacity: 0, x: -50 }}
@@ -65,7 +62,7 @@ const AboutPage = () => {
             </motion.div>
           </div>
 
-          {/* Another in-content Ad */}
+          {/* Single in-content Ad */}
           <AdManager position="in-article" />
 
           <motion.div

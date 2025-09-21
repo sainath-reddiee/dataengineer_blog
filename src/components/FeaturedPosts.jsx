@@ -79,11 +79,11 @@ const FeaturedPosts = () => {
             >
               <Link to={`/articles/${featuredPosts[0].slug}`} className="block blog-card rounded-2xl overflow-hidden group h-full">
                 <div className="relative">
-                <LazyImage
-                  src={featuredPosts[0].image}
-                  alt={featuredPosts[0].title}
-                  className="w-full h-64 lg:h-80 object-cover group-hover:scale-105 transition-transform duration-300"
-                />
+                  <LazyImage
+                    src={featuredPosts[0].image}
+                    alt={featuredPosts[0].title}
+                    className="w-full h-64 lg:h-80 object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
                 <div className="absolute top-4 left-4">
                   <span className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-semibold">

@@ -58,9 +58,6 @@ const ContactPage = () => {
             </p>
           </motion.div>
 
-          {/* In-content Ad */}
-          <AdManager position="in-article" />
-
           <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 mt-16">
             <motion.div
               initial={{ opacity: 0, x: -50 }}
@@ -128,6 +125,9 @@ const ContactPage = () => {
               </form>
             </motion.div>
           </div>
+          
+          {/* Single in-content Ad */}
+          <AdManager position="in-article" />
         </div>
       </div>
     </>

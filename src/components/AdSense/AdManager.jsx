@@ -7,9 +7,9 @@ const AdManager = ({ position, postIndex, category }) => {
   
   // Show ads based on position and conditions
   const shouldShowAd = () => {
-    // Show ads between posts every 3 posts
+    // Show ads between posts every 6 posts (reduced frequency)
     if (position === 'between-posts') {
-      return postIndex >= 0 && (postIndex + 1) % 3 === 0;
+      return postIndex >= 0 && (postIndex + 1) % 6 === 0;
     }
     
     // Always show other ad positions
