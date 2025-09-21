@@ -8,13 +8,14 @@ import {
   BarChart3, 
   Zap,
   Code2,
-  GitBranch
+  GitBranch,
+  RefreshCw
 } from 'lucide-react';
 import { useCategories } from '@/hooks/useWordPress';
 import { useIntersectionObserver } from '@/hooks/useIntersectionObserver';
 
 const TechCategories = () => {
-  const { categories: apiCategories, loading } = useCategories();
+  const { categories: apiCategories, loading, refresh: refreshCategories } = useCategories();
   const [ref, isIntersecting, hasIntersected] = useIntersectionObserver();
   
   // Fallback categories with icons and colors
@@ -121,6 +122,7 @@ const TechCategories = () => {
       hover: { scale: 1.08, transition: { duration: 0.2, ease: "easeOut" } }
     }
   };
+
   return (
     <section ref={ref} className="py-2 relative">
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-900/10 to-transparent"></div>
@@ -134,9 +136,21 @@ const TechCategories = () => {
               transition={{ duration: 0.3 }}
               className="text-center mb-3"
             >
-              <h2 className="text-xl md:text-2xl font-bold mb-2">
-                Explore <span className="gradient-text">Technologies</span>
-              </h2>
+              <div className="flex items-center justify-center gap-4 mb-4">
+                <h2 className="text-xl md:text-2xl font-bold">
+                  Explore <span className="gradient-text">Technologies</span>
+                </h2>
+                {/* Debug refresh button - only in development */}
+                {process.env.NODE_ENV === 'development' && (
+                  <button
+                    onClick={refreshCategories}
+                    className="p-2 bg-blue-500/20 rounded-full hover:bg-blue-500/30 transition-colors"
+                    title="Refresh categories"
+                  >
+                    <RefreshCw className="h-4 w-4 text-blue-400" />
+                  </button>
+                )}
+              </div>
               <p className="text-xs text-gray-300 max-w-2xl mx-auto">
                 Deep dive into the tools and platforms that power modern data engineering
               </p>
@@ -206,6 +220,18 @@ const TechCategories = () => {
             );
           })}
         </div>
+
+        {/* Debug info in development */}
+        {process.env.NODE_ENV === 'development' && (
+          <div className="mt-8 p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+            <h4 className="text-sm font-semibold text-gray-300 mb-2">Debug Info</h4>
+            <div className="text-xs text-gray-400 space-y-1">
+              <div>Total categories: {apiCategories.length}</div>
+              <div>Categories loaded: {categories.length}</div>
+              <div>Loading: {loading.toString()}</div>
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );
