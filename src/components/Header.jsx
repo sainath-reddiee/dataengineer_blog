@@ -3,18 +3,9 @@ import { motion } from 'framer-motion';
 import { NavLink, Link } from 'react-router-dom';
 import { Menu, X, Database } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/components/ui/use-toast';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { toast } = useToast();
-
-  const handleSubscribeClick = () => {
-    toast({
-      title: "🚧 Feature Coming Soon!",
-      description: "This feature isn't implemented yet—but don't worry! You can request it in your next prompt! 🚀",
-    });
-  };
 
   const navItems = [
     { name: 'Home', path: '/' },
@@ -70,10 +61,10 @@ const Header = () => {
               </motion.div>
             ))}
             <Button
-              onClick={handleSubscribeClick}
+              asChild
               className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6 py-2 rounded-full font-semibold"
             >
-              Subscribe
+              <Link to="/newsletter">Subscribe</Link>
             </Button>
           </div>
 
@@ -113,12 +104,12 @@ const Header = () => {
               ))}
               <Button
                 onClick={() => {
-                  handleSubscribeClick();
                   setIsMenuOpen(false);
                 }}
+                asChild
                 className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white w-full"
               >
-                Subscribe
+                <Link to="/newsletter">Subscribe</Link>
               </Button>
             </div>
           </motion.div>
