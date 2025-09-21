@@ -49,21 +49,21 @@ const RecentPosts = ({ category, initialLimit }) => {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
-          className="text-center mb-6"
+          className="text-center mb-4"
         >
           <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-green-500/20 to-blue-500/20 backdrop-blur-sm border border-green-500/30 rounded-full px-6 py-3 mb-6">
             <TrendingUp className="h-5 w-5 text-green-400" />
             <span className="text-sm font-medium text-green-200">Fresh Content</span>
           </div>
-          <h2 className="text-2xl md:text-3xl font-bold mb-3">
+          <h2 className="text-xl md:text-2xl font-bold mb-2">
             <span className="gradient-text">Latest</span> Articles
           </h2>
-          <p className="text-base text-gray-300 max-w-2xl mx-auto">
+          <p className="text-sm text-gray-300 max-w-2xl mx-auto">
             Stay updated with the newest insights and tutorials in data engineering
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
           <AnimatePresence>
             {visiblePosts.map((post, index) => (
               <React.Fragment key={post.id}>
