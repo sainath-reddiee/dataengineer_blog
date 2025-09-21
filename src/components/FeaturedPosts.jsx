@@ -3,16 +3,17 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Calendar, Clock, ArrowRight, Star, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { allArticles } from '@/data/articles';
+import { usePosts } from '@/hooks/useWordPress';
 import { useIntersectionObserver } from '@/hooks/useIntersectionObserver';
 
 const FeaturedPosts = () => {
   const [ref, isIntersecting, hasIntersected] = useIntersectionObserver();
   
-  // Use static featured posts to avoid API issues
-  const featuredPosts = allArticles.filter(post => post.featured).slice(0, 3);
-  const loading = false;
-  const error = null;
+  // Fetch featured posts from WordPress
+  const { posts: featuredPosts, loading, error } = usePosts({ 
+    featured: true, 
+    per_page: 3 
+  });
 
   if (loading) {
     return (

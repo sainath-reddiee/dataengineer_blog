@@ -127,6 +127,9 @@ class WordPressAPI {
   // Get posts by category
   async getPostsByCategory(categorySlug, { page = 1, per_page = 10 } = {}) {
     const categories = await this.getCategories();
+    console.log('Available categories:', categories);
+    console.log('Looking for category:', categorySlug);
+    
     const category = categories.find(cat => 
       cat.slug === categorySlug || 
       cat.slug === categorySlug.toLowerCase() ||
@@ -140,6 +143,7 @@ class WordPressAPI {
       return [];
     }
 
+    console.log('Found category:', category);
     return this.getPosts({ page, per_page, categories: category.id });
   }
 

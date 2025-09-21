@@ -23,6 +23,8 @@ export const usePosts = ({
       setLoading(true);
       setError(null);
       
+      console.log('Fetching posts with params:', { page, per_page, categories, search, featured });
+      
       const response = await wordpressApi.getPosts({
         page,
         per_page,
@@ -31,9 +33,11 @@ export const usePosts = ({
         featured
       });
 
+      console.log('WordPress API response:', response);
       setData(response);
       setHasMore(page < totalPages);
     } catch (err) {
+      console.error('WordPress API Error:', err);
       setError(err.message);
       // Fallback to static data if API fails
       const { allArticles } = await import('@/data/articles');

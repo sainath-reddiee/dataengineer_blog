@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Calendar, Clock, ArrowRight, TrendingUp, Loader } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { allArticles } from '@/data/articles';
+import { usePosts } from '@/hooks/useWordPress';
 import AdManager from '@/components/AdSense/AdManager';
 import { useIntersectionObserver } from '@/hooks/useIntersectionObserver';
 
@@ -11,33 +11,29 @@ const POSTS_PER_PAGE = 6;
 
 const RecentPosts = ({ category, initialLimit }) => {
   const [visibleCount, setVisibleCount] = useState(initialLimit || POSTS_PER_PAGE);
-  const [isLoading, setIsLoading] = useState(false);
   const [ref, isIntersecting, hasIntersected] = useIntersectionObserver();
 
-  const articles = useMemo(() => {
-    const sortedArticles = allArticles
-      .filter(p => !p.featured)
-      .sort((a, b) => new Date(b.date) - new Date(a.date));
-    
-    if (category) {
-      return sortedArticles.filter(p => {
-        const postCategory = p.category.toLowerCase();
-        const searchCategory = category.toLowerCase();
-        return postCategory === searchCategory || 
-               postCategory.replace(/\s+/g, '-') === searchCategory ||
-               postCategory === searchCategory.replace(/-/g, ' ') ||
-               postCategory.replace(/\s+/g, '') === searchCategory.replace(/\s+/g, '');
-      });
-    }
-    return sortedArticles;
-  }, [category]);
+  // Fetch posts from WordPress
+  const { posts: allPosts, loading, error, hasMore, loadMore } = usePosts({
+    per_page: POSTS_PER_PAGE,
+    featured: false, // Exclude featured posts
+    categories: category ? category : null
+  });
+
+  // Filter out featured posts and apply visible count
+  const articles = allPosts.filter(p => !p.featured);
+  const visiblePosts = articles.slice(0, visibleCount);
+  const hasMoreLocal = visibleCount < articles.length || hasMore;
 
   const handleLoadMore = () => {
-    setVisibleCount(prevCount => prevCount + POSTS_PER_PAGE);
+    if (visibleCount < articles.length) {
+      // Load more from current posts
+      setVisibleCount(prevCount => prevCount + POSTS_PER_PAGE);
+    } else if (hasMore) {
+      // Load more from API
+      loadMore();
+    }
   };
-
-  const visiblePosts = articles.slice(0, visibleCount);
-  const hasMore = visibleCount < articles.length;
 
   return (
     <section ref={ref} className="py-1 relative">
@@ -146,8 +142,21 @@ const RecentPosts = ({ category, initialLimit }) => {
           </motion.div>
         )}
 
+        {loading && (
+          <div className="flex items-center justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div>
+          </div>
+        )}
+
+        {error && (
+          <div className="text-center text-red-400 py-8">
+            <AlertCircle className="h-6 w-6 mx-auto mb-2" />
+            <p>Error loading posts: {error}</p>
+          </div>
+        )}
+
         <AnimatePresence>
-          {hasMore && (
+          {hasMoreLocal && !loading && (
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -160,9 +169,9 @@ const RecentPosts = ({ category, initialLimit }) => {
                 size="lg"
                 variant="outline"
                 className="border-2 border-blue-400/50 text-blue-300 hover:bg-blue-500/20 px-8 py-4 rounded-full font-bold backdrop-blur-sm group"
-                disabled={isLoading}
+                disabled={loading}
               >
-                {isLoading ? (
+                {loading ? (
                   <>
                     <Loader className="mr-2 h-5 w-5 animate-spin" />
                     Loading...
