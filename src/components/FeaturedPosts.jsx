@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import { Calendar, Clock, ArrowRight, Star, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { allArticles } from '@/data/articles';
-import LazyImage from '@/components/LazyImage';
 import { useIntersectionObserver } from '@/hooks/useIntersectionObserver';
 
 const FeaturedPosts = () => {
@@ -79,10 +78,11 @@ const FeaturedPosts = () => {
             >
               <Link to={`/articles/${featuredPosts[0].slug}`} className="block blog-card rounded-2xl overflow-hidden group h-full">
                 <div className="relative">
-                  <LazyImage
+                  <img
                     src={featuredPosts[0].image}
                     alt={featuredPosts[0].title}
                     className="w-full h-64 lg:h-80 object-cover group-hover:scale-105 transition-transform duration-300"
+                    loading="lazy"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
                   <div className="absolute top-4 left-4">
@@ -127,10 +127,11 @@ const FeaturedPosts = () => {
                 >
                   <Link to={`/articles/${post.slug}`} className="block blog-card rounded-xl overflow-hidden group">
                     <div className="flex">
-                      <LazyImage
+                      <img
                         src={post.image}
                         alt={post.title}
                         className="w-32 h-32 flex-shrink-0 object-cover group-hover:scale-105 transition-transform duration-300"
+                        loading="lazy"
                       />
                       <div className="p-6 flex-1">
                         <div className="mb-2">

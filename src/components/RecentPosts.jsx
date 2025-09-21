@@ -5,7 +5,6 @@ import { Calendar, Clock, ArrowRight, TrendingUp, Loader } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { allArticles } from '@/data/articles';
 import AdManager from '@/components/AdSense/AdManager';
-import LazyImage from '@/components/LazyImage';
 import { useIntersectionObserver } from '@/hooks/useIntersectionObserver';
 
 const POSTS_PER_PAGE = 6;
@@ -77,10 +76,11 @@ const RecentPosts = ({ category, initialLimit }) => {
                 >
                   <Link to={`/articles/${post.slug}`} className="block blog-card rounded-2xl overflow-hidden group h-full">
                     <div className="relative h-40 overflow-hidden">
-                      <LazyImage
+                      <img
                         src={post.image}
                         alt={post.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        loading="lazy"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
                       <div className="absolute top-4 left-4 flex items-center space-x-2">
