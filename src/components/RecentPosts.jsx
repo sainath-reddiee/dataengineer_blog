@@ -18,7 +18,14 @@ const RecentPosts = ({ category, initialLimit }) => {
       .sort((a, b) => new Date(b.date) - new Date(a.date));
     
     if (category) {
-      return sortedArticles.filter(p => p.category.toLowerCase() === category.toLowerCase());
+      return sortedArticles.filter(p => {
+        const postCategory = p.category.toLowerCase();
+        const searchCategory = category.toLowerCase();
+        return postCategory === searchCategory || 
+               postCategory.replace(/\s+/g, '-') === searchCategory ||
+               postCategory === searchCategory.replace(/-/g, ' ') ||
+               postCategory.replace(/\s+/g, '') === searchCategory.replace(/\s+/g, '');
+      });
     }
     return sortedArticles;
   }, [category]);
