@@ -2,167 +2,122 @@ import React, { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 
 const AdsenseAd = ({ 
-  adSlot, 
-  adFormat = 'auto',
-  fullWidthResponsive = true,
+  position = 'auto',
   style = {},
   className = '',
-  adTest = 'off' // Set to 'on' for test ads, 'off' for production ads
+  showTestAd = true // Set to false when you have real AdSense
 }) => {
   const adRef = useRef(null);
   const location = useLocation();
-  const adId = useRef(`ad-${Date.now()}-${Math.random()}`);
 
   useEffect(() => {
-    // Initialize AdSense
-    if (adTest === 'on') {
+    if (showTestAd) {
+      // Show beautiful test ad
       showTestAd();
     } else {
-      initializeAdSense();
+      // Try to load real AdSense (only if script is in index.html)
+      loadRealAd();
     }
-  }, []);
-
-  useEffect(() => {
-    // Refresh ads on route change
-    const timer = setTimeout(() => {
-      if (adTest === 'on') {
-        showTestAd();
-      } else {
-        refreshAd();
-      }
-    }, 100);
-
-    return () => clearTimeout(timer);
   }, [location.pathname]);
-
-  const initializeAdSense = () => {
-    // Since you're adding the script to index.html, just push the ad
-    if (!window.adsbygoogle) {
-      // AdSense script not loaded yet, show fallback
-      showFallbackAd();
-    } else {
-      pushAd();
-    }
-  };
-
-  const refreshAd = () => {
-    if (window.adsbygoogle) {
-      // Clear existing ad
-      if (adRef.current) {
-        adRef.current.innerHTML = '';
-      }
-      
-      // Small delay to ensure DOM is ready
-      setTimeout(() => {
-        pushAd();
-      }, 50);
-    } else {
-      showFallbackAd();
-    }
-  };
-
-  const pushAd = () => {
-    if (!window.adsbygoogle || !adRef.current) {
-      return;
-    }
-    
-    try {
-      // Create new ad element with unique ID
-      const adElement = document.createElement('ins');
-      adElement.className = 'adsbygoogle';
-      adElement.style.display = 'block';
-      adElement.id = adId.current;
-      adElement.setAttribute('data-ad-client', 'ca-pub-YOUR_PUBLISHER_ID');
-      adElement.setAttribute('data-ad-slot', adSlot);
-      adElement.setAttribute('data-ad-format', adFormat);
-      adElement.setAttribute('data-full-width-responsive', fullWidthResponsive.toString());
-      adElement.setAttribute('data-ad-test', adTest === 'on' ? 'on' : 'off');
-      
-      adRef.current.appendChild(adElement);
-      
-      // Push the ad with error handling
-      try {
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
-      } catch (pushError) {
-        console.warn('AdSense push error:', pushError);
-        showFallbackAd();
-      }
-    } catch (error) {
-      console.error('AdSense error:', error);
-      showFallbackAd();
-    }
-  };
 
   const showTestAd = () => {
     if (adRef.current) {
+      const adStyles = {
+        header: {
+          background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%)',
+          minHeight: '90px',
+          content: 'DataEngineer Hub • Premium Content'
+        },
+        sidebar: {
+          background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%)',
+          minHeight: '250px',
+          content: 'Expert Tutorials • Latest Tech'
+        },
+        'in-article': {
+          background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%)',
+          minHeight: '100px',
+          content: 'Data Engineering Resources'
+        },
+        footer: {
+          background: 'linear-gradient(135deg, rgba(234, 179, 8, 0.1) 0%, rgba(249, 115, 22, 0.1) 100%)',
+          minHeight: '90px',
+          content: 'Subscribe • Stay Updated'
+        },
+        'between-posts': {
+          background: 'linear-gradient(135deg, rgba(236, 72, 153, 0.1) 0%, rgba(239, 68, 68, 0.1) 100%)',
+          minHeight: '120px',
+          content: 'Trending Articles • Must Read'
+        }
+      };
+
+      const adStyle = adStyles[position] || adStyles['in-article'];
+
       adRef.current.innerHTML = `
         <div style="
-          background: linear-gradient(135deg, rgba(96, 165, 250, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
+          ${adStyle.background};
           border: 1px solid rgba(96, 165, 250, 0.2);
           backdrop-filter: blur(10px);
           color: white;
-          padding: 10px;
+          padding: 20px;
           text-align: center;
-          border-radius: 8px;
-          font-family: Arial, sans-serif;
-          min-height: 50px;
+          border-radius: 12px;
+          font-family: 'Inter', Arial, sans-serif;
+          min-height: ${adStyle.minHeight};
           display: flex;
           flex-direction: column;
           justify-content: center;
           align-items: center;
-          gap: 4px;
+          gap: 8px;
+          transition: all 0.3s ease;
         ">
-          <div style="font-size: 9px; opacity: 0.5; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px;">Advertisement</div>
-          <div style="font-size: 14px; font-weight: bold; margin-bottom: 3px; background: linear-gradient(135deg, #60a5fa, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">DataEngineer Hub</div>
+          <div style="font-size: 10px; opacity: 0.6; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">Advertisement</div>
+          <div style="font-size: 16px; font-weight: bold; margin-bottom: 6px; background: linear-gradient(135deg, #60a5fa, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">DataEngineer Hub</div>
           <div style="
             background: rgba(96, 165, 250, 0.2);
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 10px;
-            opacity: 0.8;
+            padding: 6px 16px;
+            border-radius: 25px;
+            font-size: 12px;
+            opacity: 0.9;
             border: 1px solid rgba(96, 165, 250, 0.1);
             font-weight: 500;
           ">
-            Premium Content • Expert Tutorials
+            ${adStyle.content}
           </div>
         </div>
       `;
     }
   };
 
-  const showFallbackAd = () => {
-    if (adRef.current) {
-      adRef.current.innerHTML = `
-        <div style="
-          background: rgba(255, 255, 255, 0.05);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          backdrop-filter: blur(5px);
-          color: #9ca3af;
-          padding: 20px;
-          text-align: center;
-          border-radius: 8px;
-          font-family: Arial, sans-serif;
-          min-height: 80px;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-        ">
-          <div style="font-size: 12px; opacity: 0.6; margin-bottom: 8px;">Advertisement</div>
-          <div style="font-size: 14px; opacity: 0.4;">Content Loading...</div>
-        </div>
-      `;
+  const loadRealAd = () => {
+    // Only try to load real ads if AdSense script is present
+    if (window.adsbygoogle && adRef.current) {
+      try {
+        const adElement = document.createElement('ins');
+        adElement.className = 'adsbygoogle';
+        adElement.style.display = 'block';
+        adElement.setAttribute('data-ad-client', 'ca-pub-YOUR_PUBLISHER_ID'); // Replace with your ID
+        adElement.setAttribute('data-ad-format', 'auto');
+        adElement.setAttribute('data-full-width-responsive', 'true');
+        
+        adRef.current.appendChild(adElement);
+        (window.adsbygoogle = window.adsbygoogle || []).push({});
+      } catch (error) {
+        console.warn('AdSense loading failed, showing fallback');
+        showTestAd();
+      }
+    } else {
+      // No AdSense script found, show test ad
+      showTestAd();
     }
   };
 
   return (
     <div 
       ref={adRef}
-      className={`adsense-container ${className} relative`}
+      className={`adsense-container ${className}`}
       style={{
         textAlign: 'center',
-        margin: '0',
-        minHeight: '90px',
+        margin: '10px 0',
         zIndex: 5,
         ...style
       }}
