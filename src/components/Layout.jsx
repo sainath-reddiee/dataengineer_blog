@@ -13,12 +13,17 @@ const Layout = () => {
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 flex flex-col">
         <Header />
         {/* Removed header ad for better UX */}
-        <div className="pt-16"></div>
+        <div className="pt-16">
+          <AdManager position="header" />
+        </div>
         <main className="flex-grow">
           <Outlet />
         </main>
         {/* Removed footer ad for better performance */}
-        <Footer />
+        <div>
+          <AdManager position="footer" />
+          <Footer />
+        </div>
         <Toaster />
       </div>
     </>
