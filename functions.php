@@ -5,7 +5,9 @@
 function handle_cors_requests() {
     $allowed_origins = array(
         'https://app.dataengineerhub.blog',
-        'https://dataengineerhub.blog'
+        'https://dataengineerhub.blog',
+        'https://localhost:5173',
+        'http://localhost:5173'
     );
     
     $origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
