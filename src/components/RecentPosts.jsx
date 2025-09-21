@@ -1,205 +1,285 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link } from 'react-router-dom';
-import { Calendar, Clock, ArrowRight, TrendingUp, Loader, AlertCircle } from 'lucide-react';
+import { RefreshCw, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { usePosts } from '@/hooks/useWordPress';
-import AdManager from '@/components/AdSense/AdManager';
-import { useIntersectionObserver } from '@/hooks/useIntersectionObserver';
+import { toast } from '@/components/ui/use-toast';
+import PostCard from '@/components/PostCard';
+import PostCardSkeleton from '@/components/PostCardSkeleton';
+import wordpressApi from '@/services/wordpressApi';
 
-const POSTS_PER_PAGE = 6;
+const RecentPosts = ({ 
+  category = null, 
+  showCategoryError = false,
+  limit = 6,
+  title = null 
+}) => {
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastRefresh, setLastRefresh] = useState(null);
 
-const RecentPosts = ({ category, initialLimit, showCategoryError = false }) => {
-  const [visibleCount, setVisibleCount] = useState(initialLimit || POSTS_PER_PAGE);
-  const [ref, isIntersecting, hasIntersected] = useIntersectionObserver();
-
-  // Fetch posts from WordPress
-  const { posts: allPosts, loading, error, hasMore, totalPages, totalPosts, loadMore } = usePosts({
-    per_page: POSTS_PER_PAGE,
-    featured: null, // Get all posts
-    categorySlug: category ? category : null,
-    enabled: true
-  });
-
-  // Debug logging
-  console.log('📊 RecentPosts Debug Info:', {
-    postsCount: allPosts.length,
-    loading,
-    error,
-    category,
-    totalPosts,
-    hasMore,
-    totalPages
-  });
-
-  // Apply visible count (don't filter featured for now)
-  const articles = allPosts;
-  const visiblePosts = articles.slice(0, visibleCount);
-  const hasMoreLocal = visibleCount < totalPosts;
-
-  const handleLoadMore = () => {
-    if (visibleCount < articles.length) {
-      // Load more from current posts
-      setVisibleCount(prevCount => prevCount + POSTS_PER_PAGE);
-    } else if (hasMore) {
-      // Load more from API
-      loadMore();
+  // Function to fetch posts with proper error handling
+  const fetchPosts = useCallback(async (forceRefresh = false) => {
+    try {
+      setError(null);
+      if (forceRefresh) {
+        setRefreshing(true);
+        console.log('🔄 Force refreshing posts...');
+      } else {
+        setLoading(true);
+      }
+      
+      let postsData;
+      
+      if (category) {
+        console.log('📂 Fetching posts for category:', category);
+        
+        // Get category ID first
+        const categoryId = await wordpressApi.getCategoryIdBySlug(category, forceRefresh);
+        console.log('🆔 Category ID found:', categoryId);
+        
+        // Fetch posts for the specific category
+        const result = await wordpressApi.getPostsByCategory(categoryId, { 
+          per_page: limit,
+          forceRefresh 
+        });
+        postsData = result.posts;
+        
+        console.log('📋 Posts fetched for category:', postsData.length);
+      } else {
+        // Fetch all posts
+        const result = await wordpressApi.getPosts({ 
+          per_page: limit,
+          forceRefresh 
+        });
+        postsData = result.posts;
+        
+        console.log('📋 All posts fetched:', postsData.length);
+      }
+      
+      setPosts(postsData);
+      setLastRefresh(new Date().toLocaleTimeString());
+      
+      if (forceRefresh) {
+        toast({
+          title: "Posts refreshed",
+          description: `Loaded ${postsData.length} posts`,
+        });
+      }
+      
+    } catch (err) {
+      console.error('❌ Error fetching posts:', err);
+      setError(err.message);
+      
+      if (showCategoryError && category) {
+        // Show specific error for category not found
+        toast({
+          title: "Category Error",
+          description: `Category "${category}" not found. Please check if it exists.`,
+          variant: "destructive",
+        });
+      }
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
     }
-  };
+  }, [category, limit, showCategoryError]);
 
-  return (
-    <section ref={ref} className="py-1 relative">
-      <div className="container mx-auto px-6">
-        <AnimatePresence>
-          {hasIntersected && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-              className="text-center mb-1"
-            >
-              <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-green-500/20 to-blue-500/20 backdrop-blur-sm border border-green-500/30 rounded-full px-3 py-1 mb-2">
-                <TrendingUp className="h-4 w-4 text-green-400" />
-                <span className="text-xs font-medium text-green-200">Fresh Content</span>
-              </div>
-              <h2 className="text-lg md:text-xl font-bold mb-1">
-                <span className="gradient-text">Latest</span> Articles
-              </h2>
-              <p className="text-xs text-gray-300 max-w-2xl mx-auto">
-                Stay updated with the newest insights and tutorials in data engineering
-              </p>
-            </motion.div>
-          )}
-        </AnimatePresence>
+  // Manual refresh function
+  const handleRefresh = useCallback(async () => {
+    await fetchPosts(true);
+  }, [fetchPosts]);
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-          <AnimatePresence>
-            {hasIntersected && visiblePosts.map((post, index) => (
-              <React.Fragment key={post.id}>
-                <motion.div
-                  initial={{ opacity: 0, y: 50 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: (index % POSTS_PER_PAGE) * 0.02 }}
-                  layout
-                >
-                  <Link to={`/articles/${post.slug}`} className="block blog-card rounded-2xl overflow-hidden group h-full">
-                    <div className="relative h-40 overflow-hidden">
-                      <img
-                        src={post.image}
-                        alt={post.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                      <div className="absolute top-4 left-4 flex items-center space-x-2">
-                        <span className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-3 py-1 rounded-full text-xs font-semibold">
-                          {post.category}
-                        </span>
-                        {post.trending && (
-                          <span className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center space-x-1">
-                            <TrendingUp className="h-3 w-3" />
-                            <span>Trending</span>
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    
-                    <div className="p-6 flex flex-col">
-                      <h3 className="text-lg font-semibold mb-2 group-hover:text-blue-400 transition-colors line-clamp-2 flex-grow">
-                        {post.title}
-                      </h3>
-                      <p className="text-gray-400 mb-3 text-sm line-clamp-2 leading-relaxed">
-                        {post.excerpt}
-                      </p>
-                      <div className="flex items-center justify-between text-sm text-gray-500 mt-auto">
-                        <div className="flex items-center space-x-4">
-                          <div className="flex items-center space-x-1">
-                            <Calendar className="h-4 w-4" />
-                            <span>{new Date(post.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
-                          </div>
-                          <div className="flex items-center space-x-1">
-                            <Clock className="h-4 w-4" />
-                            <span>{post.readTime}</span>
-                          </div>
-                        </div>
-                        <ArrowRight className="h-5 w-5 group-hover:translate-x-2 transition-transform text-blue-400" />
-                      </div>
-                    </div>
-                  </Link>
-                </motion.div>
-                
-                {/* Show ad between posts - reduced frequency */}
-                {(index + 1) % 9 === 0 && (
-                  <motion.div
-                    key={`ad-${index}`}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.2 }}
-                    className="md:col-span-2 lg:col-span-3"
-                  >
-                    <AdManager position="between-posts" postIndex={index} category={category} />
-                  </motion.div>
-                )}
-              </React.Fragment>
-            ))}
-          </AnimatePresence>
+  // Auto-refresh every 30 seconds if we're on a category page
+  useEffect(() => {
+    let interval;
+    if (category) {
+      interval = setInterval(() => {
+        console.log('⏰ Auto-refreshing category posts...');
+        fetchPosts(true);
+      }, 30000); // 30 seconds
+    }
+    
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [category, fetchPosts]);
+
+  // Initial load
+  useEffect(() => {
+    fetchPosts();
+  }, [fetchPosts]);
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        {title && (
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold gradient-text">{title}</h2>
+          </div>
+        )}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Array.from({ length: limit }, (_, i) => (
+            <PostCardSkeleton key={i} />
+          ))}
         </div>
+      </div>
+    );
+  }
 
-        {articles.length === 0 && !loading && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center text-gray-400 py-12"
+  // Error state
+  if (error) {
+    return (
+      <div className="space-y-6">
+        {title && (
+          <h2 className="text-2xl font-bold gradient-text">{title}</h2>
+        )}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-red-500/10 border border-red-500/20 rounded-lg p-6 text-center"
+        >
+          <AlertCircle className="h-12 w-12 text-red-400 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-red-300 mb-2">
+            {category ? `Category "${category}" not found` : 'Failed to load posts'}
+          </h3>
+          <p className="text-red-200/80 mb-4">{error}</p>
+          <Button 
+            onClick={handleRefresh} 
+            variant="outline" 
+            className="border-red-400/50 text-red-300 hover:bg-red-500/20"
+            disabled={refreshing}
           >
-            <div>
-              <p className="mb-2">No articles found{category ? ` for "${category}" category` : ''}</p>
-              <div className="text-sm text-gray-500">
-                <p>Make sure you have published posts in WordPress</p>
-                <p>API: https://app.dataengineerhub.blog/wp-json/wp/v2/posts</p>
-              </div>
-            </div>
-          </motion.div>
-        )}
+            {refreshing ? (
+              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <RefreshCw className="h-4 w-4 mr-2" />
+            )}
+            Try Again
+          </Button>
+        </motion.div>
+      </div>
+    );
+  }
 
-        {loading && (
-          <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div>
-          </div>
-        )}
-
-        {error && (
-          <div className="text-center text-red-400 py-8">
-            <div className="flex flex-col items-center">
-              <AlertCircle className="h-6 w-6 mb-2" />
-              <p className="mb-2">Error loading posts: {error}</p>
-              <div className="text-sm text-gray-500 max-w-md text-center space-y-2">
-                {showCategoryError && category && (
-                  <>
-                    <p className="font-semibold">Category Issue Detected:</p>
-                    <p>1. Check if "{category.charAt(0).toUpperCase() + category.slice(1)}" category exists in WordPress</p>
-                    <p>2. Verify the post is assigned to the correct category</p>
-                    <p>3. Check category slug matches: "{category.toLowerCase()}"</p>
-                  </>
-                )}
-                <p>API URL: https://app.dataengineerhub.blog/wp-json/wp/v2/posts</p>
-                <p>Categories API: https://app.dataengineerhub.blog/wp-json/wp/v2/categories</p>
-                <p>Check browser console for detailed logs</p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {hasMoreLocal && !loading && articles.length > 0 && (
-          <div className="text-center mt-8">
-            <Button
-              onClick={handleLoadMore}
-              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-3 rounded-full font-semibold transition-all duration-300 transform hover:scale-105"
+  // Empty state
+  if (posts.length === 0) {
+    return (
+      <div className="space-y-6">
+        {title && (
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold gradient-text">{title}</h2>
+            <Button 
+              onClick={handleRefresh} 
+              variant="outline" 
+              size="sm"
+              className="border-blue-400/50 text-blue-300 hover:bg-blue-500/20"
+              disabled={refreshing}
             >
-              Load More Articles
+              {refreshing ? (
+                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <RefreshCw className="h-4 w-4 mr-2" />
+              )}
+              Refresh
             </Button>
           </div>
         )}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-8 text-center"
+        >
+          <h3 className="text-lg font-semibold text-yellow-300 mb-2">
+            {category ? `No posts found in "${category}" category` : 'No posts available'}
+          </h3>
+          <p className="text-yellow-200/80 mb-4">
+            {category 
+              ? 'Posts in this category might be published soon. Try refreshing or check back later.'
+              : 'New posts will appear here when they are published.'
+            }
+          </p>
+          {lastRefresh && (
+            <p className="text-xs text-gray-400">
+              Last checked: {lastRefresh}
+            </p>
+          )}
+        </motion.div>
       </div>
-    </section>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {title && (
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold gradient-text">{title}</h2>
+          <div className="flex items-center gap-2">
+            {lastRefresh && (
+              <span className="text-xs text-gray-400">
+                Updated: {lastRefresh}
+              </span>
+            )}
+            <Button 
+              onClick={handleRefresh} 
+              variant="outline" 
+              size="sm"
+              className="border-blue-400/50 text-blue-300 hover:bg-blue-500/20"
+              disabled={refreshing}
+            >
+              {refreshing ? (
+                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <RefreshCw className="h-4 w-4 mr-2" />
+              )}
+              Refresh
+            </Button>
+          </div>
+        </div>
+      )}
+      
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={posts.length} // Re-animate when posts change
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        >
+          {posts.map((post, index) => (
+            <motion.div
+              key={post.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ 
+                duration: 0.5, 
+                delay: index * 0.1 
+              }}
+            >
+              <PostCard post={post} />
+            </motion.div>
+          ))}
+        </motion.div>
+      </AnimatePresence>
+
+      {/* Debug info in development */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="mt-8 p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+          <h4 className="text-sm font-semibold text-gray-300 mb-2">Debug Info</h4>
+          <div className="text-xs text-gray-400 space-y-1">
+            <div>Category: {category || 'All'}</div>
+            <div>Posts loaded: {posts.length}</div>
+            <div>Last refresh: {lastRefresh || 'Never'}</div>
+            <div>Cache status: {JSON.stringify(wordpressApi.getCacheStatus())}</div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
