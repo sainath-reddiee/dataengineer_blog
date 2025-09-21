@@ -19,7 +19,9 @@ const Newsletter = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!email) {
+    console.log('Form submitted with email:', email); // Debug log
+    
+    if (!email.trim()) {
       toast({
         title: "Email Required",
         description: "Please enter your email address to subscribe.",
@@ -28,7 +30,7 @@ const Newsletter = () => {
       return;
     }
 
-    if (!isValidEmail(email)) {
+    if (!isValidEmail(email.trim())) {
       toast({
         title: "Invalid Email",
         description: "Please enter a valid email address.",
@@ -42,7 +44,9 @@ const Newsletter = () => {
     try {
       // Check if already subscribed
       const subscriptions = JSON.parse(localStorage.getItem('newsletterSubscriptions') || '[]');
-      if (subscriptions.includes(email)) {
+      const trimmedEmail = email.trim().toLowerCase();
+      
+      if (subscriptions.includes(trimmedEmail)) {
         toast({
           title: "Already Subscribed",
           description: "This email address is already on our list!",
@@ -55,7 +59,7 @@ const Newsletter = () => {
       await new Promise(resolve => setTimeout(resolve, 1500));
 
       // Save to localStorage
-      subscriptions.push(email);
+      subscriptions.push(trimmedEmail);
       localStorage.setItem('newsletterSubscriptions', JSON.stringify(subscriptions));
 
       // Show success state
@@ -81,6 +85,12 @@ const Newsletter = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleButtonClick = (e) => {
+    e.preventDefault();
+    console.log('Button clicked!'); // Debug log
+    handleSubmit(e);
   };
 
   return (
@@ -128,61 +138,62 @@ const Newsletter = () => {
                   delivered straight to their inbox. No spam, just pure data engineering gold.
                 </motion.p>
 
-                <motion.form
+                <motion.div
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.8, delay: 0.5 }}
                   viewport={{ once: true }}
-                  onSubmit={handleSubmit}
-                  className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto mb-6"
+                  className="max-w-md mx-auto mb-6"
                 >
-                  <div className="flex-1 relative">
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="Enter your email address"
-                      className="w-full px-6 py-4 bg-white/10 border border-white/20 rounded-full text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
+                  <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4">
+                    <div className="flex-1 relative">
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="Enter your email address"
+                        className="w-full px-6 py-4 bg-white/10 border border-white/20 rounded-full text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
+                        disabled={isSubscribed || loading}
+                      />
+                      {isSubscribed && (
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          className="absolute right-4 top-1/2 transform -translate-y-1/2"
+                        >
+                          <CheckCircle className="h-6 w-6 text-green-400" />
+                        </motion.div>
+                      )}
+                    </div>
+                    <button
+                      type="submit"
+                      onClick={handleButtonClick}
                       disabled={isSubscribed || loading}
-                    />
-                    {isSubscribed && (
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        className="absolute right-4 top-1/2 transform -translate-y-1/2"
-                      >
-                        <CheckCircle className="h-6 w-6 text-green-400" />
-                      </motion.div>
-                    )}
-                  </div>
-                  <Button
-                    type="submit"
-                    size="lg"
-                    disabled={isSubscribed || loading}
-                    className={`px-8 py-4 rounded-full font-bold transition-all duration-300 ${
-                      isSubscribed 
-                        ? 'bg-green-500 hover:bg-green-600' 
-                        : 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700'
-                    } text-white group`}
-                  >
-                    {loading ? (
-                      <>
-                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                        Subscribing...
-                      </>
-                    ) : isSubscribed ? (
-                      <>
-                        <CheckCircle className="mr-2 h-5 w-5" />
-                        Subscribed!
-                      </>
-                    ) : (
-                      <>
-                        Subscribe
-                        <Send className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                      </>
-                    )}
-                  </Button>
-                </motion.form>
+                      className={`px-8 py-4 rounded-full font-bold transition-all duration-300 flex items-center justify-center ${
+                        isSubscribed 
+                          ? 'bg-green-500 hover:bg-green-600' 
+                          : 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700'
+                      } text-white disabled:opacity-50 disabled:cursor-not-allowed`}
+                    >
+                      {loading ? (
+                        <>
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                          Subscribing...
+                        </>
+                      ) : isSubscribed ? (
+                        <>
+                          <CheckCircle className="mr-2 h-5 w-5" />
+                          Subscribed!
+                        </>
+                      ) : (
+                        <>
+                          Subscribe
+                          <Send className="ml-2 h-5 w-5" />
+                        </>
+                      )}
+                    </button>
+                  </form>
+                </motion.div>
 
                 <motion.div
                   initial={{ opacity: 0 }}
