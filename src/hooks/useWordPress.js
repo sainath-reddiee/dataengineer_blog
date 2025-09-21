@@ -29,11 +29,23 @@ export const usePosts = ({
       let categoryId = null;
       if (categorySlug) {
         console.log('🏷️ Category slug provided, resolving to ID...');
+        console.log('🏷️ Category slug details:', {
+          original: categorySlug,
+          type: typeof categorySlug,
+          length: categorySlug.length,
+          trimmed: categorySlug.trim(),
+          lowercase: categorySlug.toLowerCase()
+        });
         try {
           categoryId = await wordpressApi.getCategoryIdBySlug(categorySlug);
           console.log(`✅ Category "${categorySlug}" resolved to ID: ${categoryId}`);
         } catch (categoryError) {
           console.error('❌ Category resolution failed:', categoryError);
+          console.error('❌ Category error details:', {
+            message: categoryError.message,
+            categorySlug,
+            timestamp: new Date().toISOString()
+          });
           throw new Error(`Category "${categorySlug}" not found. Please check if the category exists in WordPress.`);
         }
       }

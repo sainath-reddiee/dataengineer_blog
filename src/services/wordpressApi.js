@@ -152,14 +152,22 @@ class WordPressAPI {
 
   // Get categories
   async getCategories() {
+    console.log('📡 getCategories() called');
     const categories = await this.fetchWithCache('/categories?per_page=100');
-    return categories.map(category => ({
+    console.log('📡 getCategories() raw response:', categories);
+    console.log('📡 getCategories() response type:', typeof categories);
+    console.log('📡 getCategories() is array:', Array.isArray(categories));
+    
+    const transformedCategories = categories.map(category => ({
       id: category.id,
       name: category.name,
       slug: category.slug,
       count: category.count,
       description: category.description,
     }));
+    
+    console.log('📡 getCategories() transformed:', transformedCategories);
+    return transformedCategories;
   }
 
   // Get posts by category
@@ -169,11 +177,23 @@ class WordPressAPI {
 
   // Get category ID by slug
   async getCategoryIdBySlug(categorySlug) {
+    console.log('🔍 getCategoryIdBySlug called with:', {
+      categorySlug,
+      type: typeof categorySlug,
+      length: categorySlug?.length,
+      trimmed: categorySlug?.trim(),
+      lowercase: categorySlug?.toLowerCase()
+    });
+    
     console.log('🔍 Looking for category slug:', categorySlug);
     
     try {
       // First attempt: try with cached categories
       let categories = await this.getCategories();
+      console.log('📋 Raw categories from getCategories():', categories);
+      console.log('📋 Categories array length:', categories.length);
+      console.log('📋 First few categories:', categories.slice(0, 3));
+      
       console.log('📋 Available categories (cached):', categories.map(c => ({
         name: c.name, 
         slug: c.slug, 
@@ -182,6 +202,7 @@ class WordPressAPI {
       })));
       
       let category = this.findCategoryBySlug(categories, categorySlug);
+      console.log('🎯 findCategoryBySlug result (first attempt):', category);
       
       if (!category) {
         console.log('⚠️ Category not found in cache, refreshing categories...');
@@ -189,6 +210,9 @@ class WordPressAPI {
         // Clear cache and fetch fresh categories
         this.clearCategoriesCache();
         categories = await this.getCategories();
+        console.log('📋 Fresh categories after cache clear:', categories);
+        console.log('📋 Fresh categories array length:', categories.length);
+        
         console.log('📋 Available categories (fresh):', categories.map(c => ({
           name: c.name, 
           slug: c.slug, 
@@ -198,10 +222,15 @@ class WordPressAPI {
         
         // Second attempt: try with fresh categories
         category = this.findCategoryBySlug(categories, categorySlug);
+        console.log('🎯 findCategoryBySlug result (second attempt):', category);
       }
       
       if (!category) {
         const availableCategories = categories.map(c => ({name: c.name, slug: c.slug, id: c.id, count: c.count}));
+        console.error('❌ FINAL FAILURE: Category lookup failed');
+        console.error('❌ Searched for:', categorySlug);
+        console.error('❌ Available categories:', availableCategories);
+        console.error('❌ Total categories found:', categories.length);
         console.error(`❌ Category not found for slug: ${categorySlug}. Available categories:`, availableCategories);
         throw new Error(`Category "${categorySlug}" not found. Available categories: ${availableCategories.map(c => c.slug).join(', ')}`);
       }
@@ -210,6 +239,12 @@ class WordPressAPI {
       return category.id;
     } catch (error) {
       console.error('❌ Error in getCategoryIdBySlug:', error);
+      console.error('❌ Error details:', {
+        message: error.message,
+        stack: error.stack,
+        categorySlug,
+        timestamp: new Date().toISOString()
+      });
       throw error;
     }
   }
