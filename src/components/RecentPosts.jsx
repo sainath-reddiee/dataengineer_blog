@@ -173,7 +173,7 @@ const RecentPosts = ({ category, initialLimit }) => {
           </div>
         )}
 
-        {articles.length === 0 && !loading && !error && (
+        <AnimatePresence>
           {hasMoreLocal && !loading && (
             <motion.div
               initial={{ opacity: 0, y: 30 }}
