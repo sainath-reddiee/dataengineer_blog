@@ -62,7 +62,7 @@ const AdManager = ({ position, postIndex, category }) => {
   const adKey = `${position}-${adSlot}-${location.pathname}-${postIndex || 0}`;
 
   return (
-    <div className="ad-wrapper relative z-[1]" key={adKey}>
+    <div className="ad-wrapper relative z-[5]" key={adKey}>
       {position === 'between-posts' && (
         <div className="text-center text-gray-500 text-sm mb-2">
           Advertisement
@@ -72,7 +72,7 @@ const AdManager = ({ position, postIndex, category }) => {
         key={adKey}
         adSlot={adSlot}
         style={getAdStyle()}
-        className={`ad-${position} relative z-[1]`}
+        className={`ad-${position} relative z-[5]`}
         adFormat={position === 'sidebar' ? 'rectangle' : 'auto'}
         adTest="on"
       />

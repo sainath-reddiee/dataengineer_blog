@@ -176,13 +176,12 @@ const AdsenseAd = ({
   return (
     <div 
       ref={adRef}
-      className={`adsense-container ${className}`}
+      className={`adsense-container ${className} relative`}
       style={{
         textAlign: 'center',
         margin: '0',
         minHeight: '90px',
-        position: 'relative',
-        zIndex: 1,
+        zIndex: 5,
         ...style
       }}
     />
