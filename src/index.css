@@ -35,13 +35,48 @@ body {
   background: hsl(var(--background));
   color: hsl(var(--foreground));
   line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
+/* Performance optimizations */
+* {
+  box-sizing: border-box;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Optimize animations */
+.floating-animation,
+.pulse-glow {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* Optimize gradients */
 .gradient-text {
   background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 50%, #f472b6 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  will-change: background-position;
 }
 
 .tech-card {
@@ -67,6 +102,7 @@ body {
   transform: translateY(-8px);
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
   border-color: rgba(96, 165, 250, 0.3);
+  will-change: transform;
 }
 
 .floating-animation {
@@ -90,13 +126,31 @@ body {
 /* Ensure proper z-index layering */
 .adsense-container {
   z-index: 1;
+  contain: layout;
 }
 
 .ad-wrapper {
   z-index: 1;
+  contain: layout;
 }
 
 /* Header should always be on top */
 header {
   z-index: 9999 !important;
+  contain: layout;
+}
+
+/* Optimize scrolling */
+.container {
+  contain: layout;
+}
+
+/* Optimize images */
+img[loading="lazy"] {
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+img[loading="lazy"].loaded {
+  opacity: 1;
 }

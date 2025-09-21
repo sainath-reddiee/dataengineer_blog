@@ -6,23 +6,45 @@ class WordPressAPI {
   constructor() {
     this.baseURL = WP_API_BASE;
     this.cache = new Map();
-    this.cacheTimeout = 5 * 60 * 1000; // 5 minutes
+    this.cacheTimeout = 10 * 60 * 1000; // 10 minutes - increased cache time
+    this.requestQueue = new Map();
   }
 
   async fetchWithCache(endpoint, options = {}) {
     const cacheKey = `${endpoint}_${JSON.stringify(options)}`;
     const cached = this.cache.get(cacheKey);
     
+    // Return cached data if available and not expired
     if (cached && Date.now() - cached.timestamp < this.cacheTimeout) {
       return cached.data;
     }
 
+    // Prevent duplicate requests
+    if (this.requestQueue.has(cacheKey)) {
+      return this.requestQueue.get(cacheKey);
+    }
+
+    const requestPromise = this.makeRequest(endpoint, options, cacheKey);
+    this.requestQueue.set(cacheKey, requestPromise);
+    
+    try {
+      const result = await requestPromise;
+      this.requestQueue.delete(cacheKey);
+      return result;
+    } catch (error) {
+      this.requestQueue.delete(cacheKey);
+      throw error;
+    }
+  }
+
+  async makeRequest(endpoint, options, cacheKey) {
     try {
       const response = await fetch(`${this.baseURL}${endpoint}`, {
         headers: {
           'Content-Type': 'application/json',
           ...options.headers,
         },
+        signal: AbortSignal.timeout(10000), // 10 second timeout
         ...options,
       });
 
@@ -40,7 +62,11 @@ class WordPressAPI {
 
       return data;
     } catch (error) {
-      console.error('WordPress API Error:', error);
+      if (error.name === 'AbortError') {
+        console.warn('Request timeout:', endpoint);
+      } else {
+        console.error('WordPress API Error:', error);
+      }
       throw error;
     }
   }

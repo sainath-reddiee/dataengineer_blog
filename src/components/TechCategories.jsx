@@ -11,9 +11,11 @@ import {
   GitBranch
 } from 'lucide-react';
 import { useCategories } from '@/hooks/useWordPress';
+import { useIntersectionObserver } from '@/hooks/useIntersectionObserver';
 
 const TechCategories = () => {
   const { categories: apiCategories, loading } = useCategories();
+  const [ref, isIntersecting, hasIntersected] = useIntersectionObserver();
   
   // Fallback categories with icons and colors
   const categoryConfig = [
@@ -120,24 +122,27 @@ const TechCategories = () => {
     }
   };
   return (
-    <section className="py-8 relative">
+    <section ref={ref} className="py-4 relative">
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-900/10 to-transparent"></div>
       
       <div className="container mx-auto px-6 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          viewport={{ once: true }}
-          className="text-center mb-6"
-        >
-          <h2 className="text-2xl md:text-3xl font-bold mb-3">
-            Explore <span className="gradient-text">Technologies</span>
-          </h2>
-          <p className="text-sm text-gray-300 max-w-2xl mx-auto">
-            Deep dive into the tools and platforms that power modern data engineering
-          </p>
-        </motion.div>
+        <AnimatePresence>
+          {hasIntersected && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="text-center mb-4"
+            >
+              <h2 className="text-xl md:text-2xl font-bold mb-2">
+                Explore <span className="gradient-text">Technologies</span>
+              </h2>
+              <p className="text-xs text-gray-300 max-w-2xl mx-auto">
+                Deep dive into the tools and platforms that power modern data engineering
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {loading && (
           <div className="flex items-center justify-center py-12">
@@ -146,16 +151,15 @@ const TechCategories = () => {
         )}
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {categories.map((category, index) => {
+          {hasIntersected && categories.map((category, index) => {
             const IconComponent = category.icon;
             const animationVariant = animationVariants[category.animation];
             return (
               <motion.div
                 key={category.name}
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: index * 0.05 }}
-                viewport={{ once: true }}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.02 }}
                 whileHover={animationVariant.hover}
               >
                 <Link to={category.path} className="block tech-card rounded-2xl p-6 group relative overflow-hidden h-full">
@@ -170,8 +174,8 @@ const TechCategories = () => {
                   <div className="relative z-10 flex flex-col h-full">
                     <motion.div 
                       className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${category.color} mb-4 self-start`}
-                      whileHover={{ scale: 1.2, rotate: 5 }}
-                      transition={{ duration: 0.3 }}
+                      whileHover={{ scale: 1.1, rotate: 3 }}
+                      transition={{ duration: 0.2 }}
                     >
                       <IconComponent className="h-6 w-6 text-white" />
                     </motion.div>

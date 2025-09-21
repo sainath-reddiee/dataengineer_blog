@@ -5,12 +5,15 @@ import { Calendar, Clock, ArrowRight, TrendingUp, Loader } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { allArticles } from '@/data/articles';
 import AdManager from '@/components/AdSense/AdManager';
+import LazyImage from '@/components/LazyImage';
+import { useIntersectionObserver } from '@/hooks/useIntersectionObserver';
 
 const POSTS_PER_PAGE = 6;
 
 const RecentPosts = ({ category, initialLimit }) => {
   const [visibleCount, setVisibleCount] = useState(initialLimit || POSTS_PER_PAGE);
   const [isLoading, setIsLoading] = useState(false);
+  const [ref, isIntersecting, hasIntersected] = useIntersectionObserver();
 
   const articles = useMemo(() => {
     const sortedArticles = allArticles
@@ -38,43 +41,47 @@ const RecentPosts = ({ category, initialLimit }) => {
   const hasMore = visibleCount < articles.length;
 
   return (
-    <section className="py-2 relative">
+    <section ref={ref} className="py-2 relative">
       <div className="container mx-auto px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          viewport={{ once: true }}
-          className="text-center mb-2"
-        >
-          <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-green-500/20 to-blue-500/20 backdrop-blur-sm border border-green-500/30 rounded-full px-4 py-2 mb-3">
-            <TrendingUp className="h-5 w-5 text-green-400" />
-            <span className="text-sm font-medium text-green-200">Fresh Content</span>
-          </div>
-          <h2 className="text-lg md:text-xl font-bold mb-1">
-            <span className="gradient-text">Latest</span> Articles
-          </h2>
-          <p className="text-xs text-gray-300 max-w-2xl mx-auto">
-            Stay updated with the newest insights and tutorials in data engineering
-          </p>
-        </motion.div>
+        <AnimatePresence>
+          {hasIntersected && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="text-center mb-2"
+            >
+              <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-green-500/20 to-blue-500/20 backdrop-blur-sm border border-green-500/30 rounded-full px-3 py-1 mb-2">
+                <TrendingUp className="h-4 w-4 text-green-400" />
+                <span className="text-xs font-medium text-green-200">Fresh Content</span>
+              </div>
+              <h2 className="text-lg md:text-xl font-bold mb-1">
+                <span className="gradient-text">Latest</span> Articles
+              </h2>
+              <p className="text-xs text-gray-300 max-w-2xl mx-auto">
+                Stay updated with the newest insights and tutorials in data engineering
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
           <AnimatePresence>
-            {visiblePosts.map((post, index) => (
+            {hasIntersected && visiblePosts.map((post, index) => (
               <React.Fragment key={post.id}>
                 <motion.div
                   initial={{ opacity: 0, y: 50 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: (index % POSTS_PER_PAGE) * 0.05 }}
+                  transition={{ duration: 0.3, delay: (index % POSTS_PER_PAGE) * 0.02 }}
                   layout
                 >
                   <Link to={`/articles/${post.slug}`} className="block blog-card rounded-2xl overflow-hidden group h-full">
-                    <div className="relative h-48 overflow-hidden">
-                      <img 
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    <div className="relative h-40 overflow-hidden">
+                      <LazyImage
+                        src={post.image}
                         alt={post.title}
-                        src={post.image} />
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
                       <div className="absolute top-4 left-4 flex items-center space-x-2">
                         <span className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-3 py-1 rounded-full text-xs font-semibold">

@@ -4,12 +4,14 @@ import { Mail, Send, CheckCircle, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import { useNewsletter } from '@/hooks/useWordPress';
+import { useIntersectionObserver } from '@/hooks/useIntersectionObserver';
 
 const Newsletter = () => {
   const [email, setEmail] = useState('');
   const [isSubscribed, setIsSubscribed] = useState(false);
   const { subscribe, loading, error } = useNewsletter();
   const { toast } = useToast();
+  const [ref, isIntersecting, hasIntersected] = useIntersectionObserver();
 
   const isValidEmail = (email) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -95,51 +97,49 @@ const Newsletter = () => {
   };
 
   return (
-    <section className="py-8 relative overflow-hidden">
+    <section ref={ref} className="py-4 relative overflow-hidden">
       <div className="absolute inset-0">
         <div className="absolute top-10 left-1/4 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl floating-animation"></div>
         <div className="absolute bottom-10 right-1/4 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl floating-animation" style={{ animationDelay: '3s' }}></div>
       </div>
 
       <div className="container mx-auto px-6 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          viewport={{ once: true }}
-          className="max-w-4xl mx-auto"
-        >
-          <div className="glass-effect rounded-2xl p-6 md:p-8 text-center">
+        <AnimatePresence>
+          {hasIntersected && (
             <motion.div
-              initial={{ scale: 0 }}
-              whileInView={{ scale: 1 }}
-              transition={{ duration: 0.3, delay: 0.1 }}
-              viewport={{ once: true }}
-              className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mb-4"
-            >
-              <Mail className="h-6 w-6 text-white" />
-            </motion.div>
-
-            <motion.h2
               initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.2 }}
-              viewport={{ once: true }}
-              className="text-2xl md:text-3xl font-bold mb-3"
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="max-w-4xl mx-auto"
             >
-              Stay Ahead of the <span className="gradient-text">Data Curve</span>
-            </motion.h2>
+              <div className="glass-effect rounded-2xl p-4 md:p-6 text-center">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ duration: 0.3, delay: 0.1 }}
+                  className="inline-flex items-center justify-center w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mb-3"
+                >
+                  <Mail className="h-5 w-5 text-white" />
+                </motion.div>
 
-            <motion.p
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.3 }}
-              viewport={{ once: true }}
-              className="text-sm text-gray-300 mb-6 max-w-2xl mx-auto leading-relaxed"
-            >
-              Join 10,000+ data professionals who get weekly insights, tutorials, and industry updates 
-              delivered straight to their inbox. No spam, just pure data engineering gold.
-            </motion.p>
+                <motion.h2
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: 0.2 }}
+                  className="text-xl md:text-2xl font-bold mb-2"
+                >
+                  Stay Ahead of the <span className="gradient-text">Data Curve</span>
+                </motion.h2>
+
+                <motion.p
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: 0.3 }}
+                  className="text-xs text-gray-300 mb-4 max-w-2xl mx-auto leading-relaxed"
+                >
+                  Join 10,000+ data professionals who get weekly insights, tutorials, and industry updates 
+                  delivered straight to their inbox. No spam, just pure data engineering gold.
+                </motion.p>
 
             <motion.form
               initial={{ opacity: 0, y: 30 }}

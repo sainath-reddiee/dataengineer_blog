@@ -1,11 +1,15 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Calendar, Clock, ArrowRight, Star, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { allArticles } from '@/data/articles';
+import LazyImage from '@/components/LazyImage';
+import { useIntersectionObserver } from '@/hooks/useIntersectionObserver';
 
 const FeaturedPosts = () => {
+  const [ref, isIntersecting, hasIntersected] = useIntersectionObserver();
+  
   // Use static featured posts to avoid API issues
   const featuredPosts = allArticles.filter(post => post.featured).slice(0, 3);
   const loading = false;
@@ -41,44 +45,43 @@ const FeaturedPosts = () => {
   }
 
   return (
-    <section className="py-8 relative">
+    <section ref={ref} className="py-4 relative">
       <div className="container mx-auto px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          viewport={{ once: true }}
-          className="text-center mb-8"
-        >
-          <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 backdrop-blur-sm border border-yellow-500/30 rounded-full px-6 py-3 mb-6">
-            <Star className="h-5 w-5 text-yellow-400" />
-            <span className="text-sm font-medium text-yellow-200">Featured Content</span>
-          </div>
-          <h2 className="text-2xl md:text-3xl font-bold mb-3">
-            <span className="gradient-text">Must-Read</span> Articles
-          </h2>
-          <p className="text-sm text-gray-300 max-w-2xl mx-auto">
-            Handpicked articles covering the latest trends and best practices in data engineering
-          </p>
-        </motion.div>
+        <AnimatePresence>
+          {hasIntersected && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="text-center mb-4"
+            >
+              <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 backdrop-blur-sm border border-yellow-500/30 rounded-full px-4 py-2 mb-3">
+                <Star className="h-4 w-4 text-yellow-400" />
+                <span className="text-xs font-medium text-yellow-200">Featured Content</span>
+              </div>
+              <h2 className="text-xl md:text-2xl font-bold mb-2">
+                <span className="gradient-text">Must-Read</span> Articles
+              </h2>
+              <p className="text-xs text-gray-300 max-w-2xl mx-auto">
+                Handpicked articles covering the latest trends and best practices in data engineering
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        <div className="grid lg:grid-cols-2 gap-8 mb-12">
-          <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.4 }}
-            viewport={{ once: true }}
-            className="lg:row-span-2"
-          >
-            <Link to={`/articles/${featuredPosts[0].slug}`} className="block blog-card rounded-2xl overflow-hidden group h-full">
-              <div className="relative h-64 lg:h-80 overflow-hidden">
-                <img 
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+        <div className="grid lg:grid-cols-2 gap-6 mb-8">
+          {hasIntersected && (
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3 }}
+              className="lg:row-span-2"
+            >
+              <Link to={`/articles/${featuredPosts[0].slug}`} className="block blog-card rounded-2xl overflow-hidden group h-full">
+                <LazyImage
+                  src={featuredPosts[0].image}
                   alt={featuredPosts[0].title}
-                  src={featuredPosts[0].image} 
-                  onError={(e) => {
-                    e.target.src = 'https://images.unsplash.com/photo-1595872018818-97555653a011';
-                  }}
+                  className="w-full h-64 lg:h-80 object-cover group-hover:scale-105 transition-transform duration-300"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
                 <div className="absolute top-4 left-4">
@@ -108,30 +111,26 @@ const FeaturedPosts = () => {
                   <ArrowRight className="h-5 w-5 group-hover:translate-x-2 transition-transform" />
                 </div>
               </div>
-            </Link>
-          </motion.div>
+              </Link>
+            </motion.div>
+          )}
 
           <div className="space-y-8">
             {featuredPosts.slice(1, 3).map((post, index) => (
-              <motion.div
-                key={post.id}
-                initial={{ opacity: 0, x: 50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.8, delay: index * 0.2 }}
-                viewport={{ once: true }}
-              >
-                <Link to={`/articles/${post.slug}`} className="block blog-card rounded-xl overflow-hidden group">
-                  <div className="flex">
-                    <div className="relative w-32 h-32 flex-shrink-0 overflow-hidden">
-                      <img 
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                        alt={post.title}
+              hasIntersected && (
+                <motion.div
+                  key={post.id}
+                  initial={{ opacity: 0, x: 30 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.1 }}
+                >
+                  <Link to={`/articles/${post.slug}`} className="block blog-card rounded-xl overflow-hidden group">
+                    <div className="flex">
+                      <LazyImage
                         src={post.image}
-                        onError={(e) => {
-                          e.target.src = 'https://images.unsplash.com/photo-1595872018818-97555653a011';
-                        }}
+                        alt={post.title}
+                        className="w-32 h-32 flex-shrink-0 object-cover group-hover:scale-105 transition-transform duration-300"
                       />
-                    </div>
                     <div className="p-6 flex-1">
                       <div className="mb-2">
                         <span className="bg-gradient-to-r from-green-500 to-blue-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
@@ -153,26 +152,28 @@ const FeaturedPosts = () => {
                       </div>
                     </div>
                   </div>
-                </Link>
-              </motion.div>
+                  </Link>
+                </motion.div>
+              )
             ))}
           </div>
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
-          className="text-center"
-        >
-          <Button asChild size="lg" className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white px-8 py-4 rounded-full font-bold group">
-            <Link to="/articles">
-              View All Articles
-              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-            </Link>
-          </Button>
-        </motion.div>
+        {hasIntersected && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.2 }}
+            className="text-center"
+          >
+            <Button asChild size="lg" className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white px-6 py-3 rounded-full font-bold group">
+              <Link to="/articles">
+                View All Articles
+                <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </Button>
+          </motion.div>
+        )}
       </div>
     </section>
   );
