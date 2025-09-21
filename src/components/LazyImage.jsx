@@ -4,12 +4,13 @@ const LazyImage = ({
   src, 
   alt, 
   className = '', 
-  fallbackSrc = 'https://images.unsplash.com/photo-1595872018818-97555653a011',
+  fallbackSrc = 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop',
   ...props 
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isInView, setIsInView] = useState(false);
   const [imageSrc, setImageSrc] = useState('');
+  const [hasError, setHasError] = useState(false);
   const imgRef = useRef();
 
   useEffect(() => {
@@ -36,10 +37,13 @@ const LazyImage = ({
       img.onload = () => {
         setImageSrc(src);
         setIsLoaded(true);
+        setHasError(false);
       };
       img.onerror = () => {
+        console.warn('Image failed to load:', src);
         setImageSrc(fallbackSrc);
         setIsLoaded(true);
+        setHasError(true);
       };
       img.src = src;
     }
@@ -59,6 +63,12 @@ const LazyImage = ({
           className={`transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'} ${className}`}
           loading="lazy"
           decoding="async"
+          onError={() => {
+            if (!hasError) {
+              setImageSrc(fallbackSrc);
+              setHasError(true);
+            }
+          }}
         />
       )}
     </div>

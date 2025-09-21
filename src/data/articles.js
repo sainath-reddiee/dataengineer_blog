@@ -9,7 +9,7 @@ export const allArticles = [
     category: 'Airflow',
     readTime: '12 min read',
     date: '2024-12-15',
-    image: 'https://images.unsplash.com/photo-1592181572975-1d0d8880d175',
+    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop',
     featured: true,
     trending: false
   },
@@ -21,7 +21,7 @@ export const allArticles = [
     category: 'Snowflake',
     readTime: '15 min read',
     date: '2024-12-14',
-    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71',
+    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop',
     featured: true,
     trending: true
   },
@@ -33,7 +33,7 @@ export const allArticles = [
     category: 'SQL',
     readTime: '8 min read',
     date: '2024-12-12',
-    image: 'https://images.unsplash.com/photo-1544383835-bda2bc66a55d',
+    image: 'https://images.unsplash.com/photo-1544383835-bda2bc66a55d?w=800&h=600&fit=crop',
     featured: false,
     trending: false
   },
@@ -45,7 +45,7 @@ export const allArticles = [
     category: 'Azure',
     readTime: '11 min read',
     date: '2024-12-11',
-    image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31',
+    image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&h=600&fit=crop',
     featured: false,
     trending: true
   },
@@ -57,7 +57,7 @@ export const allArticles = [
     category: 'dbt',
     readTime: '14 min read',
     date: '2024-12-10',
-    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f',
+    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop',
     featured: false,
     trending: false
   },
@@ -69,7 +69,7 @@ export const allArticles = [
     category: 'Python',
     readTime: '13 min read',
     date: '2024-12-09',
-    image: 'https://images.unsplash.com/photo-1526379095098-d400fd0bf935',
+    image: 'https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=800&h=600&fit=crop',
     featured: false,
     trending: false
   },
@@ -81,7 +81,7 @@ export const allArticles = [
     category: 'Analytics',
     readTime: '9 min read',
     date: '2024-12-08',
-    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71',
+    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop',
     featured: false,
     trending: false
   },
@@ -93,7 +93,7 @@ export const allArticles = [
     category: 'AWS',
     readTime: '16 min read',
     date: '2024-12-07',
-    image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa',
+    image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&h=600&fit=crop',
     featured: false,
     trending: false
   },
@@ -105,7 +105,7 @@ export const allArticles = [
     category: 'Snowflake',
     readTime: '7 min read',
     date: '2024-12-06',
-    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71',
+    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop',
     featured: false,
     trending: false
   },
@@ -117,7 +117,7 @@ export const allArticles = [
     category: 'Airflow',
     readTime: '12 min read',
     date: '2024-12-05',
-    image: 'https://images.unsplash.com/photo-1592181572975-1d0d8880d175',
+    image: 'https://images.unsplash.com/photo-1592181572975-1d0d8880d175?w=800&h=600&fit=crop',
     featured: false,
     trending: false
   }
@@ -130,7 +130,7 @@ export const allArticles = [
     category: 'AWS',
     readTime: '10 min read',
     date: '2024-12-13',
-    image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa',
+    image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&h=600&fit=crop',
     featured: true,
     trending: false
   }

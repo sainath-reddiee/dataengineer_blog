@@ -14,58 +14,38 @@ const AdsenseAd = ({
   const adId = useRef(`ad-${Date.now()}-${Math.random()}`);
 
   useEffect(() => {
-    // Initialize AdSense if not already loaded
-    initializeAdSense();
+    // Initialize AdSense
+    if (adTest === 'on') {
+      showTestAd();
+    } else {
+      initializeAdSense();
+    }
   }, []);
 
   useEffect(() => {
     // Refresh ads on route change
     const timer = setTimeout(() => {
-      refreshAd();
+      if (adTest === 'on') {
+        showTestAd();
+      } else {
+        refreshAd();
+      }
     }, 100);
 
     return () => clearTimeout(timer);
   }, [location.pathname]);
 
   const initializeAdSense = () => {
-    if (adTest === 'on') {
-      // Show placeholder in test mode
-      showTestAd();
-      return;
-    }
-
+    // Since you're adding the script to index.html, just push the ad
     if (!window.adsbygoogle) {
-      loadAdSenseScript();
+      // AdSense script not loaded yet, show fallback
+      showFallbackAd();
     } else {
       pushAd();
     }
   };
 
-  const loadAdSenseScript = () => {
-    const script = document.createElement('script');
-    script.async = true;
-    script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-YOUR_PUBLISHER_ID';
-    script.crossOrigin = 'anonymous';
-    
-    script.onload = () => {
-      window.adsbygoogle = window.adsbygoogle || [];
-      pushAd();
-    };
-    
-    script.onerror = () => {
-      console.warn('AdSense script failed to load - showing fallback');
-      showFallbackAd();
-    };
-    
-    document.head.appendChild(script);
-  };
-
   const refreshAd = () => {
-    if (adTest === 'on') {
-      showTestAd();
-      return;
-    }
-
     if (window.adsbygoogle) {
       // Clear existing ad
       if (adRef.current) {
@@ -76,6 +56,8 @@ const AdsenseAd = ({
       setTimeout(() => {
         pushAd();
       }, 50);
+    } else {
+      showFallbackAd();
     }
   };
 
