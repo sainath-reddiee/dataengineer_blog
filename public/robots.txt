@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://dataengineerhub.blog/sitemap.xml
+
+# Block access to admin areas
+Disallow: /admin/
+Disallow: /wp-admin/
+Disallow: /wp-includes/
+Disallow: /wp-content/plugins/
+Disallow: /wp-content/themes/
+
+# Allow access to CSS and JS files
+Allow: /wp-content/themes/*.css
+Allow: /wp-content/themes/*.js
+Allow: /wp-includes/*.css
+Allow: /wp-includes/*.js
