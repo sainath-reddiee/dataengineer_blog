@@ -135,7 +135,7 @@ class WordPressAPI {
   async getPostsByCategory(categorySlug, { page = 1, per_page = 10 } = {}) {
     const categories = await this.getCategories();
     console.log('Available categories:', categories);
-    console.log('Looking for category:', categorySlug);
+    console.log('Looking for category slug:', categorySlug);
     
     const category = categories.find(cat => 
       cat.slug === categorySlug || 
@@ -145,9 +145,16 @@ class WordPressAPI {
     );
     
     if (!category) {
-      console.warn(`Category not found for slug: ${categorySlug}`);
-      // Return empty results instead of throwing error
-      return [];
+      console.warn(`Category not found for slug: ${categorySlug}. Available categories:`, categories.map(c => ({name: c.name, slug: c.slug, id: c.id})));
+      // Try to get posts anyway and filter client-side
+      const allPosts = await this.getPosts({ page, per_page: 100 });
+      return allPosts.filter(post => {
+        const postCategory = post.category.toLowerCase();
+        const searchCategory = categorySlug.toLowerCase();
+        return postCategory === searchCategory || 
+               postCategory.replace(/\s+/g, '-') === searchCategory ||
+               postCategory === searchCategory.replace(/-/g, ' ');
+      });
     }
 
     console.log('Found category:', category);

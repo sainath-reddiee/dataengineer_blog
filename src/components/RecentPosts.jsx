@@ -9,7 +9,7 @@ import { useIntersectionObserver } from '@/hooks/useIntersectionObserver';
 
 const POSTS_PER_PAGE = 6;
 
-const RecentPosts = ({ category, initialLimit }) => {
+const RecentPosts = ({ category, initialLimit, showCategoryError = false }) => {
   const [visibleCount, setVisibleCount] = useState(initialLimit || POSTS_PER_PAGE);
   const [ref, isIntersecting, hasIntersected] = useIntersectionObserver();
 
@@ -17,7 +17,8 @@ const RecentPosts = ({ category, initialLimit }) => {
   const { posts: allPosts, loading, error, hasMore, loadMore } = usePosts({
     per_page: POSTS_PER_PAGE,
     featured: null, // Get all posts
-    categories: category ? category : null
+    categories: category ? category : null,
+    enabled: true
   });
 
   // Debug logging
@@ -165,9 +166,18 @@ const RecentPosts = ({ category, initialLimit }) => {
             <div className="flex flex-col items-center">
               <AlertCircle className="h-6 w-6 mb-2" />
               <p className="mb-2">Error loading posts: {error}</p>
-              <div className="text-sm text-gray-500 max-w-md text-center">
-                <p>API URL: https://app.dataengineerhub.blog/wp-json/wp/v2/posts</p>
-                <p>Check browser console for details</p>
+              <div className="text-sm text-gray-500 max-w-md text-center space-y-2">
+                {showCategoryError && category && (
+                  <>
+                    <p className="font-semibold">Category Issue Detected:</p>
+                    <p>1. Check if "Snowflake" category exists in WordPress</p>
+                    <p>2. Verify the post is assigned to the correct category</p>
+                    <p>3. Check category slug matches: "snowflake"</p>
+                  </>
+                )}
+                <p>API URL: https://app.dataengineerhub.blog/wp-json/wp/v2/posts{category ? `?categories=${category}` : ''}</p>
+                <p>Categories API: https://app.dataengineerhub.blog/wp-json/wp/v2/categories</p>
+                <p>Check browser console for detailed logs</p>
               </div>
             </div>
           </div>

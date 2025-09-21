@@ -39,29 +39,8 @@ export const usePosts = ({
     } catch (err) {
       console.error('WordPress API Error:', err);
       setError(err.message);
-      // Fallback to static data if API fails
-      const { allArticles } = await import('@/data/articles');
-      let filteredArticles = allArticles;
-      
-      if (featured !== null) {
-        filteredArticles = filteredArticles.filter(post => post.featured === featured);
-      }
-      
-      if (categories) {
-        // Handle both category name and slug matching
-        filteredArticles = filteredArticles.filter(post => {
-          const postCategory = post.category.toLowerCase();
-          const searchCategory = categories.toLowerCase();
-          return postCategory === searchCategory || 
-                 postCategory.replace(/\s+/g, '-') === searchCategory ||
-                 postCategory === searchCategory.replace(/-/g, ' ');
-        });
-      }
-      
-      const startIndex = (page - 1) * per_page;
-      const endIndex = startIndex + per_page;
-      setData(filteredArticles.slice(startIndex, endIndex));
-      setTotalPages(Math.ceil(filteredArticles.length / per_page));
+      // Don't use fallback data for category pages - show the error instead
+      setData([]);
     } finally {
       setLoading(false);
     }
