@@ -158,6 +158,24 @@ class WordPressAPI {
     console.log('📡 getCategories() response type:', typeof categories);
     console.log('📡 getCategories() is array:', Array.isArray(categories));
     
+    // Extract categories array from result
+    // fetchWithCache wraps arrays in {posts, totalPages, totalPosts} for pagination
+    // but categories endpoint returns direct array, so we need to handle both cases
+    let categories;
+    if (Array.isArray(result)) {
+      // Direct array response
+      categories = result;
+      console.log('📡 getCategories() using direct array response');
+    } else if (result && Array.isArray(result.posts)) {
+      // Wrapped response from fetchWithCache
+      categories = result.posts;
+      console.log('📡 getCategories() extracting from wrapped response');
+    } else {
+      // Fallback - empty array
+      categories = [];
+      console.log('📡 getCategories() fallback to empty array');
+    }
+    
     const transformedCategories = categories.map(category => ({
       id: category.id,
       name: category.name,
