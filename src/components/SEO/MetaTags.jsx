@@ -92,7 +92,7 @@ const MetaTags = ({
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={metaDescription} />
       <meta name="twitter:image" content={metaImage} />
-      <meta name="twitter:site" content="@DataEngineerHub" />
+      <meta name="twitter:site" content="@sainath29" />
 
       {/* Additional SEO Meta Tags */}
       <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
