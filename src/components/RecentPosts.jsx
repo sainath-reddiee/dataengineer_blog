@@ -23,23 +23,14 @@ const RecentPosts = ({
       setError(null);
       setLoading(true);
       
-      console.log('🔄 Fetching posts for category:', category || 'all');
-
       let result;
       
       if (category) {
         // Get posts by category
         try {
           const categoryId = await wordpressApi.getCategoryIdBySlug(category);
-          console.log('✅ Category ID found:', categoryId);
-          
-          result = await wordpressApi.getPostsByCategory(categoryId, { 
-            per_page: limit 
-          });
-          
-          console.log('✅ Posts for category loaded:', result.posts.length);
+          result = await wordpressApi.getPostsByCategory(categoryId, { per_page: limit });
         } catch (categoryError) {
-          console.error('❌ Category error:', categoryError);
           if (showCategoryError) {
             setError(`Category "${category}" not found. Please check if the category exists in WordPress.`);
             setPosts([]); // Clear posts on category error
@@ -54,10 +45,8 @@ const RecentPosts = ({
       }
       
       setPosts(result.posts);
-      console.log('✅ Posts set in state:', result.posts.length);
       
     } catch (err) {
-      console.error('❌ Error fetching posts:', err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -75,23 +64,16 @@ const RecentPosts = ({
     });
   };
 
-  // Initial load
+  // Initial load and re-fetch when the category changes
   useEffect(() => {
+    // Clear the cache for posts and categories whenever a new category is viewed.
+    // This ensures that the user always sees the correct posts without needing to manually refresh.
+    if (category) {
+      wordpressApi.clearCache('posts');
+      wordpressApi.clearCache('categories');
+    }
     fetchPosts();
   }, [category, limit]);
-
-  // Auto refresh every 2 minutes if we're on a category page
-  useEffect(() => {
-    if (!category) return;
-    
-    const interval = setInterval(() => {
-      console.log('⏰ Auto-refresh triggered for category:', category);
-      wordpressApi.clearCache(`posts`);
-      fetchPosts();
-    }, 120000); // 2 minutes
-
-    return () => clearInterval(interval);
-  }, [category]);
 
   // Loading state
   if (loading) {
@@ -143,15 +125,6 @@ const RecentPosts = ({
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold gradient-text">{title}</h2>
-          <Button 
-            onClick={handleRefresh} 
-            variant="outline" 
-            size="sm"
-            className="border-blue-400/50 text-blue-300 hover:bg-blue-500/20"
-          >
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Refresh
-          </Button>
         </div>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -177,21 +150,15 @@ const RecentPosts = ({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold gradient-text">{title}</h2>
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-400">
-            {posts.length} post{posts.length !== 1 ? 's' : ''}
-            {category && ` in ${category}`}
-          </span>
-          <Button 
-            onClick={handleRefresh} 
-            variant="outline" 
-            size="sm"
-            className="border-blue-400/50 text-blue-300 hover:bg-blue-500/20"
-          >
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Refresh
-          </Button>
-        </div>
+        <Button 
+          onClick={handleRefresh} 
+          variant="outline" 
+          size="sm"
+          className="border-blue-400/50 text-blue-300 hover:bg-blue-500/20"
+        >
+          <RefreshCw className="h-4 w-4 mr-2" />
+          Refresh
+        </Button>
       </div>
       
       <motion.div
@@ -214,20 +181,6 @@ const RecentPosts = ({
           </motion.div>
         ))}
       </motion.div>
-
-      {/* Debug info in development */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="mt-8 p-4 bg-gray-800/50 rounded-lg border border-gray-700 text-xs">
-          <h4 className="font-semibold text-gray-300 mb-2">Debug Info</h4>
-          <div className="text-gray-400 space-y-1">
-            <div><strong>Category:</strong> {category || 'All posts'}</div>
-            <div><strong>Posts loaded:</strong> {posts.length}</div>
-            <div><strong>Limit:</strong> {limit}</div>
-            <div><strong>Show category error:</strong> {showCategoryError.toString()}</div>
-            <div><strong>API Base URL:</strong> {wordpressApi.baseURL}</div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
