@@ -24,11 +24,10 @@ class WordPressAPI {
     console.log('🧹 Cache cleared:', pattern || 'all');
   }
 
-  // Enhanced request method with proper header extraction
+  // Enhanced request method
   async makeRequest(endpoint, options = {}) {
     const cacheKey = `${endpoint}_${JSON.stringify(options)}`;
     
-    // Check cache first
     const cached = this.cache.get(cacheKey);
     if (cached && Date.now() - cached.timestamp < this.cacheTimeout) {
       console.log('📦 Using cached data for:', endpoint);
@@ -58,16 +57,9 @@ class WordPressAPI {
 
       const data = await response.json();
       
-      // Extract pagination headers
       const totalPosts = parseInt(response.headers.get('X-WP-Total') || '0');
       const totalPages = parseInt(response.headers.get('X-WP-TotalPages') || '1');
       
-      console.log('✅ API Response received:', {
-        dataType: Array.isArray(data) ? `${data.length} items` : typeof data,
-        totalPosts,
-        totalPages
-      });
-
       const result = {
         data,
         totalPosts,
@@ -75,7 +67,6 @@ class WordPressAPI {
         timestamp: Date.now()
       };
 
-      // Cache the result
       this.cache.set(cacheKey, result);
 
       return result;
@@ -85,14 +76,14 @@ class WordPressAPI {
     }
   }
 
-  // Get posts with proper pagination
+  // Corrected getPosts function with server-side filtering
   async getPosts({ 
     page = 1, 
     per_page = 10, 
     categoryId = null, 
     search = null,
     featured = null,
-    trending = null // Add trending parameter
+    trending = null
   } = {}) {
     const params = new URLSearchParams({
       page: page.toString(),
@@ -107,7 +98,6 @@ class WordPressAPI {
     if (search) {
       params.append('search', search);
     }
-    // Add these lines for server-side filtering
     if (featured) {
       params.append('meta_key', 'featured');
       params.append('meta_value', '1');
@@ -129,22 +119,14 @@ class WordPressAPI {
 
     const transformedPosts = this.transformPosts(posts);
     
-    // The client-side filtering is no longer needed here, so we can remove it.
-
-    console.log('✅ Posts processed:', {
-      total: transformedPosts.length,
-      totalPages: result.totalPages,
-      totalPosts: result.totalPosts
-    });
-    
     return {
-      posts: transformedPosts, // Return the posts directly
+      posts: transformedPosts,
       totalPages: result.totalPages,
       totalPosts: result.totalPosts
     };
   }
 
-  // Get categories with proper error handling
+  // Get categories
   async getCategories() {
     console.log('📂 Fetching categories...');
     
@@ -152,63 +134,44 @@ class WordPressAPI {
     const categories = result.data;
     
     if (!Array.isArray(categories)) {
-      console.error('❌ Expected array of categories, got:', typeof categories);
       return [];
     }
 
-    const transformedCategories = categories.map(category => ({
+    return categories.map(category => ({
       id: category.id,
       name: category.name,
       slug: category.slug,
       count: category.count || 0,
       description: category.description || '',
     }));
-
-    console.log('📂 Categories loaded:', transformedCategories.length);
-    console.log('📊 Category data:', transformedCategories.map(c => `${c.name}(${c.count})`).join(', '));
-    
-    return transformedCategories;
   }
 
-  // Get category ID by slug with better matching
+  // Get category ID by slug
   async getCategoryIdBySlug(categorySlug) {
     console.log('🔍 Looking for category slug:', categorySlug);
     
     const categories = await this.getCategories();
     
-    // Try exact slug match first
-    let category = categories.find(cat => cat.slug === categorySlug);
-    
-    // If not found, try case-insensitive slug match
-    if (!category) {
-      category = categories.find(cat => cat.slug.toLowerCase() === categorySlug.toLowerCase());
-    }
-    
-    // If still not found, try name matching
-    if (!category) {
-      category = categories.find(cat => cat.name.toLowerCase() === categorySlug.toLowerCase());
-    }
+    const category = categories.find(cat => 
+      cat.slug.toLowerCase() === categorySlug.toLowerCase() || 
+      cat.name.toLowerCase() === categorySlug.toLowerCase()
+    );
 
     if (category) {
-      console.log('✅ Found category:', category.name, 'ID:', category.id, 'Count:', category.count);
       return category.id;
     } else {
       console.error('❌ Category not found:', categorySlug);
-      console.log('📋 Available categories:', categories.map(c => `${c.slug}(${c.count})`).join(', '));
       throw new Error(`Category "${categorySlug}" not found`);
     }
   }
 
   // Get posts by category
   async getPostsByCategory(categoryId, options = {}) {
-    console.log('📂 Getting posts for category ID:', categoryId);
     return this.getPosts({ ...options, categoryId });
   }
 
   // Get single post by slug
   async getPostBySlug(slug) {
-    console.log('📄 Fetching post by slug:', slug);
-    
     const result = await this.makeRequest(`/posts?slug=${slug}&_embed=true`);
     const posts = result.data;
     
@@ -219,54 +182,32 @@ class WordPressAPI {
     return this.transformPost(posts[0]);
   }
 
-  // Enhanced post transformation
+  // Corrected transformPost for robust image handling
   transformPost(wpPost) {
-    // Get featured image with better fallback
-    const featuredImage = wpPost._embedded?.['wp:featuredmedia']?.[0];
+    const featuredMedia = wpPost._embedded?.['wp:featuredmedia']?.[0];
     let imageUrl = 'https://images.unsplash.com/photo-1595872018818-97555653a011?w=800&h=600&fit=crop';
     
-    // Try multiple sources for featured image
-    if (wpPost.featured_image_url) {
-      imageUrl = wpPost.featured_image_url;
-    } else if (featuredImage?.source_url) {
-      imageUrl = featuredImage.source_url;
-    } else if (featuredImage?.media_details?.sizes?.large?.source_url) {
-      imageUrl = featuredImage.media_details.sizes.large.source_url;
-    } else if (featuredImage?.media_details?.sizes?.medium?.source_url) {
-      imageUrl = featuredImage.media_details.sizes.medium.source_url;
+    if (featuredMedia) {
+      if (featuredMedia.media_details?.sizes?.large?.source_url) {
+        imageUrl = featuredMedia.media_details.sizes.large.source_url;
+      } else if (featuredMedia.media_details?.sizes?.medium_large?.source_url) {
+        imageUrl = featuredMedia.media_details.sizes.medium_large.source_url;
+      } else if (featuredMedia.source_url) {
+        imageUrl = featuredMedia.source_url;
+      }
+    } else if (wpPost.jetpack_featured_media_url) {
+      imageUrl = wpPost.jetpack_featured_media_url;
     }
 
-    // Get categories with better handling
     const categories = wpPost._embedded?.['wp:term']?.[0] || [];
-    let primaryCategory = 'Uncategorized';
-    if (categories.length > 0) {
-      const nonUncategorized = categories.find(cat => cat.name !== 'Uncategorized');
-      primaryCategory = nonUncategorized ? nonUncategorized.name : categories[0].name;
-    }
+    const primaryCategory = categories.find(cat => cat.name !== 'Uncategorized')?.name || categories[0]?.name || 'Uncategorized';
 
-    // Get author
     const author = wpPost._embedded?.author?.[0]?.name || 'DataEngineer Hub';
 
-    // Enhanced meta field handling - check multiple sources
-    const featured = wpPost.featured === true || 
-                    wpPost.featured === 1 || 
-                    wpPost.featured === '1' || 
-                    wpPost.meta?.featured === '1' ||
-                    wpPost.meta?.featured === 1;
-                    
-    const trending = wpPost.trending === true || 
-                    wpPost.trending === 1 || 
-                    wpPost.trending === '1' || 
-                    wpPost.meta?.trending === '1' ||
-                    wpPost.meta?.trending === 1;
+    const featured = wpPost.meta?.featured === '1' || wpPost.meta?.featured === 1;
+    const trending = wpPost.meta?.trending === '1' || wpPost.meta?.trending === 1;
 
-    // Use plain excerpt if available, otherwise clean the rendered excerpt
-    let excerpt = '';
-    if (wpPost.excerpt_plain) {
-      excerpt = wpPost.excerpt_plain;
-    } else if (wpPost.excerpt?.rendered) {
-      excerpt = this.cleanExcerpt(wpPost.excerpt.rendered);
-    }
+    const excerpt = wpPost.excerpt?.rendered ? this.cleanExcerpt(wpPost.excerpt.rendered) : '';
 
     return {
       id: wpPost.id,
@@ -296,42 +237,7 @@ class WordPressAPI {
     const wordsPerMinute = 200;
     const textContent = content.replace(/<[^>]*>/g, '');
     const wordCount = textContent.split(/\s+/).length;
-    const readTime = Math.ceil(wordCount / wordsPerMinute);
-    return `${readTime} min read`;
-  }
-
-  // Newsletter subscription
-  async subscribeNewsletter(email) {
-    try {
-      const response = await fetch(`${this.baseURL}/newsletter/subscribe`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      });
-
-      if (!response.ok) throw new Error('Subscription failed');
-      return await response.json();
-    } catch (error) {
-      console.error('Newsletter subscription error:', error);
-      throw error;
-    }
-  }
-
-  // Contact form submission
-  async submitContactForm(formData) {
-    try {
-      const response = await fetch(`${this.baseURL}/contact/submit`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) throw new Error('Contact form submission failed');
-      return await response.json();
-    } catch (error) {
-      console.error('Contact form error:', error);
-      throw error;
-    }
+    return `${Math.ceil(wordCount / wordsPerMinute)} min read`;
   }
 }
 
