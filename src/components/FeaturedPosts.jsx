@@ -9,23 +9,22 @@ import { useIntersectionObserver } from '@/hooks/useIntersectionObserver';
 const FeaturedPosts = () => {
   const [ref, isIntersecting, hasIntersected] = useIntersectionObserver();
   
-  // Fetch featured posts from WordPress - with debugging and refresh capability
-  const { posts: featuredPosts, loading, error, refresh } = usePosts({ 
-    featured: true, // Start with all posts since featured might not be set
-    per_page: 6 
+  // Fetch all posts and filter for featured ones
+  const { posts: allPosts, loading, error, refresh } = usePosts({ 
+    per_page: 20 // Get more posts to find featured ones
   });
 
-  // Debug logging
-  console.log('FeaturedPosts - Posts:', featuredPosts);
-  console.log('FeaturedPosts - Loading:', loading);
-  console.log('FeaturedPosts - Error:', error);
+  // Filter for featured posts, fallback to first 3 if none are featured
+  const featuredPosts = allPosts.filter(post => post.featured);
+  const displayPosts = featuredPosts.length > 0 ? featuredPosts.slice(0, 3) : allPosts.slice(0, 3);
 
-  // Filter featured posts or use first 3 if no featured posts
-  const finalPosts = featuredPosts.slice(0, 3);
+  console.log('FeaturedPosts - All Posts:', allPosts.length);
+  console.log('FeaturedPosts - Featured Posts:', featuredPosts.length);
+  console.log('FeaturedPosts - Display Posts:', displayPosts.length);
 
   if (loading) {
     return (
-      <section className="py-20 relative">
+      <section className="py-16 relative">
         <div className="container mx-auto px-6">
           <div className="flex items-center justify-center py-20">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400"></div>
@@ -37,13 +36,13 @@ const FeaturedPosts = () => {
 
   if (error) {
     return (
-      <section className="py-20 relative">
+      <section className="py-16 relative">
         <div className="container mx-auto px-6">
           <div className="flex flex-col items-center justify-center py-20 text-red-400">
-            <AlertCircle className="h-6 w-6 mr-2" />
-            <span className="mb-4">Error loading featured posts: {error}</span>
+            <AlertCircle className="h-8 w-8 mb-4" />
+            <span className="mb-4 text-center">Error loading featured posts: {error}</span>
             <div className="text-sm text-gray-500 max-w-md text-center mb-4">
-              <p>Trying to fetch from: https://app.dataengineerhub.blog/wp-json/wp/v2/posts</p>
+              <p>Trying to fetch from: {WORDPRESS_API_URL}/wp-json/wp/v2/posts</p>
               <p>Check browser console for more details</p>
             </div>
             <Button 
@@ -60,15 +59,15 @@ const FeaturedPosts = () => {
     );
   }
 
-  if (finalPosts.length === 0 && !loading) {
+  if (displayPosts.length === 0 && !loading) {
     return (
-      <section className="py-20 relative">
+      <section className="py-16 relative">
         <div className="container mx-auto px-6">
           <div className="flex flex-col items-center justify-center py-20 text-yellow-400">
             <span className="mb-4">No posts found</span>
             <div className="text-sm text-gray-500 max-w-md text-center mb-4">
               <p>Make sure you have published posts in WordPress</p>
-              <p>Check: https://app.dataengineerhub.blog/wp-json/wp/v2/posts</p>
+              <p>Check: {WORDPRESS_API_URL}/wp-json/wp/v2/posts</p>
             </div>
             <Button 
               onClick={refresh} 
@@ -85,20 +84,20 @@ const FeaturedPosts = () => {
   }
 
   return (
-    <section ref={ref} className="py-2 relative">
+    <section ref={ref} className="py-16 relative">
       <div className="container mx-auto px-6">
         <AnimatePresence>
           {hasIntersected && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-              className="text-center mb-3"
+              transition={{ duration: 0.6 }}
+              className="text-center mb-12"
             >
-              <div className="flex items-center justify-center gap-4 mb-3">
-                <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 backdrop-blur-sm border border-yellow-500/30 rounded-full px-4 py-2">
-                  <Star className="h-4 w-4 text-yellow-400" />
-                  <span className="text-xs font-medium text-yellow-200">Featured Content</span>
+              <div className="flex items-center justify-center gap-4 mb-6">
+                <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 backdrop-blur-sm border border-yellow-500/30 rounded-full px-6 py-3">
+                  <Star className="h-5 w-5 text-yellow-400" />
+                  <span className="text-sm font-medium text-yellow-200">Featured Content</span>
                 </div>
                 {/* Debug refresh button - only in development */}
                 {process.env.NODE_ENV === 'development' && (
@@ -111,54 +110,67 @@ const FeaturedPosts = () => {
                   </button>
                 )}
               </div>
-              <h2 className="text-xl md:text-2xl font-bold mb-2">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">
                 <span className="gradient-text">Must-Read</span> Articles
               </h2>
-              <p className="text-xs text-gray-300 max-w-2xl mx-auto">
-                Handpicked articles covering the latest trends and best practices in data engineering
+              <p className="text-lg text-gray-300 max-w-2xl mx-auto">
+                {featuredPosts.length > 0 
+                  ? "Handpicked articles covering the latest trends and best practices in data engineering"
+                  : "Latest articles covering the latest trends and best practices in data engineering"
+                }
               </p>
             </motion.div>
           )}
         </AnimatePresence>
 
-        <div className="grid lg:grid-cols-2 gap-6 mb-8">
-          {hasIntersected && finalPosts.length > 0 && (
+        <div className="grid lg:grid-cols-2 gap-8 mb-12">
+          {hasIntersected && displayPosts.length > 0 && (
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.3 }}
+              transition={{ duration: 0.6 }}
               className="lg:row-span-2"
             >
-              <Link to={`/articles/${finalPosts[0].slug}`} className="block blog-card rounded-2xl overflow-hidden group h-full">
+              <Link to={`/articles/${displayPosts[0].slug}`} className="block blog-card rounded-2xl overflow-hidden group h-full">
                 <div className="relative">
                   <img
-                    src={finalPosts[0].image}
-                    alt={finalPosts[0].title}
-                    className="w-full h-64 lg:h-80 object-cover group-hover:scale-105 transition-transform duration-300"
+                    src={displayPosts[0].image}
+                    alt={displayPosts[0].title}
+                    className="w-full h-64 lg:h-96 object-cover group-hover:scale-105 transition-transform duration-300"
+                    onError={(e) => {
+                      e.target.src = 'https://images.unsplash.com/photo-1595872018818-97555653a011?w=800&h=600&fit=crop';
+                    }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-                  <div className="absolute top-4 left-4">
-                    <span className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-semibold">
-                      {finalPosts[0].category}
+                  <div className="absolute top-6 left-6">
+                    <span className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg">
+                      {displayPosts[0].category}
                     </span>
                   </div>
+                  {displayPosts[0].featured && (
+                    <div className="absolute top-6 right-6">
+                      <div className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white p-2 rounded-full shadow-lg">
+                        <Star className="h-4 w-4" />
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <div className="p-8">
-                  <h3 className="text-xl lg:text-2xl font-bold mb-3 group-hover:text-blue-400 transition-colors">
-                    {finalPosts[0].title}
+                  <h3 className="text-2xl lg:text-3xl font-bold mb-4 group-hover:text-blue-400 transition-colors">
+                    {displayPosts[0].title}
                   </h3>
-                  <p className="text-gray-300 mb-4 text-sm leading-relaxed">
-                    {finalPosts[0].excerpt}
+                  <p className="text-gray-300 mb-6 text-base leading-relaxed">
+                    {displayPosts[0].excerpt}
                   </p>
                   <div className="flex items-center justify-between text-sm text-gray-400">
                     <div className="flex items-center space-x-4">
                       <div className="flex items-center space-x-1">
                         <Calendar className="h-4 w-4" />
-                        <span>{new Date(finalPosts[0].date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                        <span>{new Date(displayPosts[0].date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                       </div>
                       <div className="flex items-center space-x-1">
                         <Clock className="h-4 w-4" />
-                        <span>{finalPosts[0].readTime}</span>
+                        <span>{displayPosts[0].readTime}</span>
                       </div>
                     </div>
                     <ArrowRight className="h-5 w-5 group-hover:translate-x-2 transition-transform" />
@@ -169,31 +181,39 @@ const FeaturedPosts = () => {
           )}
 
           <div className="space-y-8">
-            {finalPosts.slice(1, 3).map((post, index) => (
+            {displayPosts.slice(1, 3).map((post, index) => (
               hasIntersected && (
                 <motion.div
                   key={post.id}
                   initial={{ opacity: 0, x: 30 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.3, delay: index * 0.1 }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
                 >
                   <Link to={`/articles/${post.slug}`} className="block blog-card rounded-xl overflow-hidden group">
                     <div className="flex">
                       <img
                         src={post.image}
                         alt={post.title}
-                        className="w-32 h-32 flex-shrink-0 object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="w-40 h-32 flex-shrink-0 object-cover group-hover:scale-105 transition-transform duration-300"
+                        onError={(e) => {
+                          e.target.src = 'https://images.unsplash.com/photo-1595872018818-97555653a011?w=800&h=600&fit=crop';
+                        }}
                       />
                       <div className="p-6 flex-1">
-                        <div className="mb-2">
+                        <div className="mb-3 flex items-center gap-2">
                           <span className="bg-gradient-to-r from-green-500 to-blue-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
                             {post.category}
                           </span>
+                          {post.featured && (
+                            <div className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white p-1 rounded-full">
+                              <Star className="h-3 w-3" />
+                            </div>
+                          )}
                         </div>
-                        <h3 className="text-lg font-bold mb-2 group-hover:text-blue-400 transition-colors line-clamp-2">
+                        <h3 className="text-lg font-bold mb-3 group-hover:text-blue-400 transition-colors line-clamp-2">
                           {post.title}
                         </h3>
-                        <p className="text-gray-400 text-sm mb-3 line-clamp-2">
+                        <p className="text-gray-400 text-sm mb-4 line-clamp-2">
                           {post.excerpt}
                         </p>
                         <div className="flex items-center justify-between text-xs text-gray-500">
@@ -216,13 +236,13 @@ const FeaturedPosts = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.2 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
             className="text-center"
           >
-            <Button asChild size="lg" className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white px-6 py-3 rounded-full font-bold group">
+            <Button asChild size="lg" className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white px-8 py-4 rounded-full font-bold group shadow-xl">
               <Link to="/articles">
                 View All Articles
-                <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Link>
             </Button>
           </motion.div>
@@ -233,9 +253,9 @@ const FeaturedPosts = () => {
           <div className="mt-8 p-4 bg-gray-800/50 rounded-lg border border-gray-700">
             <h4 className="text-sm font-semibold text-gray-300 mb-2">Debug Info</h4>
             <div className="text-xs text-gray-400 space-y-1">
-              <div>Total posts: {featuredPosts.length}</div>
-              <div>Featured posts: {displayPosts.length}</div>
-              <div>Final posts shown: {finalPosts.length}</div>
+              <div>Total posts: {allPosts.length}</div>
+              <div>Featured posts: {featuredPosts.length}</div>
+              <div>Display posts: {displayPosts.length}</div>
               <div>Loading: {loading.toString()}</div>
               <div>Error: {error || 'None'}</div>
             </div>

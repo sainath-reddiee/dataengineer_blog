@@ -6,7 +6,7 @@ class WordPressAPI {
   constructor() {
     this.baseURL = WP_API_BASE;
     this.cache = new Map();
-    this.cacheTimeout = 1 * 60 * 1000; // 1 minute cache for faster updates
+    this.cacheTimeout = 10 * 1000; // 10 seconds for faster development updates
     this.requestQueue = new Map();
   }
 
@@ -24,7 +24,7 @@ class WordPressAPI {
     console.log('🧹 Cache cleared:', pattern || 'all');
   }
 
-  // Core request method - simplified
+  // Enhanced request method with proper header extraction
   async makeRequest(endpoint, options = {}) {
     const cacheKey = `${endpoint}_${JSON.stringify(options)}`;
     
@@ -57,22 +57,35 @@ class WordPressAPI {
       }
 
       const data = await response.json();
-      console.log('✅ API Response received:', Array.isArray(data) ? `${data.length} items` : typeof data);
-
-      // Cache the result
-      this.cache.set(cacheKey, {
-        data,
-        timestamp: Date.now(),
+      
+      // Extract pagination headers
+      const totalPosts = parseInt(response.headers.get('X-WP-Total') || '0');
+      const totalPages = parseInt(response.headers.get('X-WP-TotalPages') || '1');
+      
+      console.log('✅ API Response received:', {
+        dataType: Array.isArray(data) ? `${data.length} items` : typeof data,
+        totalPosts,
+        totalPages
       });
 
-      return data;
+      const result = {
+        data,
+        totalPosts,
+        totalPages,
+        timestamp: Date.now()
+      };
+
+      // Cache the result
+      this.cache.set(cacheKey, result);
+
+      return result;
     } catch (error) {
       console.error('❌ API Request failed:', endpoint, error);
       throw error;
     }
   }
 
-  // Get posts - SIMPLIFIED
+  // Get posts with proper pagination
   async getPosts({ 
     page = 1, 
     per_page = 10, 
@@ -84,6 +97,7 @@ class WordPressAPI {
       page: page.toString(),
       per_page: per_page.toString(),
       _embed: 'true',
+      status: 'publish'
     });
 
     if (categoryId) {
@@ -95,7 +109,8 @@ class WordPressAPI {
 
     console.log('📋 Fetching posts with params:', Object.fromEntries(params));
     
-    const posts = await this.makeRequest(`/posts?${params.toString()}`);
+    const result = await this.makeRequest(`/posts?${params.toString()}`);
+    const posts = result.data;
     
     if (!Array.isArray(posts)) {
       console.error('❌ Expected array of posts, got:', typeof posts);
@@ -108,24 +123,30 @@ class WordPressAPI {
     let filteredPosts = transformedPosts;
     if (featured === true) {
       filteredPosts = transformedPosts.filter(post => post.featured === true);
+      console.log('🌟 Filtered to featured posts:', filteredPosts.length);
     } else if (featured === false) {
       filteredPosts = transformedPosts.filter(post => post.featured !== true);
     }
 
-    console.log('✅ Posts processed:', filteredPosts.length);
+    console.log('✅ Posts processed:', {
+      total: filteredPosts.length,
+      totalPages: result.totalPages,
+      totalPosts: result.totalPosts
+    });
     
     return {
       posts: filteredPosts,
-      totalPages: 1, // Simplified for now
-      totalPosts: filteredPosts.length
+      totalPages: result.totalPages,
+      totalPosts: result.totalPosts
     };
   }
 
-  // Get categories - SIMPLIFIED
+  // Get categories with proper error handling
   async getCategories() {
     console.log('📂 Fetching categories...');
     
-    const categories = await this.makeRequest('/categories?per_page=100');
+    const result = await this.makeRequest('/categories?per_page=100&hide_empty=false');
+    const categories = result.data;
     
     if (!Array.isArray(categories)) {
       console.error('❌ Expected array of categories, got:', typeof categories);
@@ -146,16 +167,16 @@ class WordPressAPI {
     return transformedCategories;
   }
 
-  // Get category ID by slug - MUCH SIMPLIFIED
+  // Get category ID by slug with better matching
   async getCategoryIdBySlug(categorySlug) {
     console.log('🔍 Looking for category slug:', categorySlug);
     
     const categories = await this.getCategories();
     
-    // Simple exact match first
+    // Try exact slug match first
     let category = categories.find(cat => cat.slug === categorySlug);
     
-    // If not found, try case-insensitive
+    // If not found, try case-insensitive slug match
     if (!category) {
       category = categories.find(cat => cat.slug.toLowerCase() === categorySlug.toLowerCase());
     }
@@ -170,12 +191,12 @@ class WordPressAPI {
       return category.id;
     } else {
       console.error('❌ Category not found:', categorySlug);
-      console.log('📋 Available categories:', categories.map(c => c.slug).join(', '));
+      console.log('📋 Available categories:', categories.map(c => `${c.slug}(${c.count})`).join(', '));
       throw new Error(`Category "${categorySlug}" not found`);
     }
   }
 
-  // Get posts by category - SIMPLIFIED
+  // Get posts by category
   async getPostsByCategory(categoryId, options = {}) {
     console.log('📂 Getting posts for category ID:', categoryId);
     return this.getPosts({ ...options, categoryId });
@@ -185,7 +206,8 @@ class WordPressAPI {
   async getPostBySlug(slug) {
     console.log('📄 Fetching post by slug:', slug);
     
-    const posts = await this.makeRequest(`/posts?slug=${slug}&_embed=true`);
+    const result = await this.makeRequest(`/posts?slug=${slug}&_embed=true`);
+    const posts = result.data;
     
     if (!Array.isArray(posts) || posts.length === 0) {
       throw new Error(`Post with slug "${slug}" not found`);
@@ -194,17 +216,19 @@ class WordPressAPI {
     return this.transformPost(posts[0]);
   }
 
-  // Transform post data - SIMPLIFIED
+  // Enhanced post transformation
   transformPost(wpPost) {
-    // Get featured image
+    // Get featured image with better fallback
     const featuredImage = wpPost._embedded?.['wp:featuredmedia']?.[0];
     let imageUrl = 'https://images.unsplash.com/photo-1595872018818-97555653a011?w=800&h=600&fit=crop';
     
     if (featuredImage?.source_url) {
       imageUrl = featuredImage.source_url;
+    } else if (featuredImage?.media_details?.sizes?.large?.source_url) {
+      imageUrl = featuredImage.media_details.sizes.large.source_url;
     }
 
-    // Get categories
+    // Get categories with better handling
     const categories = wpPost._embedded?.['wp:term']?.[0] || [];
     let primaryCategory = 'Uncategorized';
     if (categories.length > 0) {
@@ -214,6 +238,10 @@ class WordPressAPI {
 
     // Get author
     const author = wpPost._embedded?.author?.[0]?.name || 'DataEngineer Hub';
+
+    // Enhanced meta field handling
+    const featured = wpPost.featured === true || wpPost.featured === '1' || wpPost.meta?.featured === '1';
+    const trending = wpPost.trending === true || wpPost.trending === '1' || wpPost.meta?.trending === '1';
 
     return {
       id: wpPost.id,
@@ -225,8 +253,8 @@ class WordPressAPI {
       readTime: this.calculateReadTime(wpPost.content?.rendered || ''),
       date: wpPost.date,
       image: imageUrl,
-      featured: wpPost.featured === true || wpPost.featured === '1', // Handle both boolean and string
-      trending: wpPost.trending === true || wpPost.trending === '1',
+      featured: featured,
+      trending: trending,
       author: author,
     };
   }
@@ -236,7 +264,7 @@ class WordPressAPI {
   }
 
   cleanExcerpt(excerpt) {
-    return excerpt.replace(/<[^>]*>/g, '').trim();
+    return excerpt.replace(/<[^>]*>/g, '').replace(/\[&hellip;\]/g, '...').trim();
   }
 
   calculateReadTime(content) {
