@@ -15,6 +15,7 @@ const Header = () => {
     { name: 'SQL', path: '/category/sql' },
     { name: 'Airflow', path: '/category/airflow' },
     { name: 'dbt', path: '/category/dbt' },
+    { name: 'Analytics', path: '/category/analytics' },
     { name: 'About', path: '/about' }
   ];
 
