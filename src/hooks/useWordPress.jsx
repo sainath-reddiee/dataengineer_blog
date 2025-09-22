@@ -1,21 +1,28 @@
 import { useState, useEffect, useCallback } from 'react';
 import wordpressApi from '@/services/wordpressApi';
 
-// Hook for fetching posts with enhanced refresh capabilities
+// Hook for fetching posts - UNIFIED & FIXED
 export const usePosts = ({ 
   page = 1, 
   per_page = 10, 
-  categoryId = null, 
+  categorySlug = null,  // Changed from categoryId to categorySlug for consistency
   search = null, 
-  featured = null 
+  featured = null,
+  enabled = true 
 } = {}) => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [totalPages, setTotalPages] = useState(1);
   const [totalPosts, setTotalPosts] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
 
   const fetchPosts = useCallback(async (forceRefresh = false) => {
+    if (!enabled) {
+      setLoading(false);
+      return;
+    }
+
     try {
       setError(null);
       if (!forceRefresh) {
@@ -23,35 +30,89 @@ export const usePosts = ({
       }
 
       console.log('🔄 usePosts: Fetching posts with params:', { 
-        page, per_page, categoryId, search, featured, forceRefresh 
+        page, per_page, categorySlug, search, featured, forceRefresh 
       });
+
+      let categoryId = null;
+      
+      // Convert category slug to ID if provided
+      if (categorySlug) {
+        console.log('🏷️ Converting category slug to ID:', categorySlug);
+        try {
+          categoryId = await wordpressApi.getCategoryIdBySlug(categorySlug);
+          console.log('✅ Category ID resolved:', categoryId);
+        } catch (categoryError) {
+          console.error('❌ Category resolution failed:', categoryError);
+          throw new Error(`Category "${categorySlug}" not found. Please check if the category exists.`);
+        }
+      }
+
+      // Clear cache if force refresh
+      if (forceRefresh) {
+        wordpressApi.clearCache();
+      }
 
       const result = await wordpressApi.getPosts({ 
         page, 
         per_page, 
-        categoryId, 
+        categoryId,  // Use resolved categoryId
         search, 
-        featured,
-        forceRefresh 
+        featured
       });
 
       setPosts(result.posts);
-      setTotalPages(result.totalPages);
-      setTotalPosts(result.totalPosts);
+      setTotalPages(result.totalPages || 1);
+      setTotalPosts(result.totalPosts || result.posts.length);
+      setHasMore(page < (result.totalPages || 1));
 
       console.log('✅ usePosts: Posts loaded successfully:', result.posts.length);
     } catch (err) {
       console.error('❌ usePosts: Error fetching posts:', err);
       setError(err.message);
+      setPosts([]);
+      setTotalPages(1);
+      setTotalPosts(0);
+      setHasMore(false);
     } finally {
       setLoading(false);
     }
-  }, [page, per_page, categoryId, search, featured]);
+  }, [page, per_page, categorySlug, search, featured, enabled]);
 
   // Manual refresh function
   const refresh = useCallback(async () => {
+    console.log('🔄 Manual refresh triggered');
     await fetchPosts(true);
   }, [fetchPosts]);
+
+  // Load more function for pagination
+  const loadMore = useCallback(async () => {
+    if (loading || !hasMore) return;
+    
+    try {
+      setLoading(true);
+      
+      let categoryId = null;
+      if (categorySlug) {
+        categoryId = await wordpressApi.getCategoryIdBySlug(categorySlug);
+      }
+      
+      const nextPage = page + 1;
+      const result = await wordpressApi.getPosts({
+        page: nextPage,
+        per_page,
+        categoryId,
+        search,
+        featured
+      });
+
+      setPosts(prev => [...prev, ...result.posts]);
+      setHasMore(nextPage < (result.totalPages || 1));
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [page, per_page, categorySlug, search, featured, loading, hasMore]);
 
   useEffect(() => {
     fetchPosts();
@@ -62,19 +123,22 @@ export const usePosts = ({
     loading, 
     error, 
     totalPages, 
-    totalPosts, 
-    refresh 
+    totalPosts,
+    hasMore,
+    refresh,
+    loadMore,
+    refetch: fetchPosts // Alias for compatibility
   };
 };
 
-// Hook for fetching a single post
-export const usePost = (slug) => {
+// Hook for fetching a single post - FIXED
+export const usePost = (slug, enabled = true) => {
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const fetchPost = useCallback(async (forceRefresh = false) => {
-    if (!slug) {
+    if (!enabled || !slug) {
       setLoading(false);
       return;
     }
@@ -87,17 +151,23 @@ export const usePost = (slug) => {
 
       console.log('📄 usePost: Fetching post with slug:', slug);
 
-      const postData = await wordpressApi.getPostBySlug(slug, forceRefresh);
+      // Clear cache if force refresh
+      if (forceRefresh) {
+        wordpressApi.clearCache(`posts?slug=${slug}`);
+      }
+
+      const postData = await wordpressApi.getPostBySlug(slug);
       setPost(postData);
 
       console.log('✅ usePost: Post loaded successfully:', postData.title);
     } catch (err) {
       console.error('❌ usePost: Error fetching post:', err);
       setError(err.message);
+      setPost(null);
     } finally {
       setLoading(false);
     }
-  }, [slug]);
+  }, [slug, enabled]);
 
   // Manual refresh function
   const refresh = useCallback(async () => {
@@ -111,13 +181,18 @@ export const usePost = (slug) => {
   return { post, loading, error, refresh };
 };
 
-// Hook for fetching categories with refresh capability
-export const useCategories = () => {
+// Hook for fetching categories - FIXED
+export const useCategories = (enabled = true) => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const fetchCategories = useCallback(async (forceRefresh = false) => {
+    if (!enabled) {
+      setLoading(false);
+      return;
+    }
+
     try {
       setError(null);
       if (!forceRefresh) {
@@ -126,17 +201,23 @@ export const useCategories = () => {
 
       console.log('📂 useCategories: Fetching categories with forceRefresh:', forceRefresh);
 
-      const categoriesData = await wordpressApi.getCategories(forceRefresh);
+      // Clear cache if force refresh
+      if (forceRefresh) {
+        wordpressApi.clearCache('categories');
+      }
+
+      const categoriesData = await wordpressApi.getCategories();
       setCategories(categoriesData);
 
       console.log('✅ useCategories: Categories loaded successfully:', categoriesData.length);
     } catch (err) {
       console.error('❌ useCategories: Error fetching categories:', err);
       setError(err.message);
+      setCategories([]);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [enabled]);
 
   // Manual refresh function
   const refresh = useCallback(async () => {
@@ -150,69 +231,77 @@ export const useCategories = () => {
   return { categories, loading, error, refresh };
 };
 
-// Hook for posts by category with enhanced refresh
-export const usePostsByCategory = (categorySlug, { page = 1, per_page = 10 } = {}) => {
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
+// Simplified hook for posts by category - FIXED
+export const usePostsByCategory = (categorySlug, { page = 1, per_page = 10, enabled = true } = {}) => {
+  // Just use the main usePosts hook with categorySlug
+  return usePosts({ 
+    page, 
+    per_page, 
+    categorySlug, 
+    enabled 
+  });
+};
+
+// Hook for newsletter subscription - FIXED
+export const useNewsletter = () => {
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalPosts, setTotalPosts] = useState(0);
-  const [categoryId, setCategoryId] = useState(null);
+  const [success, setSuccess] = useState(false);
 
-  const fetchPostsByCategory = useCallback(async (forceRefresh = false) => {
-    if (!categorySlug) {
-      setLoading(false);
-      return;
-    }
-
+  const subscribe = useCallback(async (email) => {
     try {
+      setLoading(true);
       setError(null);
-      if (!forceRefresh) {
-        setLoading(true);
-      }
+      setSuccess(false);
 
-      console.log('📂 usePostsByCategory: Fetching posts for category:', categorySlug);
-
-      // Get category ID first
-      const catId = await wordpressApi.getCategoryIdBySlug(categorySlug, forceRefresh);
-      setCategoryId(catId);
-
-      // Fetch posts for the category
-      const result = await wordpressApi.getPostsByCategory(catId, { 
-        page, 
-        per_page, 
-        forceRefresh 
-      });
-
-      setPosts(result.posts);
-      setTotalPages(result.totalPages);
-      setTotalPosts(result.totalPosts);
-
-      console.log('✅ usePostsByCategory: Posts loaded successfully:', result.posts.length);
+      await wordpressApi.subscribeNewsletter(email);
+      setSuccess(true);
+      
+      return { success: true };
     } catch (err) {
-      console.error('❌ usePostsByCategory: Error fetching posts:', err);
       setError(err.message);
+      return { success: false, error: err.message };
     } finally {
       setLoading(false);
     }
-  }, [categorySlug, page, per_page]);
+  }, []);
 
-  // Manual refresh function
-  const refresh = useCallback(async () => {
-    await fetchPostsByCategory(true);
-  }, [fetchPostsByCategory]);
+  const reset = useCallback(() => {
+    setError(null);
+    setSuccess(false);
+  }, []);
 
-  useEffect(() => {
-    fetchPostsByCategory();
-  }, [fetchPostsByCategory]);
+  return { subscribe, loading, error, success, reset };
+};
 
-  return { 
-    posts, 
-    loading, 
-    error, 
-    totalPages, 
-    totalPosts, 
-    categoryId, 
-    refresh 
-  };
+// Hook for contact form - FIXED
+export const useContact = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
+
+  const submitForm = useCallback(async (formData) => {
+    try {
+      setLoading(true);
+      setError(null);
+      setSuccess(false);
+
+      await wordpressApi.submitContactForm(formData);
+      setSuccess(true);
+      
+      return { success: true };
+    } catch (err) {
+      setError(err.message);
+      return { success: false, error: err.message };
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const reset = useCallback(() => {
+    setError(null);
+    setSuccess(false);
+  }, []);
+
+  return { submitForm, loading, error, success, reset };
 };
