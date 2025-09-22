@@ -9,19 +9,15 @@ import { WORDPRESS_API_URL } from '@/apiConfig';
 
 const FeaturedPosts = () => {
   const [ref, isIntersecting, hasIntersected] = useIntersectionObserver();
-  
-  // Fetch all posts and filter for featured ones
-  const { posts: allPosts, loading, error, refresh } = usePosts({ 
-    per_page: 20 // Get more posts to find featured ones
+
+  // Fetch ONLY featured posts
+  const { posts: featuredPosts, loading, error, refresh } = usePosts({
+    per_page: 3, // Only fetch 3 posts
+    featured: true // Use the new API parameter
   });
 
-  // Filter for featured posts, fallback to first 3 if none are featured
-  const featuredPosts = allPosts.filter(post => post.featured);
-  const displayPosts = featuredPosts.length > 0 ? featuredPosts.slice(0, 3) : allPosts.slice(0, 3);
-
-  console.log('FeaturedPosts - All Posts:', allPosts.length);
-  console.log('FeaturedPosts - Featured Posts:', featuredPosts.length);
-  console.log('FeaturedPosts - Display Posts:', displayPosts.length);
+  // We can now directly use featuredPosts as our displayPosts
+  const displayPosts = featuredPosts;
 
   if (loading) {
     return (
@@ -46,9 +42,9 @@ const FeaturedPosts = () => {
               <p>Trying to fetch from: {WORDPRESS_API_URL}/wp-json/wp/v2/posts</p>
               <p>Check browser console for more details</p>
             </div>
-            <Button 
-              onClick={refresh} 
-              variant="outline" 
+            <Button
+              onClick={refresh}
+              variant="outline"
               className="border-red-400/50 text-red-300 hover:bg-red-500/20"
             >
               <RefreshCw className="h-4 w-4 mr-2" />
@@ -61,27 +57,7 @@ const FeaturedPosts = () => {
   }
 
   if (displayPosts.length === 0 && !loading) {
-    return (
-      <section className="py-16 relative">
-        <div className="container mx-auto px-6">
-          <div className="flex flex-col items-center justify-center py-20 text-yellow-400">
-            <span className="mb-4">No posts found</span>
-            <div className="text-sm text-gray-500 max-w-md text-center mb-4">
-              <p>Make sure you have published posts in WordPress</p>
-              <p>Check: {WORDPRESS_API_URL}/wp-json/wp/v2/posts</p>
-            </div>
-            <Button 
-              onClick={refresh} 
-              variant="outline" 
-              className="border-yellow-400/50 text-yellow-300 hover:bg-yellow-500/20"
-            >
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Refresh
-            </Button>
-          </div>
-        </div>
-      </section>
-    );
+    return null;
   }
 
   return (
@@ -115,10 +91,7 @@ const FeaturedPosts = () => {
                 <span className="gradient-text">Must-Read</span> Articles
               </h2>
               <p className="text-lg text-gray-300 max-w-2xl mx-auto">
-                {featuredPosts.length > 0 
-                  ? "Handpicked articles covering the latest trends and best practices in data engineering"
-                  : "Latest articles covering the latest trends and best practices in data engineering"
-                }
+                Handpicked articles covering the latest trends and best practices in data engineering
               </p>
             </motion.div>
           )}
@@ -254,8 +227,6 @@ const FeaturedPosts = () => {
           <div className="mt-8 p-4 bg-gray-800/50 rounded-lg border border-gray-700">
             <h4 className="text-sm font-semibold text-gray-300 mb-2">Debug Info</h4>
             <div className="text-xs text-gray-400 space-y-1">
-              <div>Total posts: {allPosts.length}</div>
-              <div>Featured posts: {featuredPosts.length}</div>
               <div>Display posts: {displayPosts.length}</div>
               <div>Loading: {loading.toString()}</div>
               <div>Error: {error || 'None'}</div>
