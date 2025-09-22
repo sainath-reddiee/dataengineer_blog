@@ -41,12 +41,12 @@ const RecentPosts = ({
         } catch (categoryError) {
           console.error('❌ Category error:', categoryError);
           if (showCategoryError) {
-            setError(`Category "${category}" not found`);
+            setError(`Category "${category}" not found. Please check if the category exists in WordPress.`);
+            setPosts([]); // Clear posts on category error
             return;
-          } else {
-            // Fall back to all posts if category not found
-            result = await wordpressApi.getPosts({ per_page: limit });
           }
+          // When not showing a category error, we just show no posts.
+          result = { posts: [] };
         }
       } else {
         // Get all posts
