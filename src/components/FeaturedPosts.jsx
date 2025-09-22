@@ -11,7 +11,7 @@ const FeaturedPosts = () => {
   
   // Fetch featured posts from WordPress - with debugging and refresh capability
   const { posts: featuredPosts, loading, error, refresh } = usePosts({ 
-    featured: false, // Start with all posts since featured might not be set
+    featured: true, // Start with all posts since featured might not be set
     per_page: 6 
   });
 
@@ -21,8 +21,7 @@ const FeaturedPosts = () => {
   console.log('FeaturedPosts - Error:', error);
 
   // Filter featured posts or use first 3 if no featured posts
-  const displayPosts = featuredPosts.filter(post => post.featured).slice(0, 3);
-  const finalPosts = displayPosts.length > 0 ? displayPosts : featuredPosts.slice(0, 3);
+  const finalPosts = featuredPosts.slice(0, 3);
 
   if (loading) {
     return (
