@@ -5,6 +5,7 @@ import { Calendar, Clock, ArrowRight, Star, AlertCircle, RefreshCw } from 'lucid
 import { Button } from '@/components/ui/button';
 import { usePosts } from '@/hooks/useWordPress';
 import { useIntersectionObserver } from '@/hooks/useIntersectionObserver';
+import { WORDPRESS_API_URL } from '@/apiConfig';
 
 const FeaturedPosts = () => {
   const [ref, isIntersecting, hasIntersected] = useIntersectionObserver();
