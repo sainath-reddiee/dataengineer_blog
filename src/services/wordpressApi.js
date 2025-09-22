@@ -91,7 +91,8 @@ class WordPressAPI {
     per_page = 10, 
     categoryId = null, 
     search = null,
-    featured = null
+    featured = null,
+    trending = null // Add trending parameter
   } = {}) {
     const params = new URLSearchParams({
       page: page.toString(),
@@ -106,6 +107,15 @@ class WordPressAPI {
     if (search) {
       params.append('search', search);
     }
+    // Add these lines for server-side filtering
+    if (featured) {
+      params.append('meta_key', 'featured');
+      params.append('meta_value', '1');
+    }
+    if (trending) {
+      params.append('meta_key', 'trending');
+      params.append('meta_value', '1');
+    }
 
     console.log('📋 Fetching posts with params:', Object.fromEntries(params));
     
@@ -119,23 +129,16 @@ class WordPressAPI {
 
     const transformedPosts = this.transformPosts(posts);
     
-    // Filter featured posts if needed
-    let filteredPosts = transformedPosts;
-    if (featured === true) {
-      filteredPosts = transformedPosts.filter(post => post.featured === true);
-      console.log('🌟 Filtered to featured posts:', filteredPosts.length);
-    } else if (featured === false) {
-      filteredPosts = transformedPosts.filter(post => post.featured !== true);
-    }
+    // The client-side filtering is no longer needed here, so we can remove it.
 
     console.log('✅ Posts processed:', {
-      total: filteredPosts.length,
+      total: transformedPosts.length,
       totalPages: result.totalPages,
       totalPosts: result.totalPosts
     });
     
     return {
-      posts: filteredPosts,
+      posts: transformedPosts, // Return the posts directly
       totalPages: result.totalPages,
       totalPosts: result.totalPosts
     };
