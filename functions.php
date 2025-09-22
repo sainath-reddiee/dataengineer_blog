@@ -663,6 +663,26 @@ function register_contact_endpoint() {
     ));
 }
 add_action('rest_api_init', 'register_contact_endpoint');
+// Add Featured Image URL to REST API
+function add_featured_image_to_rest_api() {
+    register_rest_field('post', 'featured_image_url', array(
+        'get_callback' => function($post) {
+            if (has_post_thumbnail($post['id'])) {
+                // You can change 'full' to 'large', 'medium', etc.
+                $image_url = get_the_post_thumbnail_url($post['id'], 'full');
+                return $image_url;
+            }
+            return null; // Return null if no featured image
+        },
+        'schema' => array(
+            'description' => 'URL of the post\'s featured image.',
+            'type'        => 'string',
+            'format'      => 'uri',
+            'context'     => array('view', 'edit', 'embed'),
+        ),
+    ));
+}
+add_action('rest_api_init', 'add_featured_image_to_rest_api');
 
 function handle_contact_submission($request) {
     $name = sanitize_text_field($request->get_param('name'));
