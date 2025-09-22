@@ -74,23 +74,31 @@ img {
 
 /* Optimize gradients */
 .gradient-text {
-  background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 50%, #f472b6 100%);
+  background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 40%, #f472b6 80%, #fbbf24 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   will-change: background-position;
+  background-size: 200% 200%;
+  animation: gradient-shift 3s ease-in-out infinite;
+}
+
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }
 
 .tech-card {
   background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
 }
 
 .glass-effect {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .blog-card {
@@ -103,8 +111,8 @@ img {
 
 .blog-card:hover {
   transform: translateY(-8px);
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-  border-color: rgba(96, 165, 250, 0.3);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 30px rgba(96, 165, 250, 0.2);
+  border-color: rgba(96, 165, 250, 0.4);
   will-change: transform;
 }
 
@@ -115,7 +123,8 @@ img {
 
 .tech-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.5), 0 0 20px rgba(96, 165, 250, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .floating-animation {
@@ -132,8 +141,8 @@ img {
 }
 
 @keyframes pulse-glow {
-  from { box-shadow: 0 0 20px rgba(96, 165, 250, 0.3); }
-  to { box-shadow: 0 0 40px rgba(96, 165, 250, 0.6); }
+  from { box-shadow: 0 0 20px rgba(96, 165, 250, 0.4), 0 0 40px rgba(168, 85, 247, 0.2); }
+  to { box-shadow: 0 0 40px rgba(96, 165, 250, 0.7), 0 0 60px rgba(168, 85, 247, 0.4); }
 }
 
 /* Ensure proper z-index layering */

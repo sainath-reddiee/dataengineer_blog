@@ -16,7 +16,7 @@ const HomePage = () => {
         description="Welcome to DataEngineer Hub. Get the latest articles, tutorials, and insights on data engineering, Snowflake, AWS, Azure, SQL, Python, Airflow, and dbt."
         keywords="data engineering, blog, data engineer, snowflake, aws, azure, sql, python, airflow, dbt"
       />
-      <div className="bg-white text-gray-800">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 text-white">
         <Hero />
         <FeaturedPosts />
         <TrendingPosts /> {/* Add the new component here */}

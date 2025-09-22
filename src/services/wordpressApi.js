@@ -222,10 +222,15 @@ class WordPressAPI {
     const featuredImage = wpPost._embedded?.['wp:featuredmedia']?.[0];
     let imageUrl = 'https://images.unsplash.com/photo-1595872018818-97555653a011?w=800&h=600&fit=crop';
     
-    if (featuredImage?.source_url) {
+    // Try multiple sources for featured image
+    if (wpPost.featured_image_url) {
+      imageUrl = wpPost.featured_image_url;
+    } else if (featuredImage?.source_url) {
       imageUrl = featuredImage.source_url;
     } else if (featuredImage?.media_details?.sizes?.large?.source_url) {
       imageUrl = featuredImage.media_details.sizes.large.source_url;
+    } else if (featuredImage?.media_details?.sizes?.medium?.source_url) {
+      imageUrl = featuredImage.media_details.sizes.medium.source_url;
     }
 
     // Get categories with better handling
@@ -239,15 +244,32 @@ class WordPressAPI {
     // Get author
     const author = wpPost._embedded?.author?.[0]?.name || 'DataEngineer Hub';
 
-    // Enhanced meta field handling
-    const featured = wpPost.featured === true || wpPost.featured === '1' || wpPost.meta?.featured === '1';
-    const trending = wpPost.trending === true || wpPost.trending === '1' || wpPost.meta?.trending === '1';
+    // Enhanced meta field handling - check multiple sources
+    const featured = wpPost.featured === true || 
+                    wpPost.featured === 1 || 
+                    wpPost.featured === '1' || 
+                    wpPost.meta?.featured === '1' ||
+                    wpPost.meta?.featured === 1;
+                    
+    const trending = wpPost.trending === true || 
+                    wpPost.trending === 1 || 
+                    wpPost.trending === '1' || 
+                    wpPost.meta?.trending === '1' ||
+                    wpPost.meta?.trending === 1;
+
+    // Use plain excerpt if available, otherwise clean the rendered excerpt
+    let excerpt = '';
+    if (wpPost.excerpt_plain) {
+      excerpt = wpPost.excerpt_plain;
+    } else if (wpPost.excerpt?.rendered) {
+      excerpt = this.cleanExcerpt(wpPost.excerpt.rendered);
+    }
 
     return {
       id: wpPost.id,
       slug: wpPost.slug,
       title: wpPost.title?.rendered || 'Untitled',
-      excerpt: this.cleanExcerpt(wpPost.excerpt?.rendered || ''),
+      excerpt: excerpt,
       content: wpPost.content?.rendered || '',
       category: primaryCategory,
       readTime: this.calculateReadTime(wpPost.content?.rendered || ''),

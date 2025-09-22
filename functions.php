@@ -543,19 +543,40 @@ add_action('save_post', 'save_custom_meta_fields');
 function add_custom_fields_to_rest_api() {
     register_rest_field('post', 'featured', array(
         'get_callback' => function($post) {
-            return get_post_meta($post['id'], 'featured', true) === '1';
+            $featured = get_post_meta($post['id'], 'featured', true);
+            return $featured === '1' || $featured === 1 || $featured === true;
         }
     ));
     
     register_rest_field('post', 'trending', array(
         'get_callback' => function($post) {
-            return get_post_meta($post['id'], 'trending', true) === '1';
+            $trending = get_post_meta($post['id'], 'trending', true);
+            return $trending === '1' || $trending === 1 || $trending === true;
         }
     ));
     
     register_rest_field('post', 'auto_categorized', array(
         'get_callback' => function($post) {
             return get_post_meta($post['id'], '_auto_categorized', true) === '1';
+        }
+    ));
+    
+    // Add excerpt to REST API response
+    register_rest_field('post', 'excerpt_plain', array(
+        'get_callback' => function($post) {
+            $excerpt = get_the_excerpt($post['id']);
+            return wp_strip_all_tags($excerpt);
+        }
+    ));
+    
+    // Add featured image URL to REST API response
+    register_rest_field('post', 'featured_image_url', array(
+        'get_callback' => function($post) {
+            $image_id = get_post_thumbnail_id($post['id']);
+            if ($image_id) {
+                return wp_get_attachment_image_url($image_id, 'large');
+            }
+            return null;
         }
     ));
 }
