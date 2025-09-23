@@ -1,1 +1,0 @@
-import{r as e}from"./vendor-BIicUdBT.js";const r=(r={})=>{const[t,s]=e.useState(!1),[n,o]=e.useState(!1),u=e.useRef(null);return e.useEffect(()=>{const e=new IntersectionObserver(([e])=>{s(e.isIntersecting),e.isIntersecting&&!n&&o(!0)},{threshold:.1,rootMargin:"50px",...r}),t=u.current;return t&&e.observe(t),()=>{t&&e.unobserve(t)}},[n,r]),[u,t,n]};export{r as u};
