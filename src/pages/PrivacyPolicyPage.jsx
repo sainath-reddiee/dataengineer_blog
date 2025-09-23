@@ -52,6 +52,10 @@ const PrivacyPolicyPage = () => {
           <p>
             In some regions (like the EEA and UK), you have certain rights under applicable data protection laws. These may include the right (i) to request access and obtain a copy of your personal information, (ii) to request rectification or erasure; (iii) to restrict the processing of your personal information; and (iv) if applicable, to data portability.
           </p>
+          
+          <h2 className="text-xl font-bold text-white mt-8">Advertising Privacy Statement</h2>
+          {/* Ezoic's script will automatically find this span and insert the required privacy policy content. */}
+          <span id="ezoic-privacy-policy-embed"></span>
 
           <h2 className="text-xl font-bold text-white mt-8">7. HOW CAN YOU CONTACT US ABOUT THIS NOTICE?</h2>
           <p>
