@@ -171,16 +171,18 @@ class WordPressAPI {
   }
 
   // Get single post by slug
-  async getPostBySlug(slug) {
-    const result = await this.makeRequest(`/posts?slug=${slug}&_embed=true`);
-    const posts = result.data;
-    
-    if (!Array.isArray(posts) || posts.length === 0) {
-      throw new Error(`Post with slug "${slug}" not found`);
-    }
+  async getPageBySlug(slug) {
+  const result = await this.makeRequest(`/pages?slug=${slug}&_embed=true`);
+  const pages = result.data;
 
-    return this.transformPost(posts[0]);
+  if (!Array.isArray(pages) || pages.length === 0) {
+      throw new Error(`Page with slug "${slug}" not found`);
   }
+
+  // Pages don't need the same complex transformation as posts,
+  // so we can return the essential data directly.
+  return pages[0];
+}
 
   // Corrected transformPost for robust image handling
   transformPost(wpPost) {
