@@ -2,7 +2,6 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import Newsletter from '@/components/Newsletter';
 import MetaTags from '@/components/SEO/MetaTags';
-import AdManager from '@/components/AdSense/AdManager';
 
 const NewsletterPage = () => {
   return (
