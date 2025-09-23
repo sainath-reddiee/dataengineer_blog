@@ -1,69 +1,18 @@
-# Corrected .htaccess for dataengineerhub.blog (React App)
+# Correct and Minimal .htaccess for React on Hostinger
+
 <IfModule mod_rewrite.c>
-  # Turn on the rewrite engine
   RewriteEngine On
   RewriteBase /
 
-  # ----------------------------------------------------------------------
-  # FORCING HTTPS & WWW (Combined Rule)
-  # ----------------------------------------------------------------------
-  RewriteCond %{HTTPS} !=on [OR]
-  RewriteCond %{HTTP_HOST} !^www\. [NC]
-  RewriteCond %{HTTP_HOST} ^(?:www\.)?(.+)$ [NC]
-  RewriteRule ^ https://www.%1%{REQUEST_URI} [L,R=301]
-
-  # ----------------------------------------------------------------------
-  # EZOIC ADS.TXT REDIRECT
-  # This must come BEFORE the main React Router rule.
-  # ----------------------------------------------------------------------
+  # --- Ezoic ads.txt Redirect ---
+  # This rule must come before the React app handler.
   RewriteRule ^ads\.txt$ https://srv.adstxtmanager.com/19305/dataengineerhub.blog [R=301,L]
 
-  # ----------------------------------------------------------------------
-  # REACT ROUTER / SINGLE-PAGE APP HANDLER (Corrected)
-  # This section ensures that direct requests to files (like JS/CSS) are
-  # served, while all other requests go to index.html for React to handle.
-  # ----------------------------------------------------------------------
-  # If the request is not for an existing file...
+  # --- React Application Handler ---
+  # If the request is NOT for an existing file...
   RewriteCond %{REQUEST_FILENAME} !-f
-  # ...and if the request is not for an existing directory...
+  # ...and if the request is NOT for an existing directory...
   RewriteCond %{REQUEST_FILENAME} !-d
-  # ...then rewrite the request to index.html
-  RewriteRule ^ index.html [L]
+  # ...then send the request to index.html for React to handle.
+  RewriteRule . /index.html [L]
 </IfModule>
-
-# ----------------------------------------------------------------------
-# ALL YOUR OTHER ORIGINAL RULES (Security, Caching, etc.)
-# These are all good and should remain.
-# ----------------------------------------------------------------------
-
-<IfModule mod_headers.c>
-  Header always set Access-Control-Allow-Origin "https://app.dataengineerhub.blog"
-  Header always set Access-Control-Allow-Methods "GET, POST, OPTIONS"
-  Header always set Access-Control-Allow-Headers "Content-Type, Authorization"
-  Header always set X-Content-Type-Options nosniff
-  Header always set X-Frame-Options DENY
-  Header always set X-XSS-Protection "1; mode=block"
-  Header always set Referrer-Policy "strict-origin-when-cross-origin"
-  <FilesMatch "\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$">
-    Header set Cache-Control "public, max-age=31536000"
-  </FilesMatch>
-  <FilesMatch "\.(html|htm)$">
-    Header set Cache-Control "no-cache, no-store, must-revalidate"
-    Header set Pragma "no-cache"
-    Header set Expires 0
-  </FilesMatch>
-</IfModule>
-
-<IfModule mod_deflate.c>
-  AddOutputFilterByType DEFLATE text/plain text/html text/xml text/css application/xml application/xhtml+xml application/rss+xml application/javascript application/x-javascript application/json
-</IfModule>
-
-<Files ~ "^\.">
-  Order allow,deny
-  Deny from all
-</Files>
-
-<FilesMatch "\.(jsx?|ts|tsx|json|md)$">
-  Order allow,deny
-  Deny from all
-</FilesMatch>
