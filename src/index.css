@@ -179,7 +179,8 @@ img[loading="lazy"].loaded {
 
 /* Enhanced prose styles for article content */
 .prose {
-  max-width: none;
+  max-width: 65ch;
+  margin: 0 auto;
 }
 
 .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {

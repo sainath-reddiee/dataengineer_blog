@@ -3,7 +3,6 @@ import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Calendar, Clock, User, Loader } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import Newsletter from '@/components/Newsletter';
 import MetaTags from '@/components/SEO/MetaTags';
 import AdManager from '@/components/AdSense/AdManager';
 import { usePost } from '@/hooks/useWordPress';
@@ -122,7 +121,7 @@ const ArticlePage = () => {
                 {post.category}
               </span>
             </div>
-            <h1 className="text-4xl md:text-6xl font-black mb-6 leading-tight">
+            <h1 className="text-3xl md:text-4xl font-black mb-6 leading-tight">
               {post.title}
             </h1>
             <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-gray-400 mb-8">
@@ -140,7 +139,7 @@ const ArticlePage = () => {
               </div>
             </div>
             
-            <div className="relative h-96 rounded-2xl overflow-hidden mb-12">
+            <div className="relative h-64 md:h-80 rounded-2xl overflow-hidden mb-8">
               <img 
                 className="w-full h-full object-cover"
                 alt={post.title}
@@ -157,10 +156,6 @@ const ArticlePage = () => {
             {/* End-article Ad */}
             <AdManager position="in-article" />
           </motion.article>
-          
-          <div className="mt-20">
-            <Newsletter />
-          </div>
         </div>
       </div>
     </>
