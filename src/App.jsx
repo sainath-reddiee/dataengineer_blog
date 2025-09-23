@@ -1,5 +1,6 @@
 import React, { useEffect, Suspense } from 'react';
-import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
+// The 'BrowserRouter as Router' import has been removed. We now import 'useLocation'.
+import { Route, Routes, useLocation } from 'react-router-dom';
 import Layout from './components/Layout';
 
 // Lazy load the page components for better performance
@@ -15,45 +16,41 @@ const NewsletterPage = React.lazy(() => import('./pages/NewsletterPage'));
 
 /**
  * A component that listens to route changes and tells Ezoic to refresh ads.
- * This is crucial for single-page applications.
  */
 const EzoicAdRefresher = () => {
   const location = useLocation();
 
   useEffect(() => {
-    // Check if the Ezoic script and its functions are available
     if (window.ezstandalone && typeof window.ezstandalone.showAds === 'function') {
-      // This command tells Ezoic to find all ad placeholders on the new page and load ads.
       window.ezstandalone.cmd.push(function() {
         window.ezstandalone.showAds();
       });
     }
-  }, [location]); // This effect runs every time the URL changes
+  }, [location]);
 
-  return null; // This component does not render anything
+  return null;
 };
 
 function App() {
   return (
-    <Router>
-      <Layout>
-        {/* The EzoicAdRefresher component will now monitor all route changes */}
-        <EzoicAdRefresher />
-        <Suspense fallback={<div className="flex justify-center items-center h-screen"><div className="loader"></div></div>}>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/articles" element={<AllArticlesPage />} />
-            <Route path="/article/:slug" element={<ArticlePage />} />
-            <Route path="/category/:slug" element={<CategoryPage />} />
-            <Route path="/contact" element={<ContactPage />} />
-            <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-            <Route path="/terms-of-service" element={<TermsOfServicePage />} />
-            <Route path="/newsletter" element={<NewsletterPage />} />
-          </Routes>
-        </Suspense>
-      </Layout>
-    </Router>
+    // The <Router> component that was here has been removed.
+    <Layout>
+      <EzoicAdRefresher />
+      <Suspense fallback={<div className="flex justify-center items-center h-screen"><div className="loader"></div></div>}>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/articles" element={<AllArticlesPage />} />
+          <Route path="/article/:slug" element={<ArticlePage />} />
+          <Route path="/category/:slug" element={<CategoryPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+          <Route path="/terms-of-service" element={<TermsOfServicePage />} />
+          <Route path="/newsletter" element={<NewsletterPage />} />
+        </Routes>
+      </Suspense>
+    </Layout>
+    // The closing </Router> tag was also removed.
   );
 }
 
