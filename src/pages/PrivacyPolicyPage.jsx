@@ -59,7 +59,7 @@ const PrivacyPolicyPage = () => {
 
           <h2 className="text-xl font-bold text-white mt-8">7. HOW CAN YOU CONTACT US ABOUT THIS NOTICE?</h2>
           <p>
-            If you have questions or comments about this notice, you may contact us through the contact form on our website or by emailing [Your Contact Email Address].
+            If you have questions or comments about this notice, you may contact us through the contact form on our website.
           </p>
         </div>
       </div>
