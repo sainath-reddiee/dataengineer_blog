@@ -43,7 +43,7 @@ function App() {
         <Route path="/" element={<Layout />}>
           <Route index element={<HomePage />} />
           <Route path="articles" element={<AllArticlesPage />} />
-          <Route path="article/:slug" element={<ArticlePage />} /> {/* Corrected path */}
+          <Route path="articles/:slug" element={<ArticlePage />} /> {/* Corrected path */}
           <Route path="category/:categoryName" element={<CategoryPage />} />
           <Route path="about" element={<AboutPage />} />
           <Route path="contact" element={<ContactPage />} />
