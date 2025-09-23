@@ -5,6 +5,7 @@ import { ArrowLeft, Calendar, Clock, User, Loader } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import MetaTags from '@/components/SEO/MetaTags';
 import { usePost } from '@/hooks/useWordPress';
+import AdPlacement from '../components/AdPlacement'; // <-- 1. IMPORT THE AD COMPONENT
 
 const ArticlePage = () => {
   const { slug } = useParams();
@@ -135,6 +136,9 @@ const ArticlePage = () => {
                 <span>{post.readTime}</span>
               </div>
             </div>
+            <div className="my-8 text-center">
+                <AdPlacement placementId={101} />
+            </div>
             
             <div className="relative h-64 md:h-80 rounded-2xl overflow-hidden mb-8">
               <img 
@@ -144,9 +148,10 @@ const ArticlePage = () => {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/50 to-transparent"></div>
             </div>
-
-
             <div className="prose prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: post.content }} />
+            <div className="my-8 text-center">
+                <AdPlacement placementId={102} />
+            </div>
           </motion.article>
         </div>
       </div>
