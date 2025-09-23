@@ -145,38 +145,6 @@ img {
   to { box-shadow: 0 0 40px rgba(96, 165, 250, 0.7), 0 0 60px rgba(168, 85, 247, 0.4); }
 }
 
-/* Ensure proper z-index layering */
-.adsense-container {
-  z-index: 1;
-  contain: layout;
-}
-
-.ad-wrapper {
-  z-index: 1;
-  contain: layout;
-}
-
-/* Header should always be on top */
-header {
-  z-index: 9999 !important;
-  contain: layout;
-}
-
-/* Optimize scrolling */
-.container {
-  contain: layout;
-}
-
-/* Optimize images */
-img[loading="lazy"] {
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-img[loading="lazy"].loaded {
-  opacity: 1;
-}
-
 /* Enhanced prose styles for article content */
 .prose {
   max-width: 65ch;

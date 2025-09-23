@@ -1,7 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import MetaTags from '@/components/SEO/MetaTags';
-import AdManager from '@/components/AdSense/AdManager';
 
 const PrivacyPolicyPage = () => {
   return (
@@ -22,9 +21,6 @@ const PrivacyPolicyPage = () => {
             </h1>
             <p className="text-xl text-gray-300 mb-12 text-center">Last updated: September 19, 2025</p>
             
-            {/* In-content Ad */}
-            <AdManager position="in-article" />
-            
             <div className="prose prose-invert max-w-none text-lg text-gray-300 leading-relaxed space-y-6">
               <p>Welcome to DataEngineer Hub. We are committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website.</p>
               
@@ -33,9 +29,6 @@ const PrivacyPolicyPage = () => {
               
               {/* Another in-content Ad */}
               <AdManager position="in-article" />
-              
-              <h2 className="text-3xl font-bold mt-12 mb-4 gradient-text">2. Use of Your Information</h2>
-              <p>We use the information we collect to:</p>
               <ul className="list-disc list-inside space-y-2">
                 <li>Send you our newsletter and other updates.</li>
                 <li>Respond to your comments or inquiries.</li>

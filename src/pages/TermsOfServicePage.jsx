@@ -1,7 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import MetaTags from '@/components/SEO/MetaTags';
-import AdManager from '@/components/AdSense/AdManager';
 
 const TermsOfServicePage = () => {
   return (
@@ -22,9 +21,6 @@ const TermsOfServicePage = () => {
             </h1>
             <p className="text-xl text-gray-300 mb-12 text-center">Last updated: September 19, 2025</p>
             
-            {/* In-content Ad */}
-            <AdManager position="in-article" />
-            
             <div className="prose prose-invert max-w-none text-lg text-gray-300 leading-relaxed space-y-6">
               <p>Please read these Terms of Service ("Terms", "Terms of Service") carefully before using the DataEngineer Hub website (the "Service") operated by us.</p>
               
@@ -34,9 +30,6 @@ const TermsOfServicePage = () => {
               {/* Another in-content Ad */}
               <AdManager position="in-article" />
               
-              <h2 className="text-3xl font-bold mt-12 mb-4 gradient-text">2. Content</h2>
-              <p>All content provided on this blog is for informational purposes only. The owner of this blog makes no representations as to the accuracy or completeness of any information on this site or found by following any link on this site. The owner will not be liable for any errors or omissions in this information nor for the availability of this information.</p>
-
               <h2 className="text-3xl font-bold mt-12 mb-4 gradient-text">3. Intellectual Property</h2>
               <p>The Service and its original content, features, and functionality are and will remain the exclusive property of DataEngineer Hub and its licensors. The Service is protected by copyright, trademark, and other laws of both the United States and foreign countries.</p>
 

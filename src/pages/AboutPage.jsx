@@ -2,7 +2,6 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Users, Target, Code, Heart } from 'lucide-react';
 import MetaTags from '@/components/SEO/MetaTags';
-import AdManager from '@/components/AdSense/AdManager';
 
 const AboutPage = () => {
   return (
@@ -62,8 +61,6 @@ const AboutPage = () => {
             </motion.div>
           </div>
 
-          {/* Single in-content Ad */}
-          <AdManager position="in-article" />
 
           <motion.div
             initial={{ opacity: 0, y: 50 }}

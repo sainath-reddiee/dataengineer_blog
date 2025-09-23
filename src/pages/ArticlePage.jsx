@@ -4,7 +4,6 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, Calendar, Clock, User, Loader } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import MetaTags from '@/components/SEO/MetaTags';
-import AdManager from '@/components/AdSense/AdManager';
 import { usePost } from '@/hooks/useWordPress';
 
 const ArticlePage = () => {
@@ -108,8 +107,6 @@ const ArticlePage = () => {
             </Button>
           </motion.div>
 
-          {/* In-article Ad */}
-          <AdManager position="in-article" />
 
           <motion.article
             initial={{ opacity: 0, y: 20 }}
@@ -148,13 +145,8 @@ const ArticlePage = () => {
               <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/50 to-transparent"></div>
             </div>
 
-            {/* Mid-article Ad */}
-            <AdManager position="in-article" />
 
             <div className="prose prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: post.content }} />
-            
-            {/* End-article Ad */}
-            <AdManager position="in-article" />
           </motion.article>
         </div>
       </div>

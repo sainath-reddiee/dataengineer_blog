@@ -7,7 +7,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
 import MetaTags from '@/components/SEO/MetaTags';
-import AdManager from '@/components/AdSense/AdManager';
 
 const ContactPage = () => {
   const { toast } = useToast();
@@ -126,8 +125,6 @@ const ContactPage = () => {
             </motion.div>
           </div>
           
-          {/* Single in-content Ad */}
-          <AdManager position="in-article" />
         </div>
       </div>
     </>
