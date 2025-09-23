@@ -136,9 +136,6 @@ const ArticlePage = () => {
                 <span>{post.readTime}</span>
               </div>
             </div>
-            <div className="my-8 text-center">
-                <AdPlacement placementId={101} />
-            </div>
             
             <div className="relative h-64 md:h-80 rounded-2xl overflow-hidden mb-8">
               <img 
@@ -148,9 +145,17 @@ const ArticlePage = () => {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/50 to-transparent"></div>
             </div>
-            <div className="prose prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: post.content }} />
+
+            {/* Mid-content ad placement */}
             <div className="my-8 text-center">
-                <AdPlacement placementId={102} />
+                <AdPlacement placementId={181} />
+            </div>
+            
+            <div className="prose prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: post.content }} />
+            
+            {/* Bottom of page ad placement */}
+            <div className="my-8 text-center">
+                <AdPlacement placementId={182} />
             </div>
           </motion.article>
         </div>
