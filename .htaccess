@@ -1,6 +1,6 @@
 # --- Ezoic ads.txt Redirect ---
 # This uses the simplest method (mod_alias) and should be at the top.
-Redirect 301 /ads.txt https://srv.adstxtmanager.com/19390/dataengineerhub.blog
+Redirect 301 /ads.txt https://srv.adstxtmanager.com/78749/dataengineerhub.blog
 
 # --- Original .htaccess Content Starts Below ---
 
