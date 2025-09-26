@@ -97,15 +97,15 @@ const FeaturedPosts = () => {
           )}
         </AnimatePresence>
 
-        <div className="grid lg:grid-cols-2 gap-8 mb-12">
+        {/* FIXED: Changed grid layout to prevent stretching */}
+        <div className="grid lg:grid-cols-2 gap-8 mb-12 items-start">
           {hasIntersected && displayPosts.length > 0 && (
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
-              className="lg:row-span-2"
             >
-              <Link to={`/articles/${displayPosts[0].slug}`} className="block blog-card rounded-2xl overflow-hidden group h-full">
+              <Link to={`/articles/${displayPosts[0].slug}`} className="block blog-card rounded-2xl overflow-hidden group">
                 <div className="relative">
                   <img
                     src={displayPosts[0].image}
@@ -154,7 +154,8 @@ const FeaturedPosts = () => {
             </motion.div>
           )}
 
-          <div className="space-y-8">
+          {/* FIXED: Changed from space-y-8 div to individual cards with proper sizing */}
+          <div className="flex flex-col space-y-6">
             {displayPosts.slice(1, 3).map((post, index) => (
               hasIntersected && (
                 <motion.div
@@ -162,40 +163,44 @@ const FeaturedPosts = () => {
                   initial={{ opacity: 0, x: 30 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.6, delay: index * 0.1 }}
+                  className="flex-shrink-0" // Prevent flex stretching
                 >
-                  <Link to={`/articles/${post.slug}`} className="block blog-card rounded-xl overflow-hidden group">
-                    <div className="flex">
+                  <Link to={`/articles/${post.slug}`} className="block blog-card rounded-xl overflow-hidden group h-40"> {/* Fixed height */}
+                    <div className="flex h-full">
                       <img
                         src={post.image}
                         alt={post.title}
-                        className="w-40 h-32 flex-shrink-0 object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="w-32 h-full flex-shrink-0 object-cover group-hover:scale-105 transition-transform duration-300"
                         onError={(e) => {
                           e.target.src = 'https://images.unsplash.com/photo-1595872018818-97555653a011?w=800&h=600&fit=crop';
                         }}
                       />
-                      <div className="p-6 flex-1">
-                        <div className="mb-3 flex items-center gap-2">
-                          <span className="bg-gradient-to-r from-green-500 to-blue-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
-                            {post.category}
-                          </span>
-                          {post.featured && (
-                            <div className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white p-1 rounded-full">
-                              <Star className="h-3 w-3" />
-                            </div>
-                          )}
+                      <div className="p-4 flex-1 flex flex-col justify-between min-w-0"> {/* Added min-w-0 for text truncation */}
+                        <div>
+                          <div className="mb-2 flex items-center gap-2">
+                            <span className="bg-gradient-to-r from-green-500 to-blue-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
+                              {post.category}
+                            </span>
+                            {post.featured && (
+                              <div className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white p-1 rounded-full">
+                                <Star className="h-3 w-3" />
+                              </div>
+                            )}
+                          </div>
+                          <h3 className="text-sm font-bold mb-2 group-hover:text-blue-400 transition-colors line-clamp-2 leading-tight">
+                            {post.title}
+                          </h3>
+                          <p className="text-gray-400 text-xs mb-3 line-clamp-2 leading-relaxed">
+                            {post.excerpt}
+                          </p>
                         </div>
-                        <h3 className="text-lg font-bold mb-3 group-hover:text-blue-400 transition-colors line-clamp-2">
-                          {post.title}
-                        </h3>
-                        <p className="text-gray-400 text-sm mb-4 line-clamp-2">
-                          {post.excerpt}
-                        </p>
-                        <div className="flex items-center justify-between text-xs text-gray-500">
-                          <div className="flex items-center space-x-3">
+                        <div className="flex items-center justify-between text-xs text-gray-500 mt-auto">
+                          <div className="flex items-center space-x-2">
                             <span>{new Date(post.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                            <span>•</span>
                             <span>{post.readTime}</span>
                           </div>
-                          <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                          <ArrowRight className="h-3 w-3 group-hover:translate-x-1 transition-transform" />
                         </div>
                       </div>
                     </div>
