@@ -1,15 +1,12 @@
-# --- Ezoic ads.txt Redirect ---
-# This uses the simplest method (mod_alias) and should be at the top.
-Redirect 301 /ads.txt https://srv.adstxtmanager.com/78749/dataengineerhub.blog
-
-# --- Original .htaccess Content Starts Below ---
-
 # React Router .htaccess for dataengineerhub.blog
 # This file should be placed in your main domain's web root directory
 
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
+  
+  # --- Ezoic ads.txt Redirect (using RewriteRule instead of Redirect) ---
+  RewriteRule ^ads\.txt$ https://srv.adstxtmanager.com/19390/dataengineerhub.blog [R=301,L]
   
   # Handle Angular and React Router
   # Don't rewrite files or directories
