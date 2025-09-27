@@ -358,10 +358,14 @@ function enhanced_auto_assign_categories_universal($post_id, $post) {
     
     // Sort by primary score first, then total score
     usort($detected_categories, function($a, $b) {
-        if ($a['primary_score'] !== $b['primary_score']) {
-            return $b['primary_score'] - $a['primary_score']; // Primary score first
+        // First compare primary scores
+        $primary_diff = $b['primary_score'] - $a['primary_score'];
+        if ($primary_diff != 0) {
+            return $primary_diff;
         }
-        return $b['score'] - $a['score']; // Then total score
+        
+        // If primary scores are equal, compare total scores
+        return $b['score'] - $a['score'];
     });
     
     $categories_to_assign = array();
@@ -384,18 +388,32 @@ function enhanced_auto_assign_categories_universal($post_id, $post) {
         case 'primary':
             // Get primary category override or use strongest match
             $primary_override = get_post_meta($post_id, '_primary_category', true);
+            error_log("🔍 PRIMARY MODE: Override setting = '$primary_override'");
             
-            if ($primary_override) {
+            if ($primary_override && $primary_override !== '') {
                 // Find the specific category
+                $found_override = false;
                 foreach ($detected_categories as $cat_data) {
                     if ($cat_data['mapping']['slug'] === $primary_override) {
                         $category = get_or_create_category($cat_data['mapping']['name'], $cat_data['mapping']['slug']);
                         if ($category) {
                             $categories_to_assign[] = $category->term_id;
                             $assigned_category_names[] = $category->name;
+                            $found_override = true;
                             error_log("🎯 PRIMARY OVERRIDE: Will assign {$cat_data['mapping']['name']}");
                         }
                         break;
+                    }
+                }
+                
+                // If override category wasn't detected, still create it
+                if (!$found_override) {
+                    error_log("⚠️ PRIMARY OVERRIDE: Category '$primary_override' not detected in content, but forcing assignment");
+                    $category = get_or_create_category(ucfirst($primary_override), $primary_override);
+                    if ($category) {
+                        $categories_to_assign[] = $category->term_id;
+                        $assigned_category_names[] = $category->name;
+                        error_log("🎯 PRIMARY FORCED: Will assign " . ucfirst($primary_override));
                     }
                 }
             } else if (!empty($detected_categories)) {
@@ -413,12 +431,46 @@ function enhanced_auto_assign_categories_universal($post_id, $post) {
         case 'auto':
         default:
             // Assign categories, but prioritize those with primary keyword matches
+            // Add debugging for auto mode
+            error_log("🔄 AUTO MODE: Processing " . count($detected_categories) . " detected categories");
+            
             foreach ($detected_categories as $cat_data) {
                 $category = get_or_create_category($cat_data['mapping']['name'], $cat_data['mapping']['slug']);
                 if ($category) {
                     $categories_to_assign[] = $category->term_id;
                     $assigned_category_names[] = $category->name;
                     error_log("✅ AUTO: Will assign {$category->name} (ID: {$category->term_id}, total: {$cat_data['score']}, primary: {$cat_data['primary_score']})");
+                }
+            }
+            
+            // SPECIAL FIX: If we're in auto mode but have categories to assign, only assign the top one if it has a clear primary keyword advantage
+            if (count($detected_categories) > 1) {
+                $top_category = $detected_categories[0];
+                $second_category = $detected_categories[1];
+                
+                // If the top category has significantly higher primary score, only assign that one
+                if ($top_category['primary_score'] > 0 && $second_category['primary_score'] == 0) {
+                    error_log("🎯 AUTO MODE OVERRIDE: Top category has primary keywords, others don't. Assigning only top category.");
+                    $categories_to_assign = array();
+                    $assigned_category_names = array();
+                    
+                    $category = get_or_create_category($top_category['mapping']['name'], $top_category['mapping']['slug']);
+                    if ($category) {
+                        $categories_to_assign[] = $category->term_id;
+                        $assigned_category_names[] = $category->name;
+                        error_log("✅ AUTO PRIORITY: Will assign only {$category->name} (primary: {$top_category['primary_score']})");
+                    }
+                } else if ($top_category['primary_score'] >= ($second_category['primary_score'] * 2)) {
+                    error_log("🎯 AUTO MODE OVERRIDE: Top category has much higher primary score. Assigning only top category.");
+                    $categories_to_assign = array();
+                    $assigned_category_names = array();
+                    
+                    $category = get_or_create_category($top_category['mapping']['name'], $top_category['mapping']['slug']);
+                    if ($category) {
+                        $categories_to_assign[] = $category->term_id;
+                        $assigned_category_names[] = $category->name;
+                        error_log("✅ AUTO PRIORITY: Will assign only {$category->name} (primary: {$top_category['primary_score']})");
+                    }
                 }
             }
             break;
