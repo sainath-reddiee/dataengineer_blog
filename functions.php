@@ -1,40 +1,47 @@
 <?php
-// FINAL COMPLETE functions.php for DataEngineer Hub
-// Copy this entire code and replace your current functions.php
+// COMPLETE ENHANCED functions.php for DataEngineer Hub
+// Fixed keyword prioritization and scoring system
 
 // Enable CORS for frontend applications
 function handle_cors_requests() {
-    $allowed_origins = array(
+    $allowed_origins = [
+        'https://dataengineerhub.blog',
         'https://app.dataengineerhub.blog',
-        'https://dataengineerhub.blog'
-    );
-    
-    $origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
-    
-    if (in_array($origin, $allowed_origins)) {
-        header("Access-Control-Allow-Origin: " . $origin);
-    } else {
-        // For development, allow localhost
-        if (strpos($origin, 'localhost') !== false || 
-            strpos($origin, 'bolt.new') !== false || 
-            strpos($origin, 'staticblitz.com') !== false ||
-            strpos($origin, 'stackblitz.com') !== false ||
-            strpos($origin, 'local-credent') !== false) {
+        // Common development origins
+        'http://localhost:3000',
+        'http://localhost:5173',
+    ];
+
+    if (isset($_SERVER['HTTP_ORIGIN'])) {
+        $origin = $_SERVER['HTTP_ORIGIN'];
+        if (in_array($origin, $allowed_origins)) {
             header("Access-Control-Allow-Origin: " . $origin);
+        } else {
+            // For development, allow localhost and common dev platforms
+            if (strpos($origin, 'localhost') !== false || 
+                strpos($origin, 'bolt.new') !== false || 
+                strpos($origin, 'staticblitz.com') !== false ||
+                strpos($origin, 'stackblitz.com') !== false ||
+                strpos($origin, 'local-credent') !== false) {
+                header("Access-Control-Allow-Origin: " . $origin);
+            }
         }
     }
-    
+
     header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
-    header("Access-Control-Allow-Headers: Content-Type, Authorization, X-WP-Nonce");
+    header("Access-Control-Allow-Headers: Content-Type, Authorization, X-WP-Nonce, Cache-Control, Pragma");
     header("Access-Control-Allow-Credentials: true");
     
-    // Handle preflight requests
-    if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    // Handle preflight OPTIONS request and exit
+    if ('OPTIONS' == $_SERVER['REQUEST_METHOD']) {
         status_header(200);
         exit();
     }
 }
-add_action('init', 'handle_cors_requests');
+
+// Use a higher priority and remove any old hooks to be safe
+remove_action('init', 'handle_cors_requests');
+add_action('init', 'handle_cors_requests', 9);
 
 // =================================================================
 // CACHE MANAGEMENT SYSTEM
@@ -76,7 +83,7 @@ function clear_cache_on_category_update($term_id) {
 }
 
 // =================================================================
-// AUTO CATEGORY ASSIGNMENT SYSTEM - UNIVERSAL FOR ALL CATEGORIES
+// ENHANCED AUTO CATEGORY ASSIGNMENT SYSTEM WITH MANUAL CONTROL
 // =================================================================
 
 // Helper function to find or create category
@@ -108,10 +115,107 @@ function get_or_create_category($category_name, $category_slug) {
     return $category;
 }
 
-// Main auto-categorization function - WORKS FOR ALL CATEGORIES
-add_action('save_post', 'auto_assign_categories_universal', 10, 2);
+// Add manual category control meta box
+function add_category_control_meta_box() {
+    add_meta_box(
+        'manual-category-control',
+        '🎯 Category Control',
+        'category_control_meta_box_callback',
+        'post',
+        'side',
+        'high'
+    );
+}
+add_action('add_meta_boxes', 'add_category_control_meta_box');
 
-function auto_assign_categories_universal($post_id, $post) {
+function category_control_meta_box_callback($post) {
+    wp_nonce_field('category_control_meta_box', 'category_control_nonce');
+    
+    // Get current settings
+    $auto_categorization = get_post_meta($post->ID, '_auto_categorization_mode', true) ?: 'auto';
+    $primary_category = get_post_meta($post->ID, '_primary_category', true);
+    $excluded_categories = get_post_meta($post->ID, '_excluded_categories', true) ?: array();
+    
+    ?>
+    <div style="padding: 10px;">
+        <h4>Categorization Mode:</h4>
+        <label style="display: block; margin: 5px 0;">
+            <input type="radio" name="auto_categorization_mode" value="auto" <?php checked($auto_categorization, 'auto'); ?>>
+            <strong>Auto</strong> - Assign all matching categories
+        </label>
+        
+        <label style="display: block; margin: 5px 0;">
+            <input type="radio" name="auto_categorization_mode" value="primary" <?php checked($auto_categorization, 'primary'); ?>>
+            <strong>Primary Only</strong> - Assign only the strongest match
+        </label>
+        
+        <label style="display: block; margin: 5px 0;">
+            <input type="radio" name="auto_categorization_mode" value="manual" <?php checked($auto_categorization, 'manual'); ?>>
+            <strong>Manual</strong> - Suggest categories, let me choose
+        </label>
+        
+        <label style="display: block; margin: 5px 0;">
+            <input type="radio" name="auto_categorization_mode" value="disabled" <?php checked($auto_categorization, 'disabled'); ?>>
+            <strong>Disabled</strong> - No auto-categorization
+        </label>
+        
+        <hr style="margin: 15px 0;">
+        
+        <h4>Primary Category Override:</h4>
+        <select name="primary_category" style="width: 100%;">
+            <option value="">Auto-detect strongest match</option>
+            <option value="snowflake" <?php selected($primary_category, 'snowflake'); ?>>Snowflake</option>
+            <option value="aws" <?php selected($primary_category, 'aws'); ?>>AWS</option>
+            <option value="azure" <?php selected($primary_category, 'azure'); ?>>Azure</option>
+            <option value="sql" <?php selected($primary_category, 'sql'); ?>>SQL</option>
+            <option value="python" <?php selected($primary_category, 'python'); ?>>Python</option>
+            <option value="airflow" <?php selected($primary_category, 'airflow'); ?>>Airflow</option>
+            <option value="dbt" <?php selected($primary_category, 'dbt'); ?>>dbt</option>
+            <option value="analytics" <?php selected($primary_category, 'analytics'); ?>>Analytics</option>
+        </select>
+        
+        <hr style="margin: 15px 0;">
+        
+        <h4>Exclude Categories:</h4>
+        <div style="max-height: 100px; overflow-y: auto; border: 1px solid #ddd; padding: 5px;">
+            <?php
+            $categories = array('snowflake', 'aws', 'azure', 'sql', 'python', 'airflow', 'dbt', 'analytics');
+            foreach ($categories as $cat) {
+                $checked = in_array($cat, (array)$excluded_categories) ? 'checked' : '';
+                echo "<label style='display: block;'>";
+                echo "<input type='checkbox' name='excluded_categories[]' value='{$cat}' {$checked}> " . ucfirst($cat);
+                echo "</label>";
+            }
+            ?>
+        </div>
+    </div>
+    <?php
+}
+
+// Save category control settings
+function save_category_control_settings($post_id) {
+    if (!isset($_POST['category_control_nonce']) || !wp_verify_nonce($_POST['category_control_nonce'], 'category_control_meta_box')) {
+        return;
+    }
+    
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
+    if (!current_user_can('edit_post', $post_id)) return;
+    
+    // Save settings
+    $mode = sanitize_text_field($_POST['auto_categorization_mode'] ?? 'auto');
+    $primary = sanitize_text_field($_POST['primary_category'] ?? '');
+    $excluded = array_map('sanitize_text_field', $_POST['excluded_categories'] ?? array());
+    
+    update_post_meta($post_id, '_auto_categorization_mode', $mode);
+    update_post_meta($post_id, '_primary_category', $primary);
+    update_post_meta($post_id, '_excluded_categories', $excluded);
+}
+add_action('save_post', 'save_category_control_settings', 5); // Run before auto-categorization
+
+// FIXED: Enhanced auto-categorization function with better keyword prioritization
+add_action('save_post', 'enhanced_auto_assign_categories_universal', 10, 2);
+
+function enhanced_auto_assign_categories_universal($post_id, $post) {
     // Skip if this is an autosave or revision
     if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
     if (wp_is_post_revision($post_id)) return;
@@ -122,13 +226,23 @@ function auto_assign_categories_universal($post_id, $post) {
     // Only process posts (not pages)
     if ($post->post_type !== 'post') return;
     
+    // Check if auto-categorization is disabled for this post
+    $mode = get_post_meta($post_id, '_auto_categorization_mode', true) ?: 'auto';
+    if ($mode === 'disabled') {
+        error_log("🚫 Auto-categorization disabled for post: {$post->post_title}");
+        return;
+    }
+    
     // Avoid infinite loops
     if (get_transient('processing_auto_categories_' . $post_id)) {
         return;
     }
     set_transient('processing_auto_categories_' . $post_id, true, 30);
     
-    error_log("🤖 AUTO-CATEGORIZATION: Starting for post '{$post->post_title}' (ID: $post_id)");
+    error_log("🤖 ENHANCED AUTO-CATEGORIZATION: Starting for post '{$post->post_title}' (ID: $post_id, Mode: $mode)");
+    
+    // Get excluded categories
+    $excluded_categories = get_post_meta($post_id, '_excluded_categories', true) ?: array();
     
     // Get content for analysis
     $title = strtolower($post->post_title);
@@ -138,98 +252,192 @@ function auto_assign_categories_universal($post_id, $post) {
     
     error_log("🔍 Analyzing text: " . substr($combined_text, 0, 200) . "...");
     
-    // UNIVERSAL CATEGORY MAPPING - Add new categories here easily
+    // FIXED: IMPROVED CATEGORY MAPPING with priority-based keywords
     $category_mappings = array(
         array(
             'name' => 'Snowflake',
             'slug' => 'snowflake',
-            'keywords' => array('snowflake', 'data warehouse', 'warehouse', 'snowpipe', 'snowsight', 'snowflake cloud')
+            'primary_keywords' => array('snowflake'),  // High priority, unique keywords
+            'secondary_keywords' => array('data warehouse', 'warehouse', 'snowpipe', 'snowsight', 'snowflake cloud')
         ),
         array(
             'name' => 'AWS', 
             'slug' => 'aws',
-            'keywords' => array('aws', 'amazon web services', 's3', 'ec2', 'lambda', 'glue', 'redshift', 'amazon s3', 'aws lambda')
+            'primary_keywords' => array('aws', 'amazon web services'),
+            'secondary_keywords' => array('s3', 'ec2', 'lambda', 'glue', 'redshift', 'amazon s3', 'aws lambda')
         ),
         array(
             'name' => 'Azure',
-            'slug' => 'azure', 
-            'keywords' => array('azure', 'microsoft azure', 'synapse', 'data factory', 'power bi', 'azure synapse', 'azure sql')
+            'slug' => 'azure',
+            'primary_keywords' => array('azure', 'microsoft azure'),
+            'secondary_keywords' => array('synapse', 'data factory', 'power bi', 'azure synapse', 'azure sql')
         ),
         array(
             'name' => 'SQL',
             'slug' => 'sql',
-            'keywords' => array('sql', 'query', 'queries', 'select', 'database', 'mysql', 'postgresql', 'sql server')
+            'primary_keywords' => array('sql', 'query', 'queries'),
+            'secondary_keywords' => array('select', 'database', 'mysql', 'postgresql', 'sql server')
         ),
         array(
             'name' => 'Python',
             'slug' => 'python',
-            'keywords' => array('python', 'pandas', 'numpy', 'jupyter', 'dataframe', 'python script', 'python code')
+            'primary_keywords' => array('python'),
+            'secondary_keywords' => array('pandas', 'numpy', 'jupyter', 'dataframe', 'python script', 'python code')
         ),
         array(
             'name' => 'Airflow',
             'slug' => 'airflow',
-            'keywords' => array('airflow', 'dag', 'dags', 'workflow', 'orchestration', 'apache airflow')
+            'primary_keywords' => array('airflow', 'apache airflow'),
+            'secondary_keywords' => array('dag', 'dags', 'workflow', 'orchestration')
         ),
         array(
             'name' => 'dbt',
             'slug' => 'dbt',
-            'keywords' => array('dbt', 'data build tool', 'transformation', 'analytics engineering', 'dbt model', 'dbt models')
+            'primary_keywords' => array('dbt', 'data build tool'),
+            'secondary_keywords' => array('transformation', 'analytics engineering', 'dbt model', 'dbt models')
+        ),
+        array(
+            'name' => 'Analytics',
+            'slug' => 'analytics',
+            'primary_keywords' => array('analytics', 'data visualization'),
+            'secondary_keywords' => array('bi', 'business intelligence', 'reporting', 'dashboard')  // 'bi' moved to secondary
         )
-        // ADD NEW CATEGORIES HERE:
-        // array(
-        //     'name' => 'Terraform',
-        //     'slug' => 'terraform',
-        //     'keywords' => array('terraform', 'infrastructure as code', 'iac', 'terraform plan')
-        // )
     );
     
-    $categories_to_assign = array();
     $detected_categories = array();
     
-    // Check each category mapping
+    // IMPROVED scoring algorithm
     foreach ($category_mappings as $mapping) {
+        // Skip if category is excluded
+        if (in_array($mapping['slug'], $excluded_categories)) {
+            error_log("⭐ Skipping excluded category: {$mapping['name']}");
+            continue;
+        }
+        
         $score = 0;
+        $primary_score = 0;
+        $secondary_score = 0;
         $found_keywords = array();
         
-        // Check for keywords
-        foreach ($mapping['keywords'] as $keyword) {
+        // Check primary keywords (weighted heavily)
+        foreach ($mapping['primary_keywords'] as $keyword) {
             $count = substr_count($combined_text, strtolower($keyword));
             if ($count > 0) {
-                $score += $count;
-                $found_keywords[] = $keyword;
+                // Primary keywords get 10x weight
+                $title_bonus = substr_count($title, strtolower($keyword)) * 5; // Extra title bonus
+                $primary_score += ($count * 10) + $title_bonus;
+                $found_keywords[] = $keyword . "(primary:" . (($count * 10) + $title_bonus) . ")";
             }
         }
         
-        if ($score > 0) {
-            error_log("🎯 Found keywords for {$mapping['name']}: " . implode(', ', $found_keywords) . " (score: $score)");
-            
-            // Get or create the category
-            $category = get_or_create_category($mapping['name'], $mapping['slug']);
-            
-            if ($category) {
-                $categories_to_assign[] = $category->term_id;
-                $detected_categories[] = $mapping['name'];
-                error_log("✅ Will assign category: {$category->name} (ID: {$category->term_id})");
-            } else {
-                error_log("❌ Could not get/create category: {$mapping['name']}");
+        // Check secondary keywords (normal weight)
+        foreach ($mapping['secondary_keywords'] as $keyword) {
+            $count = substr_count($combined_text, strtolower($keyword));
+            if ($count > 0) {
+                $title_bonus = substr_count($title, strtolower($keyword)) * 2;
+                $secondary_score += $count + $title_bonus;
+                $found_keywords[] = $keyword . "(secondary:" . ($count + $title_bonus) . ")";
             }
         }
+        
+        $total_score = $primary_score + $secondary_score;
+        
+        // Only consider categories with primary keyword matches OR very high secondary scores
+        if ($primary_score > 0 || $secondary_score >= 15) {
+            error_log("🎯 Found keywords for {$mapping['name']}: " . implode(', ', $found_keywords) . " (primary: $primary_score, secondary: $secondary_score, total: $total_score)");
+            
+            $detected_categories[] = array(
+                'mapping' => $mapping,
+                'score' => $total_score,
+                'primary_score' => $primary_score,
+                'secondary_score' => $secondary_score,
+                'keywords' => $found_keywords
+            );
+        }
+    }
+    
+    // Sort by primary score first, then total score
+    usort($detected_categories, function($a, $b) {
+        if ($a['primary_score'] !== $b['primary_score']) {
+            return $b['primary_score'] - $a['primary_score']; // Primary score first
+        }
+        return $b['score'] - $a['score']; // Then total score
+    });
+    
+    $categories_to_assign = array();
+    $assigned_category_names = array();
+    
+    // Apply categorization based on mode
+    switch ($mode) {
+        case 'manual':
+            // For manual mode, just log suggestions but don't auto-assign
+            error_log("💡 MANUAL MODE - Detected categories: " . 
+                     implode(', ', array_map(function($cat) {
+                         return $cat['mapping']['name'] . " (total: {$cat['score']}, primary: {$cat['primary_score']})";
+                     }, $detected_categories)));
+            
+            // Store suggestions for admin interface
+            update_post_meta($post_id, '_category_suggestions', $detected_categories);
+            delete_transient('processing_auto_categories_' . $post_id);
+            return;
+            
+        case 'primary':
+            // Get primary category override or use strongest match
+            $primary_override = get_post_meta($post_id, '_primary_category', true);
+            
+            if ($primary_override) {
+                // Find the specific category
+                foreach ($detected_categories as $cat_data) {
+                    if ($cat_data['mapping']['slug'] === $primary_override) {
+                        $category = get_or_create_category($cat_data['mapping']['name'], $cat_data['mapping']['slug']);
+                        if ($category) {
+                            $categories_to_assign[] = $category->term_id;
+                            $assigned_category_names[] = $category->name;
+                            error_log("🎯 PRIMARY OVERRIDE: Will assign {$cat_data['mapping']['name']}");
+                        }
+                        break;
+                    }
+                }
+            } else if (!empty($detected_categories)) {
+                // Use strongest match
+                $strongest = $detected_categories[0];
+                $category = get_or_create_category($strongest['mapping']['name'], $strongest['mapping']['slug']);
+                if ($category) {
+                    $categories_to_assign[] = $category->term_id;
+                    $assigned_category_names[] = $category->name;
+                    error_log("🏆 PRIMARY AUTO: Will assign {$strongest['mapping']['name']} (total: {$strongest['score']}, primary: {$strongest['primary_score']})");
+                }
+            }
+            break;
+            
+        case 'auto':
+        default:
+            // Assign categories, but prioritize those with primary keyword matches
+            foreach ($detected_categories as $cat_data) {
+                $category = get_or_create_category($cat_data['mapping']['name'], $cat_data['mapping']['slug']);
+                if ($category) {
+                    $categories_to_assign[] = $category->term_id;
+                    $assigned_category_names[] = $category->name;
+                    error_log("✅ AUTO: Will assign {$category->name} (ID: {$category->term_id}, total: {$cat_data['score']}, primary: {$cat_data['primary_score']})");
+                }
+            }
+            break;
     }
     
     // Assign categories if any were detected
     if (!empty($categories_to_assign)) {
         // Remove hook to prevent infinite loop
-        remove_action('save_post', 'auto_assign_categories_universal', 10, 2);
+        remove_action('save_post', 'enhanced_auto_assign_categories_universal', 10, 2);
         
         // Clear existing categories and assign new ones
         $result = wp_set_post_categories($post_id, $categories_to_assign, false);
         
         if ($result !== false) {
-            error_log("🎉 SUCCESS! Assigned categories: " . implode(', ', $detected_categories));
+            error_log("🎉 SUCCESS! Assigned categories in $mode mode: " . implode(', ', $assigned_category_names));
             
             // Update meta
             update_post_meta($post_id, '_auto_categorized', '1');
-            update_post_meta($post_id, '_detected_categories', json_encode($detected_categories));
+            update_post_meta($post_id, '_detected_categories', json_encode($assigned_category_names));
             
             // Update category counts
             wp_update_term_count_now($categories_to_assign, 'category');
@@ -242,24 +450,24 @@ function auto_assign_categories_universal($post_id, $post) {
         }
         
         // Re-add hook
-        add_action('save_post', 'auto_assign_categories_universal', 10, 2);
+        add_action('save_post', 'enhanced_auto_assign_categories_universal', 10, 2);
         
     } else {
-        error_log("⚠️ No categories detected. Checking existing categories...");
+        error_log("⚠️ No categories detected in $mode mode. Checking existing categories...");
         
         // Get existing categories
         $existing_cats = wp_get_post_categories($post_id);
-        if (empty($existing_cats)) {
+        if (empty($existing_cats) && $mode !== 'manual') {
             error_log("ℹ️ No existing categories, assigning to Uncategorized");
             // Assign to uncategorized
             $uncategorized = get_category(1); // ID 1 is usually uncategorized
             if ($uncategorized) {
-                remove_action('save_post', 'auto_assign_categories_universal', 10, 2);
+                remove_action('save_post', 'enhanced_auto_assign_categories_universal', 10, 2);
                 wp_set_post_categories($post_id, array($uncategorized->term_id), false);
-                add_action('save_post', 'auto_assign_categories_universal', 10, 2);
+                add_action('save_post', 'enhanced_auto_assign_categories_universal', 10, 2);
             }
         } else {
-            error_log("ℹ️ Post already has categories: " . implode(', ', $existing_cats));
+            error_log("ℹ️ Post already has categories or is in manual mode: " . implode(', ', $existing_cats));
         }
     }
     
@@ -275,11 +483,11 @@ function force_update_category_counts($post_id) {
     $categories = wp_get_post_categories($post_id);
     if (!empty($categories)) {
         wp_update_term_count_now($categories, 'category');
-        error_log("🔄 FORCE: Updated category counts for post $post_id");
+        error_log("📄 FORCE: Updated category counts for post $post_id");
     }
 }
 
-// Add admin meta box to show detection results
+// Enhanced admin meta box to show detection results and manual suggestions
 add_action('add_meta_boxes', 'add_auto_category_detection_meta_box');
 
 function add_auto_category_detection_meta_box() {
@@ -300,6 +508,12 @@ function auto_category_detection_callback($post) {
     
     echo '<div style="padding: 10px;">';
     
+    // Show current mode
+    $mode = get_post_meta($post->ID, '_auto_categorization_mode', true) ?: 'auto';
+    echo '<div style="background: #e3f2fd; padding: 8px; border-radius: 4px; margin-bottom: 10px;">';
+    echo '⚙️ <strong>Current Mode:</strong> ' . ucfirst($mode);
+    echo '</div>';
+    
     // Show if already auto-categorized
     $auto_categorized = get_post_meta($post->ID, '_auto_categorized', true);
     $detected_categories = get_post_meta($post->ID, '_detected_categories', true);
@@ -317,37 +531,106 @@ function auto_category_detection_callback($post) {
         echo '</div>';
     }
     
-    // Keyword detection preview for ALL categories
+    // Show manual suggestions if in manual mode
+    $suggestions = get_post_meta($post->ID, '_category_suggestions', true);
+    if ($mode === 'manual' && !empty($suggestions)) {
+        echo '<div style="background: #f0f8ff; padding: 10px; border-radius: 4px; margin: 10px 0;">';
+        echo '<h4>🤖 Suggested Categories:</h4>';
+        
+        foreach ($suggestions as $suggestion) {
+            $name = $suggestion['mapping']['name'];
+            $score = $suggestion['score'];
+            $primary_score = $suggestion['primary_score'] ?? 0;
+            $keywords = implode(', ', array_slice($suggestion['keywords'], 0, 3));
+            
+            echo "<div style='margin: 5px 0; padding: 5px; background: white; border-radius: 3px;'>";
+            echo "<strong>$name</strong> (total: $score, primary: $primary_score)<br>";
+            echo "<small>Keywords: $keywords</small><br>";
+            echo "<button type='button' onclick='assignSingleCategory(\"{$suggestion['mapping']['slug']}\", \"$name\", {$post->ID})' class='button button-small'>Assign This Category</button>";
+            echo "</div>";
+        }
+        echo '</div>';
+    }
+    
+    // UPDATED Keyword detection preview with primary/secondary distinction
     $keyword_tests = array(
-        'Snowflake' => array('snowflake', 'data warehouse', 'warehouse'),
-        'AWS' => array('aws', 'amazon web services', 's3', 'lambda'),
-        'Azure' => array('azure', 'synapse', 'power bi'),
-        'SQL' => array('sql', 'query', 'database'),
-        'Python' => array('python', 'pandas', 'jupyter'),
-        'Airflow' => array('airflow', 'dag', 'workflow'),
-        'dbt' => array('dbt', 'transformation')
+        'Snowflake' => array(
+            'primary' => array('snowflake'),
+            'secondary' => array('data warehouse', 'warehouse')
+        ),
+        'AWS' => array(
+            'primary' => array('aws', 'amazon web services'),
+            'secondary' => array('s3', 'lambda')
+        ),
+        'Azure' => array(
+            'primary' => array('azure', 'microsoft azure'),
+            'secondary' => array('synapse', 'power bi')
+        ),
+        'SQL' => array(
+            'primary' => array('sql', 'query'),
+            'secondary' => array('database')
+        ),
+        'Python' => array(
+            'primary' => array('python'),
+            'secondary' => array('pandas', 'jupyter')
+        ),
+        'Airflow' => array(
+            'primary' => array('airflow'),
+            'secondary' => array('dag', 'workflow')
+        ),
+        'dbt' => array(
+            'primary' => array('dbt'),
+            'secondary' => array('transformation')
+        ),
+        'Analytics' => array(
+            'primary' => array('analytics', 'data visualization'),
+            'secondary' => array('bi', 'business intelligence')
+        )
     );
     
-    echo '<h4>Keyword Detection:</h4>';
+    echo '<h4>Keyword Detection (Improved):</h4>';
     
     $any_detected = false;
-    foreach ($keyword_tests as $category => $keywords) {
-        $found = array();
-        $score = 0;
+    foreach ($keyword_tests as $category => $keyword_groups) {
+        $primary_found = array();
+        $secondary_found = array();
+        $primary_score = 0;
+        $secondary_score = 0;
         
-        foreach ($keywords as $keyword) {
+        // Check primary keywords
+        foreach ($keyword_groups['primary'] as $keyword) {
             $count = substr_count($combined_text, $keyword);
             if ($count > 0) {
-                $found[] = "$keyword($count)";
-                $score += $count;
+                $primary_found[] = "$keyword($count×10)";
+                $primary_score += $count * 10;
             }
         }
         
-        if ($score > 0) {
+        // Check secondary keywords
+        foreach ($keyword_groups['secondary'] as $keyword) {
+            $count = substr_count($combined_text, $keyword);
+            if ($count > 0) {
+                $secondary_found[] = "$keyword($count)";
+                $secondary_score += $count;
+            }
+        }
+        
+        $total_score = $primary_score + $secondary_score;
+        
+        if ($total_score > 0) {
             $any_detected = true;
-            echo "<div style='background: #d4edda; padding: 5px; margin: 2px 0; border-radius: 3px;'>";
-            echo "✅ <strong>$category</strong> (score: $score)<br>";
-            echo "<small>" . implode(', ', $found) . "</small>";
+            $bg_color = $primary_score > 0 ? '#d4edda' : '#fff3cd'; // Green if primary, yellow if only secondary
+            echo "<div style='background: $bg_color; padding: 5px; margin: 2px 0; border-radius: 3px;'>";
+            echo "✅ <strong>$category</strong> (total: $total_score";
+            if ($primary_score > 0) echo ", primary: $primary_score";
+            echo ")<br>";
+            
+            if (!empty($primary_found)) {
+                echo "<small><strong>Primary:</strong> " . implode(', ', $primary_found) . "</small><br>";
+            }
+            if (!empty($secondary_found)) {
+                echo "<small>Secondary: " . implode(', ', $secondary_found) . "</small>";
+            }
             echo "</div>";
         }
     }
@@ -359,7 +642,7 @@ function auto_category_detection_callback($post) {
         echo '</div>';
     } else {
         echo '<div style="background: #d1ecf1; padding: 8px; margin-top: 10px; border-radius: 4px;">';
-        echo '💡 Categories will be assigned when you publish/update this post.';
+        echo '💡 Categories with primary keywords get priority. Categories will be assigned when you publish/update this post.';
         echo '</div>';
     }
     
@@ -406,6 +689,24 @@ function auto_category_detection_callback($post) {
                 });
             }
         }
+        
+        function assignSingleCategory(slug, name, postId) {
+            if (confirm('Assign only "' + name + '" category to this post?')) {
+                jQuery.post(ajaxurl, {
+                    action: 'assign_single_category',
+                    post_id: postId,
+                    category_slug: slug,
+                    nonce: '<?php echo wp_create_nonce("assign_category_" . $post->ID); ?>'
+                }, function(response) {
+                    if (response.success) {
+                        alert('✅ Assigned "' + name + '" category!');
+                        location.reload();
+                    } else {
+                        alert('❌ Error: ' + response.data);
+                    }
+                });
+            }
+        }
         </script>
         <?php
     }
@@ -440,7 +741,7 @@ function handle_manual_categorization() {
     delete_transient('processing_auto_categories_' . $post_id);
     
     // Trigger categorization
-    auto_assign_categories_universal($post_id, $post);
+    enhanced_auto_assign_categories_universal($post_id, $post);
     
     // Get results
     $categories = get_the_category($post_id);
@@ -454,6 +755,44 @@ function handle_manual_categorization() {
         'categories' => $category_names,
         'post_title' => $post->post_title
     ));
+}
+
+// AJAX handler for single category assignment (for manual mode)
+add_action('wp_ajax_assign_single_category', 'handle_assign_single_category');
+function handle_assign_single_category() {
+    $post_id = intval($_POST['post_id']);
+    $category_slug = sanitize_text_field($_POST['category_slug']);
+    $nonce = $_POST['nonce'];
+    
+    if (!wp_verify_nonce($nonce, 'assign_category_' . $post_id)) {
+        wp_send_json_error('Security check failed');
+        return;
+    }
+    
+    if (!current_user_can('edit_post', $post_id)) {
+        wp_send_json_error('Insufficient permissions');
+        return;
+    }
+    
+    // Find category by slug
+    $category = get_term_by('slug', $category_slug, 'category');
+    if (!$category) {
+        wp_send_json_error('Category not found');
+        return;
+    }
+    
+    // Assign only this category
+    wp_set_post_categories($post_id, array($category->term_id), false);
+    
+    // Update meta
+    update_post_meta($post_id, '_auto_categorized', '1');
+    update_post_meta($post_id, '_auto_categorization_mode', 'manual');
+    delete_post_meta($post_id, '_category_suggestions');
+    
+    wp_update_term_count_now(array($category->term_id), 'category');
+    clear_all_caches();
+    
+    wp_send_json_success("Assigned category: {$category->name}");
 }
 
 // AJAX handler for cache clearing
@@ -663,26 +1002,6 @@ function register_contact_endpoint() {
     ));
 }
 add_action('rest_api_init', 'register_contact_endpoint');
-// Add Featured Image URL to REST API
-function add_featured_image_to_rest_api() {
-    register_rest_field('post', 'featured_image_url', array(
-        'get_callback' => function($post) {
-            if (has_post_thumbnail($post['id'])) {
-                // You can change 'full' to 'large', 'medium', etc.
-                $image_url = get_the_post_thumbnail_url($post['id'], 'full');
-                return $image_url;
-            }
-            return null; // Return null if no featured image
-        },
-        'schema' => array(
-            'description' => 'URL of the post\'s featured image.',
-            'type'        => 'string',
-            'format'      => 'uri',
-            'context'     => array('view', 'edit', 'embed'),
-        ),
-    ));
-}
-add_action('rest_api_init', 'add_featured_image_to_rest_api');
 
 function handle_contact_submission($request) {
     $name = sanitize_text_field($request->get_param('name'));
@@ -794,7 +1113,7 @@ add_action('admin_notices', function() {
     $screen = get_current_screen();
     if ($screen && in_array($screen->id, array('post', 'edit-post'))) {
         echo '<div class="notice notice-info is-dismissible">';
-        echo '<p><strong>🤖 Universal Auto-Categorization Active:</strong> Posts will be automatically categorized based on content keywords for ALL categories (Snowflake, AWS, Azure, SQL, Python, Airflow, dbt) when published.</p>';
+        echo '<p><strong>Enhanced Auto-Categorization Active:</strong> You now have full control over categorization modes (Auto/Primary/Manual/Disabled) for each post. Use the "Category Control" meta box to customize behavior.</p>';
         echo '</div>';
     }
 });
