@@ -329,3 +329,18 @@ const ArticlePage = () => {
           day: 'numeric', 
           year: 'numeric' 
         });
+      }
+      return date.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric', 
+        year: 'numeric' 
+      });
+    } catch (error) {
+      console.warn('Error formatting date:', error);
+      return new Date().toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric', 
+        year: 'numeric' 
+      });
+    }
+  };

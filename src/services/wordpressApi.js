@@ -67,7 +67,19 @@ class WordPressAPI {
         }
       }
 
-      const data = await response.json();
+      let data;
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        console.error('❌ Failed to parse JSON response:', jsonError);
+        throw new Error('Invalid response format from server');
+      }
+      
+      // Validate that data exists
+      if (data === null || data === undefined) {
+        console.error('❌ Received null/undefined data from API');
+        throw new Error('No data received from server');
+      }
       
       const totalPosts = parseInt(response.headers.get('X-WP-Total') || '0');
       const totalPages = parseInt(response.headers.get('X-WP-TotalPages') || '1');
@@ -133,10 +145,27 @@ class WordPressAPI {
       console.log('📋 Fetching posts with params:', Object.fromEntries(params));
       
       const result = await this.makeRequest(`/posts?${params.toString()}`);
+      
+      // Enhanced validation for API response
+      if (!result || typeof result !== 'object') {
+        console.error('❌ Invalid API response structure:', result);
+        return { posts: [], totalPages: 1, totalPosts: 0 };
+      }
+      
       const posts = result.data;
       
       if (!Array.isArray(posts)) {
-        console.error('❌ Expected array of posts, got:', typeof posts);
+        console.error('❌ Expected array of posts, got:', typeof posts, posts);
+        // Try to handle different response structures
+        if (posts && typeof posts === 'object' && Array.isArray(posts.posts)) {
+          // Handle nested posts structure
+          const transformedPosts = this.transformPosts(posts.posts);
+          return {
+            posts: transformedPosts,
+            totalPages: posts.totalPages || 1,
+            totalPosts: posts.totalPosts || 0
+          };
+        }
         return { posts: [], totalPages: 1, totalPosts: 0 };
       }
 
