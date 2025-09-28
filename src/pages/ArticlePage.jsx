@@ -209,20 +209,24 @@ const ArticlePage = () => {
             />
 
             {/* Lazy load mid-content ad */}
-            <div className="my-8 text-center">
-              <Suspense fallback={<AdSkeleton />}>
-                <AdPlacement placementId={181} />
-              </Suspense>
-            </div>
+            {import.meta.env.VITE_ADS_ENABLED === 'true' && (
+              <div className="my-8 text-center">
+                <Suspense fallback={<AdSkeleton />}>
+                  <AdPlacement placementId={181} />
+                </Suspense>
+              </div>
+            )}
             
             <div className="prose prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: post.content }} />
             
             {/* Lazy load bottom ad */}
-            <div className="my-8 text-center">
-              <Suspense fallback={<AdSkeleton />}>
-                <AdPlacement placementId={182} />
-              </Suspense>
-            </div>
+            {import.meta.env.VITE_ADS_ENABLED === 'true' && (
+              <div className="my-8 text-center">
+                <Suspense fallback={<AdSkeleton />}>
+                  <AdPlacement placementId={182} />
+                </Suspense>
+              </div>
+            )}
           </motion.article>
         </div>
       </div>
