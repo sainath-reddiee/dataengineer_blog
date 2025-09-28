@@ -217,7 +217,8 @@ class WordPressAPI {
       content: wpPost.content?.rendered || '',
       category: primaryCategory,
       readTime: this.calculateReadTime(wpPost.content?.rendered || ''),
-      date: wpPost.date,
+      // FIX: Add a fallback to the current date if wpPost.date is missing
+      date: wpPost.date || new Date().toISOString(),
       image: imageUrl,
       featured: featured,
       trending: trending,
