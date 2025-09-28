@@ -136,7 +136,7 @@ const ApiDebugger = () => {
 
   // Auto-run tests on mount in development
   useEffect(() => {
-    if (import.meta.env.DEV) {
+    if (__DEV__) {
       runAllTests();
     }
   }, []);
@@ -206,7 +206,7 @@ const ApiDebugger = () => {
         <div className="text-sm text-gray-300 space-y-1">
           <p><strong>API URL:</strong> https://app.dataengineerhub.blog/wp-json/wp/v2</p>
           <p><strong>Cache Timeout:</strong> 10 seconds</p>
-          <p><strong>Environment:</strong> {import.meta.env.DEV ? 'Development' : 'Production'}</p>
+          <p><strong>Environment:</strong> {__DEV__ ? 'Development' : 'Production'}</p>
         </div>
       </div>
 

@@ -220,7 +220,7 @@ function App() {
             } 
           />
           {/* Debug route - only available in development or with debug flag */}
-          {(import.meta.env.DEV || new URLSearchParams(window.location.search).has('debug')) && (
+          {(__DEV__ || new URLSearchParams(window.location.search).has('debug')) && (
             <Route 
               path="debug" 
               element={
