@@ -1,11 +1,76 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Calendar, Clock, User, Loader } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import MetaTags from '@/components/SEO/MetaTags';
 import { usePost } from '@/hooks/useWordPress';
-import AdPlacement from '../components/AdPlacement'; // <-- 1. IMPORT THE AD COMPONENT
+
+// Lazy load ad component to reduce initial bundle size
+const AdPlacement = React.lazy(() => import('../components/AdPlacement'));
+
+// Optimized Image component for better mobile performance
+const OptimizedImage = ({ src, alt, className }) => {
+  const [imageLoaded, setImageLoaded] = React.useState(false);
+  const [imageSrc, setImageSrc] = React.useState(null);
+
+  React.useEffect(() => {
+    // Create different sized images for mobile optimization
+    const img = new Image();
+    
+    // Use smaller image for mobile devices
+    const isMobile = window.innerWidth <= 768;
+    const optimizedSrc = isMobile 
+      ? src.replace(/(\.[^.]+)$/, '_mobile$1').replace(/w=\d+/, 'w=400').replace(/h=\d+/, 'h=300')
+      : src;
+    
+    img.onload = () => {
+      setImageSrc(optimizedSrc);
+      setImageLoaded(true);
+    };
+    
+    img.onerror = () => {
+      // Fallback to original image
+      setImageSrc(src);
+      setImageLoaded(true);
+    };
+    
+    img.src = optimizedSrc;
+  }, [src]);
+
+  return (
+    <div className={`relative ${className}`}>
+      {!imageLoaded && (
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800 animate-pulse rounded-2xl flex items-center justify-center">
+          <Loader className="h-8 w-8 animate-spin text-blue-400" />
+        </div>
+      )}
+      {imageSrc && (
+        <img 
+          className={`w-full h-full object-cover transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+          alt={alt}
+          src={imageSrc}
+          loading="lazy"
+          decoding="async"
+          // Add responsive image attributes for mobile
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
+          style={{ 
+            contentVisibility: 'auto',
+            containIntrinsicSize: '800px 400px'
+          }}
+        />
+      )}
+      <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/50 to-transparent"></div>
+    </div>
+  );
+};
+
+// Loading skeleton for ads
+const AdSkeleton = () => (
+  <div className="h-32 bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800 animate-pulse rounded-lg flex items-center justify-center">
+    <span className="text-gray-500 text-sm">Advertisement</span>
+  </div>
+);
 
 const ArticlePage = () => {
   const { slug } = useParams();
@@ -108,7 +173,6 @@ const ArticlePage = () => {
             </Button>
           </motion.div>
 
-
           <motion.article
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -137,25 +201,27 @@ const ArticlePage = () => {
               </div>
             </div>
             
-            <div className="relative h-64 md:h-80 rounded-2xl overflow-hidden mb-8">
-              <img 
-                className="w-full h-full object-cover"
-                alt={post.title}
-                src={post.image}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/50 to-transparent"></div>
-            </div>
+            {/* Optimized hero image */}
+            <OptimizedImage 
+              src={post.image}
+              alt={post.title}
+              className="h-64 md:h-80 rounded-2xl overflow-hidden mb-8"
+            />
 
-            {/* Mid-content ad placement */}
+            {/* Lazy load mid-content ad */}
             <div className="my-8 text-center">
+              <Suspense fallback={<AdSkeleton />}>
                 <AdPlacement placementId={181} />
+              </Suspense>
             </div>
             
             <div className="prose prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: post.content }} />
             
-            {/* Bottom of page ad placement */}
+            {/* Lazy load bottom ad */}
             <div className="my-8 text-center">
+              <Suspense fallback={<AdSkeleton />}>
                 <AdPlacement placementId={182} />
+              </Suspense>
             </div>
           </motion.article>
         </div>
