@@ -1,1 +1,0 @@
-import{j as t}from"../assets/index-c4bf0959.js";import"./chunk-f6b04eec.js";import{m as i}from"./chunk-1820e378.js";const e=()=>t.jsx(i.p,{className:"text-md text-white max-w-lg mx-auto",initial:{opacity:0},animate:{opacity:1},transition:{duration:.5,delay:.8},children:"Let's turn your ideas into reality."});export{e as default};
