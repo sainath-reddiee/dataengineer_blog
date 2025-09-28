@@ -1,7 +1,6 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
-import { resolve } from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -14,7 +13,7 @@ export default defineConfig({
   
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      '@': path.resolve('./src'),
     },
   },
 
@@ -38,11 +37,6 @@ export default defineConfig({
           ui: [
             'framer-motion',
             'lucide-react'
-          ],
-          // Utils chunk
-          utils: [
-            '@/services/wordpressApi',
-            '@/hooks/useWordPress'
           ]
         },
         // Optimize chunk names
@@ -82,7 +76,7 @@ export default defineConfig({
     
     // Remove console logs and debugger statements in production
     esbuild: {
-      drop: ['console', 'debugger'],
+      drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : [],
     },
   },
 
@@ -115,11 +109,6 @@ export default defineConfig({
       'react-helmet-async'
     ],
     
-    // Exclude these from pre-bundling
-    exclude: [
-      // Large dependencies that should be lazy loaded
-    ],
-    
     // ESBuild options for dependency optimization
     esbuildOptions: {
       target: 'es2015',
@@ -129,73 +118,30 @@ export default defineConfig({
     }
   },
 
-  // CSS optimizations
+  // CSS optimizations (simplified - no PostCSS plugins that cause issues)
   css: {
-    // PostCSS optimizations
-    postcss: {
-      plugins: [
-        // Add autoprefixer for better browser support
-        require('autoprefixer')({
-          overrideBrowserslist: [
-            'last 2 versions',
-            '> 1%',
-            'not dead',
-            'not ie 11'
-          ]
-        }),
-        // Optimize CSS for production
-        ...(process.env.NODE_ENV === 'production' ? [
-          require('cssnano')({
-            preset: ['default', {
-              discardComments: { removeAll: true },
-              normalizeWhitespace: true,
-              minifyFontValues: true,
-              minifySelectors: true
-            }]
-          })
-        ] : [])
-      ]
-    },
-    
     // Enable CSS modules for better performance
     modules: {
       localsConvention: 'camelCase'
-    },
-    
-    // Preprocessor options
-    preprocessorOptions: {
-      scss: {
-        // Add global SCSS variables if needed
-        additionalData: `@import "@/styles/variables.scss";`
-      }
     }
   },
 
   // Preview server optimizations
   preview: {
     port: 4173,
-    strictPort: true,
-    
-    // Enable compression
-    headers: {
-      'Cache-Control': 'public, max-age=31536000'
-    }
+    strictPort: true
   },
 
   // Environment variables
   define: {
     // Define global constants
-    __DEV__: process.env.NODE_ENV === 'development',
-    __PROD__: process.env.NODE_ENV === 'production',
+    __DEV__: JSON.stringify(process.env.NODE_ENV === 'development'),
+    __PROD__: JSON.stringify(process.env.NODE_ENV === 'production'),
   },
 
-  // Plugin configurations
+  // ESBuild optimizations
   esbuild: {
     // JSX optimizations
-    jsxFactory: 'React.createElement',
-    jsxFragment: 'React.Fragment',
-    
-    // Target modern browsers
     target: 'es2015',
     
     // Optimize for size in production
@@ -203,27 +149,12 @@ export default defineConfig({
       minifyIdentifiers: true,
       minifySyntax: true,
       minifyWhitespace: true,
+      drop: ['console', 'debugger'],
     })
   },
 
   // Worker optimizations
   worker: {
-    format: 'es',
-    plugins: [
-      // Add plugins specific to workers if needed
-    ]
-  },
-
-  // Experimental features
-  experimental: {
-    // Enable render built-in support if available
-    renderBuiltUrl: (filename, { hostType }) => {
-      // Optimize URLs for different host types
-      if (hostType === 'js') {
-        return `/${filename}`;
-      } else {
-        return `/${filename}`;
-      }
-    }
+    format: 'es'
   }
 });
