@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+/* CRITICAL: Remove blocking Google Fonts import and load efficiently */
+/* @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap'); */
 
 @tailwind base;
 @tailwind components;
@@ -28,10 +29,11 @@
 
 * {
   border-color: hsl(var(--border));
+  box-sizing: border-box;
 }
 
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", sans-serif;
   background: hsl(var(--background));
   color: hsl(var(--foreground));
   line-height: 1.6;
@@ -41,16 +43,26 @@ body {
   scroll-behavior: smooth;
 }
 
-/* Performance optimizations */
-* {
-  box-sizing: border-box;
-}
+/* MOBILE-FIRST PERFORMANCE OPTIMIZATIONS */
 
+/* Critical images optimization */
 img {
   max-width: 100%;
   height: auto;
   display: block;
   transition: opacity 0.3s ease;
+  /* Add lazy loading attributes in HTML */
+  content-visibility: auto;
+  contain-intrinsic-size: 300px 200px;
+}
+
+/* Optimize for mobile LCP */
+.hero-image,
+.blog-card img,
+.featured-image {
+  object-fit: cover;
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 /* Reduce motion for users who prefer it */
@@ -65,14 +77,45 @@ img {
   }
 }
 
-/* Optimize animations */
+/* Mobile-specific optimizations */
+@media screen and (max-width: 768px) {
+  /* Reduce complex animations on mobile */
+  .floating-animation {
+    animation: none;
+  }
+  
+  .pulse-glow {
+    animation: none;
+  }
+  
+  /* Simplify gradients for mobile performance */
+  .gradient-text {
+    background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+    animation: none;
+  }
+  
+  /* Optimize cards for mobile */
+  .blog-card,
+  .tech-card {
+    backdrop-filter: blur(5px); /* Reduce blur on mobile */
+    transition: transform 0.2s ease; /* Faster transitions */
+  }
+  
+  .blog-card:hover,
+  .tech-card:hover {
+    transform: translateY(-2px); /* Reduced hover effect */
+  }
+}
+
+/* Optimize animations with hardware acceleration */
 .floating-animation,
 .pulse-glow {
   will-change: transform;
   transform: translateZ(0);
+  contain: layout;
 }
 
-/* Optimize gradients */
+/* Optimized gradients with better performance */
 .gradient-text {
   background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 40%, #f472b6 80%, #fbbf24 100%);
   -webkit-background-clip: text;
@@ -80,7 +123,21 @@ img {
   background-clip: text;
   will-change: background-position;
   background-size: 200% 200%;
-  animation: gradient-shift 3s ease-in-out infinite;
+}
+
+/* Only animate on larger screens */
+@media screen and (min-width: 769px) {
+  .gradient-text {
+    animation: gradient-shift 3s ease-in-out infinite;
+  }
+  
+  .floating-animation {
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  .pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite alternate;
+  }
 }
 
 @keyframes gradient-shift {
@@ -88,17 +145,30 @@ img {
   50% { background-position: 100% 50%; }
 }
 
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes pulse-glow {
+  from { box-shadow: 0 0 20px rgba(96, 165, 250, 0.4), 0 0 40px rgba(168, 85, 247, 0.2); }
+  to { box-shadow: 0 0 40px rgba(96, 165, 250, 0.7), 0 0 60px rgba(168, 85, 247, 0.4); }
+}
+
+/* Optimized card styles with better mobile performance */
 .tech-card {
   background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   transition: all 0.3s ease;
+  contain: layout style paint;
 }
 
 .glass-effect {
   background: rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.15);
+  contain: layout style paint;
 }
 
 .blog-card {
@@ -107,6 +177,7 @@ img {
   border: 1px solid rgba(148, 163, 184, 0.2);
   transition: all 0.3s ease;
   min-height: 400px;
+  contain: layout style paint;
 }
 
 .blog-card:hover {
@@ -127,28 +198,11 @@ img {
   border-color: rgba(255, 255, 255, 0.2);
 }
 
-.floating-animation {
-  animation: float 6s ease-in-out infinite;
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-20px); }
-}
-
-.pulse-glow {
-  animation: pulse-glow 2s ease-in-out infinite alternate;
-}
-
-@keyframes pulse-glow {
-  from { box-shadow: 0 0 20px rgba(96, 165, 250, 0.4), 0 0 40px rgba(168, 85, 247, 0.2); }
-  to { box-shadow: 0 0 40px rgba(96, 165, 250, 0.7), 0 0 60px rgba(168, 85, 247, 0.4); }
-}
-
 /* Enhanced prose styles for article content */
 .prose {
   max-width: 65ch;
   margin: 0 auto;
+  contain: layout;
 }
 
 .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
@@ -157,6 +211,7 @@ img {
   line-height: 1.2;
   margin-top: 2rem;
   margin-bottom: 1rem;
+  contain: layout;
 }
 
 .prose p {
@@ -177,6 +232,7 @@ img {
   border-radius: 0.5rem;
   overflow-x: auto;
   margin: 1.5rem 0;
+  contain: layout;
 }
 
 .prose blockquote {
@@ -202,6 +258,7 @@ img {
 .btn-primary {
   position: relative;
   overflow: hidden;
+  contain: layout style;
 }
 
 .btn-primary::before {
@@ -217,4 +274,16 @@ img {
 
 .btn-primary:hover::before {
   left: 100%;
+}
+
+/* Critical loading states for better perceived performance */
+.skeleton {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.1) 25%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0.1) 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
