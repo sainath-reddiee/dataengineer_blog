@@ -3,6 +3,9 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { useSEO } from '@/hooks/useSEO';
 
+// Import the new Error Boundary
+import ErrorBoundary from '@/components/ErrorBoundary';
+
 // Import MobileOptimization component
 import MobileOptimization from '@/components/MobileOptimization';
 
@@ -99,53 +102,6 @@ const PerformanceMonitor = () => {
 
   return null;
 };
-
-/**
- * Error Boundary Component for better error handling
- */
-class ErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false, error: null };
-  }
-
-  static getDerivedStateFromError(error) {
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error, errorInfo) {
-    console.error('🚨 App Error Boundary caught an error:', error, errorInfo);
-    
-    // Log to error reporting service if available
-    if (window.Sentry) {
-      window.Sentry.captureException(error, { extra: errorInfo });
-    }
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 flex items-center justify-center">
-          <div className="text-center max-w-lg px-6">
-            <div className="text-6xl mb-6">🚨</div>
-            <h1 className="text-3xl font-bold text-white mb-4">Oops! Something went wrong</h1>
-            <p className="text-gray-300 mb-6">
-              We're sorry, but something unexpected happened. Please try refreshing the page.
-            </p>
-            <button
-              onClick={() => window.location.reload()}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors"
-            >
-              Refresh Page
-            </button>
-          </div>
-        </div>
-      );
-    }
-
-    return this.props.children;
-  }
-}
 
 /**
  * Main App Component
@@ -263,6 +219,17 @@ function App() {
               </Suspense>
             } 
           />
+          {/* Debug route - only available in development or with debug flag */}
+          {(import.meta.env.DEV || new URLSearchParams(window.location.search).has('debug')) && (
+            <Route 
+              path="debug" 
+              element={
+                <Suspense fallback={<PageLoader text="Loading Debug..." />}>
+                  {React.lazy(() => import('@/components/ApiDebugger'))}
+                </Suspense>
+              } 
+            />
+          )}
         </Route>
       </Routes>
     </ErrorBoundary>
