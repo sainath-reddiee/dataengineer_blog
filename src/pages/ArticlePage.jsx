@@ -344,3 +344,114 @@ const ArticlePage = () => {
       });
     }
   };
+
+  return (
+    <div className="pt-4 pb-12">
+      <MetaTags 
+        title={safePost.title}
+        description={safePost.excerpt}
+        image={safePost.image}
+        type="article"
+      />
+      
+      <div className="container mx-auto px-6 max-w-4xl">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mb-4"
+        >
+          <Button 
+            asChild 
+            variant="outline" 
+            className="border-2 border-blue-400/50 text-blue-300 hover:bg-blue-500/20 backdrop-blur-sm"
+          >
+            <Link to="/articles">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              All Articles
+            </Link>
+          </Button>
+        </motion.div>
+
+        <motion.article
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="space-y-8"
+        >
+          {/* Hero Section */}
+          <div className="relative">
+            <OptimizedImage 
+              src={safePost.image}
+              alt={safePost.title}
+              className="w-full h-64 md:h-96 rounded-2xl overflow-hidden"
+            />
+            
+            <div className="absolute inset-0 flex items-end p-6 md:p-8">
+              <div className="space-y-4 text-white">
+                <div className="inline-block px-3 py-1 bg-blue-600/80 backdrop-blur-sm rounded-full text-sm font-medium">
+                  {safePost.category}
+                </div>
+                <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold leading-tight">
+                  {safePost.title}
+                </h1>
+                <div className="flex flex-wrap items-center gap-4 text-sm text-gray-300">
+                  <div className="flex items-center gap-1">
+                    <User className="h-4 w-4" />
+                    <span>{safePost.author}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Calendar className="h-4 w-4" />
+                    <span>{formatDate(safePost.date)}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Clock className="h-4 w-4" />
+                    <span>{safePost.readTime}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Ad Placement - Top */}
+          <Suspense fallback={<AdSkeleton />}>
+            <AdPlacement position="article-top" />
+          </Suspense>
+
+          {/* Article Content */}
+          <div className="prose prose-invert prose-lg max-w-none">
+            <div 
+              dangerouslySetInnerHTML={{ __html: safePost.content }}
+              className="article-content"
+            />
+          </div>
+
+          {/* Ad Placement - Bottom */}
+          <Suspense fallback={<AdSkeleton />}>
+            <AdPlacement position="article-bottom" />
+          </Suspense>
+
+          {/* Article Footer */}
+          <div className="border-t border-gray-800 pt-8">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <div className="space-y-2">
+                <p className="text-gray-400">Published by</p>
+                <p className="font-semibold text-white">{safePost.author}</p>
+              </div>
+              <Button 
+                asChild 
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                <Link to="/articles">
+                  Read More Articles
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </motion.article>
+      </div>
+    </div>
+  );
+};
+
+export default ArticlePage;
