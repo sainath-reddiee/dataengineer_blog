@@ -44,8 +44,15 @@ const HomePage = () => {
           <TechCategories />
         </Suspense>
         
+        {/* Enhanced RecentPosts with Load More functionality */}
         <Suspense fallback={<SectionSkeleton height="h-96" />}>
-          <RecentPosts />
+          <RecentPosts 
+            initialLimit={9} // Show more posts initially on homepage
+            showLoadMore={true} // Enable "Load More" button
+            showViewToggle={true} // Allow users to switch between grid/list view
+            title="Latest Articles" // Custom title
+            showCategoryError={false} // Don't show category-specific errors on homepage
+          />
         </Suspense>
         
         <Suspense fallback={<SectionSkeleton height="h-64" />}>
