@@ -15,3 +15,6 @@ Allow: /wp-content/themes/*.css
 Allow: /wp-content/themes/*.js
 Allow: /wp-includes/*.css
 Allow: /wp-includes/*.js
+
+Disallow: /*.json$
+Crawl-delay: 1
