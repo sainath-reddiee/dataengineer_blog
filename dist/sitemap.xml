@@ -1,68 +1,181 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+        xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
   <url>
     <loc>https://dataengineerhub.blog/</loc>
-    <priority>1.0</priority>
+    <lastmod>2025-09-29T16:02:51.022Z</lastmod>
     <changefreq>daily</changefreq>
+    <priority>1</priority>
   </url>
   <url>
     <loc>https://dataengineerhub.blog/articles</loc>
-    <priority>0.9</priority>
+    <lastmod>2025-09-29T16:02:51.022Z</lastmod>
     <changefreq>daily</changefreq>
+    <priority>0.9</priority>
   </url>
   <url>
     <loc>https://dataengineerhub.blog/about</loc>
-    <priority>0.6</priority>
+    <lastmod>2025-09-29T16:02:51.022Z</lastmod>
     <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>
   <url>
     <loc>https://dataengineerhub.blog/contact</loc>
-    <priority>0.5</priority>
+    <lastmod>2025-09-29T16:02:51.022Z</lastmod>
     <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
   <url>
     <loc>https://dataengineerhub.blog/newsletter</loc>
+    <lastmod>2025-09-29T16:02:51.022Z</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://dataengineerhub.blog/privacy-policy</loc>
+    <lastmod>2025-09-29T16:02:51.022Z</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://dataengineerhub.blog/terms-of-service</loc>
+    <lastmod>2025-09-29T16:02:51.022Z</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://dataengineerhub.blog/articles/snowflake-data-sharing-governance</loc>
+    <lastmod>2025-09-29T07:18:24</lastmod>
     <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://dataengineerhub.blog/category/aws</loc>
-    <priority>0.7</priority>
-    <changefreq>daily</changefreq>
+    <loc>https://dataengineerhub.blog/articles/querying-data-in-snowflake</loc>
+    <lastmod>2025-09-29T07:08:02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://dataengineerhub.blog/category/snowflake</loc>
-    <priority>0.7</priority>
-    <changefreq>daily</changefreq>
+    <loc>https://dataengineerhub.blog/articles/load-data-into-snowflake</loc>
+    <lastmod>2025-09-29T07:09:34</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://dataengineerhub.blog/category/azure</loc>
-    <priority>0.7</priority>
-    <changefreq>daily</changefreq>
+    <loc>https://dataengineerhub.blog/articles/what-is-snowflake-guide</loc>
+    <lastmod>2025-09-29T06:40:59</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://dataengineerhub.blog/category/sql</loc>
-    <priority>0.7</priority>
-    <changefreq>daily</changefreq>
+    <loc>https://dataengineerhub.blog/articles/loading-data-from-s3-to-snowflake</loc>
+    <lastmod>2025-09-29T06:19:44</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://dataengineerhub.blog/articles/aws-data-pipeline-cost-optimization-strategies</loc>
+    <lastmod>2025-09-29T06:05:12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://dataengineerhub.blog/articles/snowflake-performance-tuning-techniques</loc>
+    <lastmod>2025-09-29T05:43:22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://dataengineerhub.blog/articles/advanced-snowflake-interview-questions-experienced</loc>
+    <lastmod>2025-09-28T16:52:45</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://dataengineerhub.blog/articles/automated-etl-airflow-python</loc>
+    <lastmod>2025-09-28T03:19:29</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://dataengineerhub.blog/articles/sql-window-functions-guide</loc>
+    <lastmod>2025-09-28T03:05:46</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://dataengineerhub.blog/articles/build-data-lakehouse-on-azure</loc>
+    <lastmod>2025-09-27T15:37:02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://dataengineerhub.blog/articles/serverless-data-pipeline-aws</loc>
+    <lastmod>2025-09-26T14:51:26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://dataengineerhub.blog/articles/dbt-projects-snowflake-structure</loc>
+    <lastmod>2025-09-26T13:54:36</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://dataengineerhub.blog/articles/snowflake-architecture</loc>
+    <lastmod>2025-09-26T13:27:07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://dataengineerhub.blog/category/airflow</loc>
+    <lastmod>2025-09-29T16:02:51.022Z</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <changefreq>daily</changefreq>
-  </url>
-  <url>
-    <loc>https://dataengineerhub.blog/category/dbt</loc>
-    <priority>0.7</priority>
-    <changefreq>daily</changefreq>
-  </url>
-  <url>
-    <loc>https://dataengineerhub.blog/category/python</loc>
-    <priority>0.7</priority>
-    <changefreq>daily</changefreq>
   </url>
   <url>
     <loc>https://dataengineerhub.blog/category/analytics</loc>
+    <lastmod>2025-09-29T16:02:51.022Z</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <changefreq>daily</changefreq>
+  </url>
+  <url>
+    <loc>https://dataengineerhub.blog/category/aws</loc>
+    <lastmod>2025-09-29T16:02:51.022Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://dataengineerhub.blog/category/azure</loc>
+    <lastmod>2025-09-29T16:02:51.022Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://dataengineerhub.blog/category/dbt</loc>
+    <lastmod>2025-09-29T16:02:51.022Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://dataengineerhub.blog/category/python</loc>
+    <lastmod>2025-09-29T16:02:51.022Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://dataengineerhub.blog/category/snowflake</loc>
+    <lastmod>2025-09-29T16:02:51.022Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://dataengineerhub.blog/category/sql</loc>
+    <lastmod>2025-09-29T16:02:51.022Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
   </url>
 </urlset>
