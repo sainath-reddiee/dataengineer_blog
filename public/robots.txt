@@ -1,31 +1,43 @@
-# robots.txt for DataEngineer Hub
-# Updated for React SPA SEO optimization
+# public/robots.txt
+# Optimized robots.txt for DataEngineer Hub
 
 User-agent: *
 Allow: /
-
-# Disallow dynamic/admin routes
-Disallow: /admin/
 Disallow: /api/
+Disallow: /admin/
 Disallow: /*.json$
+Disallow: /*?*debug*
+Disallow: /debug
 
-# Allow important resources
-Allow: /static/
-Allow: /assets/
-Allow: /*.css$
-Allow: /*.js$
-Allow: /*.jpg$
-Allow: /*.jpeg$
-Allow: /*.png$
-Allow: /*.svg$
-Allow: /*.webp$
+# Allow crawling of important resources
+Allow: /*.css
+Allow: /*.js
+Allow: /*.jpg
+Allow: /*.jpeg
+Allow: /*.png
+Allow: /*.webp
+Allow: /*.svg
+Allow: /*.gif
 
-# Crawl rate
-Crawl-delay: 1
-
-# Sitemap location
+# Sitemap
 Sitemap: https://dataengineerhub.blog/sitemap.xml
 
-# Additional sitemaps (if you create them)
-Sitemap: https://dataengineerhub.blog/sitemap-articles.xml
-Sitemap: https://dataengineerhub.blog/sitemap-categories.xml
+# Crawl-delay for specific bots (optional)
+User-agent: Googlebot
+Crawl-delay: 0
+
+User-agent: Bingbot
+Crawl-delay: 1
+
+# Block bad bots
+User-agent: AhrefsBot
+Crawl-delay: 10
+
+User-agent: SemrushBot
+Crawl-delay: 10
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
