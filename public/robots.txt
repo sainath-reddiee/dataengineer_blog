@@ -1,20 +1,31 @@
+# robots.txt for DataEngineer Hub
+# Updated for React SPA SEO optimization
+
 User-agent: *
 Allow: /
 
+# Disallow dynamic/admin routes
+Disallow: /admin/
+Disallow: /api/
+Disallow: /*.json$
+
+# Allow important resources
+Allow: /static/
+Allow: /assets/
+Allow: /*.css$
+Allow: /*.js$
+Allow: /*.jpg$
+Allow: /*.jpeg$
+Allow: /*.png$
+Allow: /*.svg$
+Allow: /*.webp$
+
+# Crawl rate
+Crawl-delay: 1
+
+# Sitemap location
 Sitemap: https://dataengineerhub.blog/sitemap.xml
 
-# Block access to admin areas
-Disallow: /admin/
-Disallow: /wp-admin/
-Disallow: /wp-includes/
-Disallow: /wp-content/plugins/
-Disallow: /wp-content/themes/
-
-# Allow access to CSS and JS files
-Allow: /wp-content/themes/*.css
-Allow: /wp-content/themes/*.js
-Allow: /wp-includes/*.css
-Allow: /wp-includes/*.js
-
-Disallow: /*.json$
-Crawl-delay: 1
+# Additional sitemaps (if you create them)
+Sitemap: https://dataengineerhub.blog/sitemap-articles.xml
+Sitemap: https://dataengineerhub.blog/sitemap-categories.xml
