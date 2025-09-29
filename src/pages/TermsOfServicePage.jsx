@@ -5,12 +5,13 @@ const TermsOfServicePage = () => {
   return (
     <>
       <MetaTags
-        title="Terms of Service"
-        description="Terms of Service for dataengineerhub.blog"
+        title="Terms of Service | DataEngineer Hub - Website Usage Terms"
+        description="Review the terms of service for DataEngineer Hub. Understand your rights and responsibilities when using our website, accessing content, and engaging with our data engineering resources."
+        keywords="terms of service, terms and conditions, user agreement, website terms, legal terms"
       />
       <div className="container mx-auto px-6 max-w-4xl py-12">
-        <h1 className="text-3xl md:text-4xl font-black mb-6 leading-tight">
-          Terms of Service
+        <h1 className="text-3xl md:text-4xl font-black mb-6 leading-tight gradient-text">
+          Terms of Service - DataEngineer Hub
         </h1>
 
         <div className="prose prose-invert max-w-none text-gray-300">
@@ -18,12 +19,12 @@ const TermsOfServicePage = () => {
 
           <h2 className="text-xl font-bold text-white mt-8">1. AGREEMENT TO TERMS</h2>
           <p>
-            These Terms of Service constitute a legally binding agreement made between you, whether personally or on behalf of an entity (“you”) and DataEngineer Hub (“we,” “us,” or “our”), concerning your access to and use of the dataengineerhub.blog website as well as any other media form, media channel, mobile website or mobile application related, linked, or otherwise connected thereto (collectively, the “Site”). You agree that by accessing the Site, you have read, understood, and agreed to be bound by all of these Terms of Service. IF YOU DO NOT AGREE WITH ALL OF THESE TERMS OF SERVICE, THEN YOU ARE EXPRESSLY PROHIBITED FROM USING THE SITE AND YOU MUST DISCONTINUE USE IMMEDIATELY.
+            These Terms of Service constitute a legally binding agreement made between you, whether personally or on behalf of an entity ("you") and DataEngineer Hub ("we," "us," or "our"), concerning your access to and use of the dataengineerhub.blog website as well as any other media form, media channel, mobile website or mobile application related, linked, or otherwise connected thereto (collectively, the "Site"). You agree that by accessing the Site, you have read, understood, and agreed to be bound by all of these Terms of Service. IF YOU DO NOT AGREE WITH ALL OF THESE TERMS OF SERVICE, THEN YOU ARE EXPRESSLY PROHIBITED FROM USING THE SITE AND YOU MUST DISCONTINUE USE IMMEDIATELY.
           </p>
 
           <h2 className="text-xl font-bold text-white mt-8">2. INTELLECTUAL PROPERTY RIGHTS</h2>
           <p>
-            Unless otherwise indicated, the Site is our proprietary property and all source code, databases, functionality, software, website designs, audio, video, text, photographs, and graphics on the Site (collectively, the “Content”) and the trademarks, service marks, and logos contained therein (the “Marks”) are owned or controlled by us or licensed to us, and are protected by copyright and trademark laws.
+            Unless otherwise indicated, the Site is our proprietary property and all source code, databases, functionality, software, website designs, audio, video, text, photographs, and graphics on the Site (collectively, the "Content") and the trademarks, service marks, and logos contained therein (the "Marks") are owned or controlled by us or licensed to us, and are protected by copyright and trademark laws.
           </p>
 
           <h2 className="text-xl font-bold text-white mt-8">3. USER REPRESENTATIONS</h2>
