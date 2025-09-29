@@ -6,6 +6,10 @@
     # Turn on the rewriting engine
     RewriteEngine On
 
+    # Redirect www to non-www for SEO
+    RewriteCond %{HTTP_HOST} ^www\.dataengineerhub\.blog [NC]
+    RewriteRule ^(.*)$ https://dataengineerhub.blog/$1 [L,R=301]
+
     # Set the base for all relative paths
     RewriteBase /
 
@@ -51,7 +55,6 @@
     AddOutputFilterByType DEFLATE application/x-font-opentype
     AddOutputFilterByType DEFLATE application/x-font-otf
     AddOutputFilterByType DEFLATE application/x-font-truetype
-    AddOutputFilterByType DEFLATE application/x-font-ttf
     AddOutputFilterByType DEFLATE application/x-javascript
     AddOutputFilterByType DEFLATE application/xhtml+xml
     AddOutputFilterByType DEFLATE application/xml
