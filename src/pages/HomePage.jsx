@@ -23,9 +23,9 @@ const HomePage = () => {
   return (
     <>
       <MetaTags 
-        title="DataEngineer Hub - Your Source for Data Engineering Insights"
-        description="Welcome to DataEngineer Hub. Get the latest articles, tutorials, and insights on data engineering, Snowflake, AWS, Azure, SQL, Python, Airflow, and dbt."
-        keywords="data engineering, blog, data engineer, snowflake, aws, azure, sql, python, airflow, dbt"
+        title="DataEngineer Hub - Data Engineering Tutorials, Snowflake, AWS, Azure & More"
+        description="Learn data engineering with expert tutorials on Snowflake, AWS, Azure, SQL, Python, Airflow, and dbt. Get practical guides, best practices, and insights from industry professionals."
+        keywords="data engineering, blog, tutorials, snowflake tutorials, aws data services, azure data engineering, sql optimization, python data engineering, apache airflow, dbt data transformation, data warehousing, cloud data platforms"
       />
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 text-white">
         {/* Hero is critical - load immediately */}
