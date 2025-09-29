@@ -5,11 +5,10 @@ import { Toaster } from '@/components/ui/toaster';
 import Layout from '@/components/Layout';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import MobileOptimization from '@/components/MobileOptimization';
-import { RouteChangeTracker } from '@/utils/analytics';
-import performance from '@/utils/performance';
-import { useApiDebugger } from '@/components/ApiDebugger'; // For debugging API
+import { trackPageView, trackEvent } from '@/utils/analytics';
+import { useApiDebugger } from '@/components/ApiDebugger';
 
-// Lazy load pages for better performance
+// Lazy load pages for code splitting
 const HomePage = lazy(() => import('./pages/HomePage'));
 const CategoryPage = lazy(() => import('./pages/CategoryPage'));
 const AboutPage = lazy(() => import('./pages/AboutPage'));
@@ -37,11 +36,20 @@ const LoadingFallback = ({ text = "Loading..." }) => (
   </div>
 );
 
-// Ezoic Ad Logic
-const EzoicAdRefresher = () => {
+// Combined Route Change Tracker for Analytics & Ads
+const RouteChangeTracker = () => {
   const location = useLocation();
 
   useEffect(() => {
+    // Mark performance timing
+    if (typeof performance !== "undefined" && performance.mark) {
+      performance.mark(`route-${location.pathname}-${Date.now()}`);
+    }
+
+    // Track page view in Google Analytics
+    trackPageView(location.pathname + location.search);
+
+    // Refresh Ezoic ads on route change with proper timing
     const refreshAds = () => {
       try {
         if (window.ezstandalone && typeof window.ezstandalone.showAds === 'function') {
@@ -50,82 +58,128 @@ const EzoicAdRefresher = () => {
           });
         }
         if (window.ezoic && typeof window.ezoic.refresh === 'function') {
-           window.ezoic.refresh();
+          window.ezoic.refresh();
         }
       } catch (e) {
         console.error("Ezoic ad refresh error:", e);
       }
     };
-    
-    // Refresh ads on route change with a small delay
-    const timeoutId = setTimeout(() => {
-        requestAnimationFrame(refreshAds);
-    }, 100);
 
-    return () => clearTimeout(timeoutId);
-  }, [location.pathname]);
+    // Delay ad refresh to avoid conflicts with page render
+    const adTimeout = setTimeout(() => {
+      requestAnimationFrame(refreshAds);
+    }, 150);
 
-  return null;
-};
+    // Scroll to top on route change (better UX)
+    window.scrollTo({ top: 0, behavior: 'instant' });
 
-// Google Analytics and Performance Tracking
-const AnalyticsAndPerformance = () => {
-  const location = useLocation();
-
-  useEffect(() => {
-    // Marks a performance timing point on route change
-    if (typeof performance !== "undefined" && performance.mark) {
-      performance.mark(`route-change-${Date.now()}`);
-    }
-    // Fires a Google Analytics event on route change
-    if (typeof gtag !== "undefined") {
-      gtag('config', 'GA_MEASUREMENT_ID', {
-        page_path: location.pathname,
-      });
-    }
-  }, [location.pathname]);
+    return () => clearTimeout(adTimeout);
+  }, [location.pathname, location.search]);
 
   return null;
 };
-
 
 function App() {
-  // Initialize performance marking
+  const { debugMode, ApiDebugger } = useApiDebugger();
+
   useEffect(() => {
+    // Mark app initialization
     if (typeof performance !== "undefined" && performance.mark) {
       performance.mark('app-initialized');
     }
 
+    // Prefetch high-traffic pages after initial load
     const prefetchTimer = setTimeout(() => {
-      // Prefetching high-traffic pages after initial load
       import('./pages/AllArticlesPage');
       import('./pages/ArticlePage');
     }, 2000);
 
+    // Log initial performance metrics
+    const logPerformance = () => {
+      if (typeof performance !== 'undefined') {
+        const perfData = performance.getEntriesByType('navigation')[0];
+        if (perfData) {
+          console.log('⚡ App Performance:', {
+            'Total Load': Math.round(perfData.loadEventEnd - perfData.fetchStart) + 'ms',
+            'DOM Ready': Math.round(perfData.domContentLoadedEventEnd - perfData.fetchStart) + 'ms',
+            'First Paint': performance.getEntriesByType('paint')[0] 
+              ? Math.round(performance.getEntriesByType('paint')[0].startTime) + 'ms' 
+              : 'N/A'
+          });
+        }
+      }
+    };
+
+    // Track app initialization
+    trackEvent({
+      action: 'app_initialized',
+      category: 'performance',
+      label: 'App Loaded'
+    });
+
+    setTimeout(logPerformance, 1500);
+
     return () => clearTimeout(prefetchTimer);
   }, []);
-  
-  const { debugMode, ApiDebugger } = useApiDebugger();
 
   return (
     <ErrorBoundary>
       <MobileOptimization />
-      <AnalyticsAndPerformance/>
-      <EzoicAdRefresher />
       <Router>
+        <RouteChangeTracker />
         <Routes>
           <Route path="/" element={<Layout />}>
-            <Route index element={<Suspense fallback={<LoadingFallback text="Loading Home..." />}><HomePage /></Suspense>} />
-            <Route path="articles" element={<Suspense fallback={<LoadingFallback text="Loading Articles..." />}><AllArticlesPage /></Suspense>} />
-            <Route path="articles/:slug" element={<Suspense fallback={<LoadingFallback text="Loading Article..." />}><ArticlePage /></Suspense>} />
-            <Route path="category/:categoryName" element={<Suspense fallback={<LoadingFallback text="Loading Category..." />}><CategoryPage /></Suspense>} />
-            <Route path="about" element={<Suspense fallback={<LoadingFallback text="Loading About..." />}><AboutPage /></Suspense>} />
-            <Route path="contact" element={<Suspense fallback={<LoadingFallback text="Loading Contact..." />}><ContactPage /></Suspense>} />
-            <Route path="privacy-policy" element={<Suspense fallback={<LoadingFallback text="Loading Privacy Policy..." />}><PrivacyPolicyPage /></Suspense>} />
-            <Route path="terms-of-service" element={<Suspense fallback={<LoadingFallback text="Loading Terms..." />}><TermsOfServicePage /></Suspense>} />
-            <Route path="newsletter" element={<Suspense fallback={<LoadingFallback text="Loading Newsletter..." />}><NewsletterPage /></Suspense>} />
+            <Route index element={
+              <Suspense fallback={<LoadingFallback text="Loading Home..." />}>
+                <HomePage />
+              </Suspense>
+            } />
+            <Route path="articles" element={
+              <Suspense fallback={<LoadingFallback text="Loading Articles..." />}>
+                <AllArticlesPage />
+              </Suspense>
+            } />
+            <Route path="articles/:slug" element={
+              <Suspense fallback={<LoadingFallback text="Loading Article..." />}>
+                <ArticlePage />
+              </Suspense>
+            } />
+            <Route path="category/:categoryName" element={
+              <Suspense fallback={<LoadingFallback text="Loading Category..." />}>
+                <CategoryPage />
+              </Suspense>
+            } />
+            <Route path="about" element={
+              <Suspense fallback={<LoadingFallback text="Loading About..." />}>
+                <AboutPage />
+              </Suspense>
+            } />
+            <Route path="contact" element={
+              <Suspense fallback={<LoadingFallback text="Loading Contact..." />}>
+                <ContactPage />
+              </Suspense>
+            } />
+            <Route path="privacy-policy" element={
+              <Suspense fallback={<LoadingFallback text="Loading Privacy Policy..." />}>
+                <PrivacyPolicyPage />
+              </Suspense>
+            } />
+            <Route path="terms-of-service" element={
+              <Suspense fallback={<LoadingFallback text="Loading Terms..." />}>
+                <TermsOfServicePage />
+              </Suspense>
+            } />
+            <Route path="newsletter" element={
+              <Suspense fallback={<LoadingFallback text="Loading Newsletter..." />}>
+                <NewsletterPage />
+              </Suspense>
+            } />
             {debugMode && (
-              <Route path="debug" element={<Suspense fallback={<LoadingFallback text="Loading Debug..." />}><ApiDebugger /></Suspense>} />
+              <Route path="debug" element={
+                <Suspense fallback={<LoadingFallback text="Loading Debug..." />}>
+                  <ApiDebugger />
+                </Suspense>
+              } />
             )}
           </Route>
         </Routes>
