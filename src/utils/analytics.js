@@ -1,7 +1,7 @@
 // src/utils/analytics.js
 // Google Analytics 4 Integration
 
-export const GA_MEASUREMENT_ID = 'G-XXXXXXXXXX'; // Replace with your actual GA4 ID
+export const GA_MEASUREMENT_ID = 'G-MTMNP6EV9C'; // Replace with your actual GA4 ID
 
 // Initialize Google Analytics
 export const initGA = () => {
