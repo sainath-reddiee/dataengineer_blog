@@ -1,3 +1,5 @@
+// src/pages/ContactPage.jsx
+// FIXED: Single H1, optimized meta tags
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Send, Mail, Phone, MapPin } from 'lucide-react';
@@ -38,11 +40,14 @@ const ContactPage = () => {
   return (
     <>
       <MetaTags 
-        title="Contact Us - DataEngineer Hub"
-        description="Get in touch with the DataEngineer Hub team."
+        title="Contact Us - Get in Touch"
+        description="Contact DataEngineer Hub team. Have questions or suggestions? We'd love to hear from you. Reach us via email or phone."
+        keywords="contact data engineer hub, get in touch, data engineering support"
+        type="website"
       />
       <div className="pt-4 pb-12 overflow-hidden">
         <div className="container mx-auto px-6">
+          {/* FIXED: Single H1 tag for the page */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -63,7 +68,8 @@ const ContactPage = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
             >
-              <h2 className="text-3xl font-bold mb-6">Contact Information</h2>
+              {/* FIXED: Changed H2 to div to avoid multiple heading levels */}
+              <div className="text-3xl font-bold mb-6">Contact Information</div>
               <p className="text-gray-300 mb-8">
                 You can reach us through the following channels. We're excited to connect with our community!
               </p>
@@ -73,7 +79,7 @@ const ContactPage = () => {
                     <Mail className="h-6 w-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold">Email</h3>
+                    <div className="text-xl font-semibold">Email</div>
                     <p className="text-gray-400">sainath@dataengineerhub.blog</p>
                   </div>
                 </div>
@@ -82,7 +88,7 @@ const ContactPage = () => {
                     <Phone className="h-6 w-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold">Phone</h3>
+                    <div className="text-xl font-semibold">Phone</div>
                     <p className="text-gray-400">9441414140</p>
                   </div>
                 </div>
@@ -91,8 +97,8 @@ const ContactPage = () => {
                     <MapPin className="h-6 w-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold">Location</h3>
-                    <p className="text-gray-400">123 Data venue , Hyderabad</p>
+                    <div className="text-xl font-semibold">Location</div>
+                    <p className="text-gray-400">123 Data Avenue, Hyderabad</p>
                   </div>
                 </div>
               </div>
@@ -103,7 +109,7 @@ const ContactPage = () => {
               transition={{ duration: 0.8, delay: 0.4 }}
               className="blog-card p-8 rounded-2xl"
             >
-              <h2 className="text-3xl font-bold mb-6">Send us a Message</h2>
+              <div className="text-3xl font-bold mb-6">Send us a Message</div>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-2">
                   <Label htmlFor="name">Full Name</Label>
@@ -124,7 +130,6 @@ const ContactPage = () => {
               </form>
             </motion.div>
           </div>
-          
         </div>
       </div>
     </>
