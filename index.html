@@ -4,6 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
     
+    <!-- Ezoic Consent Management Platform - MUST BE FIRST -->
+    <script src="https://cmp.gatekeeperconsent.com/min.js" data-cfasync="false"></script>
+    <script src="https://the.gatekeeperconsent.com/cmp.min.js" data-cfasync="false"></script>
+    
+    <!-- Ezoic Standalone Ads -->
+    <script async src="//www.ezojs.com/ezoic/sa.min.js"></script>
+    <script>
+      window.ezstandalone = window.ezstandalone || {};
+      ezstandalone.cmd = ezstandalone.cmd || [];
+    </script>
+    
     <!-- Google Analytics (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-MTMNP6EV9C"></script>
     <script>
@@ -15,32 +26,11 @@
       });
     </script>
     
-    <!-- Ezoic Consent Management Platform -->
-    <script src="https://cmp.gatekeeperconsent.com/min.js" data-cfasync="false"></script>
-    <script src="https://the.gatekeeperconsent.com/cmp.min.js" data-cfasync="false"></script>
-    
-    <!-- Ezoic Standalone Ads -->
-    <script async src="//www.ezojs.com/ezoic/sa.min.js"></script>
-    <script>
-      window.ezstandalone = window.ezstandalone || {};
-      ezstandalone.cmd = ezstandalone.cmd || [];
-    </script>
-    
-    <!-- IMPORTANT: Meta tags will be injected by React Helmet - DO NOT add duplicate tags here -->
-    <!-- Only add fallback title/description that will be replaced -->
+    <!-- Fallback Meta Tags (will be replaced by React Helmet per page) -->
     <title>DataEngineer Hub - Data Engineering Tutorials</title>
-    <meta name="description" content="Learn data engineering with expert tutorials on Snowflake, AWS, Azure, SQL, Python, Airflow, and dbt." />
+    <meta name="description" content="Learn data engineering with expert tutorials on Snowflake, AWS, Azure, SQL, Python, Airflow & dbt." />
     
-    <!-- Robots (will be overridden by Helmet) -->
-    <meta name="robots" content="index, follow, max-image-preview:large" />
-    
-    <!-- Mobile Optimization -->
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#1e293b">
-    
-    <!-- Structured Data - Organization (static, won't change per page) -->
+    <!-- Static Structured Data - Organization (doesn't change per page) -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -67,6 +57,7 @@
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link rel="dns-prefetch" href="//app.dataengineerhub.blog">
     <link rel="dns-prefetch" href="//www.googletagmanager.com">
+    <link rel="dns-prefetch" href="//www.ezojs.com">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -87,13 +78,22 @@
             href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap">
     </noscript>
     
-    <!-- Favicon -->
+    <!-- Favicon and PWA -->
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/manifest.json">
     
-    <!-- Canonical (will be updated per page by Helmet) -->
+    <!-- Canonical (updated per page by Helmet) -->
     <link rel="canonical" href="https://dataengineerhub.blog">
+    
+    <!-- Robots (updated per page by Helmet) -->
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    
+    <!-- Mobile Optimization -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#1e293b">
     
     <!-- Critical CSS Inline -->
     <style>
@@ -135,6 +135,13 @@
           animation-iteration-count: 1 !important;
           transition-duration: 0.01ms !important;
         }
+      }
+      
+      /* Ezoic placeholder styles */
+      .ezoic-ad {
+        min-height: 50px;
+        display: block;
+        margin: 20px 0;
       }
     </style>
     
