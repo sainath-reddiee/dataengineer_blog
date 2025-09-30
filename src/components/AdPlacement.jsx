@@ -1,39 +1,100 @@
-import React, { useEffect } from 'react';
+// src/components/AdPlacement.jsx
+// Complete Ezoic ad integration for React SPA
+import React, { useEffect, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 
-/**
- * Ezoic Ad Placement Component
- * This component creates a placeholder div and calls the Ezoic script to show an ad.
- * @param {object} props - The component props.
- * @param {number} props.placementId - The ad placement ID from your Ezoic dashboard.
- */
-const AdPlacement = ({ placementId }) => {
+const AdPlacement = ({ position = 'default', placeholder = 102 }) => {
+  const location = useLocation();
+  const adRef = useRef(null);
+  const [adLoaded, setAdLoaded] = useState(false);
+  const [adError, setAdError] = useState(false);
+
+  // Map positions to Ezoic placeholder IDs (update these with your actual IDs from Ezoic dashboard)
+  const placeholderIds = {
+    'article-top': 102,
+    'article-middle': 103,
+    'article-bottom': 104,
+    'sidebar-top': 105,
+    'sidebar-middle': 106,
+    'homepage-top': 107,
+    'homepage-bottom': 108,
+    'default': placeholder
+  };
+
+  const placeholderId = placeholderIds[position] || placeholderIds['default'];
+
   useEffect(() => {
-    const initializeAd = () => {
-      // Check if the Ezoic script is available on the window object
-      if (window.ezstandalone && typeof window.ezstandalone.showAds === 'function') {
-        try {
-          // The cmd.push ensures that the command is executed after the Ezoic script is fully ready.
-          window.ezstandalone.cmd.push(function () {
-            // This function tells Ezoic to find the placeholder with the given ID and display an ad.
-            window.ezstandalone.showAds([placementId]);
+    // Reset state on location change
+    setAdLoaded(false);
+    setAdError(false);
+
+    // Check if Ezoic is available
+    if (typeof window === 'undefined' || !window.ezstandalone) {
+      console.warn('⚠️ Ezoic not loaded yet');
+      setAdError(true);
+      return;
+    }
+
+    // Refresh ads on route change for SPA
+    const refreshAds = () => {
+      try {
+        if (window.ezstandalone && window.ezstandalone.cmd) {
+          window.ezstandalone.cmd.push(function() {
+            window.ezstandalone.refresh();
           });
-        } catch (error) {
-          console.warn('Ezoic ad placement error:', error);
         }
-      } else {
-        // If Ezoic isn't ready yet, try again after a short delay
-        setTimeout(initializeAd, 100);
+        setAdLoaded(true);
+      } catch (error) {
+        console.error('Error refreshing Ezoic ads:', error);
+        setAdError(true);
       }
     };
 
     // Small delay to ensure DOM is ready
-    const timer = setTimeout(initializeAd, 50);
+    const timer = setTimeout(refreshAds, 100);
 
     return () => clearTimeout(timer);
-  }, [placementId]); // This effect runs whenever the placementId changes
+  }, [location.pathname]);
 
-  // This is the div that Ezoic's script will use to inject the ad.
-  return <div id={`ezoic-pub-ad-placeholder-${placementId}`}></div>;
+  // Don't show ads in development unless explicitly enabled
+  if (import.meta.env.DEV && !import.meta.env.VITE_SHOW_ADS) {
+    return (
+      <div className="my-8 p-6 bg-gray-800/30 border border-gray-700 rounded-lg text-center">
+        <p className="text-sm text-gray-400">
+          📢 Ad Placement: {position} (Placeholder ID: {placeholderId})
+        </p>
+        <p className="text-xs text-gray-500 mt-2">
+          Ads hidden in development. Set VITE_SHOW_ADS=true to show.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div 
+      ref={adRef}
+      className="ezoic-ad my-8"
+      data-position={position}
+    >
+      {/* Ezoic Ad Placeholder */}
+      <div id={`ezoic-pub-ad-placeholder-${placeholderId}`}></div>
+      
+      {/* Loading state */}
+      {!adLoaded && !adError && (
+        <div className="flex items-center justify-center py-8">
+          <div className="w-6 h-6 border-2 border-gray-600 border-t-blue-500 rounded-full animate-spin"></div>
+          <span className="ml-3 text-sm text-gray-500">Loading ad...</span>
+        </div>
+      )}
+      
+      {/* Error state */}
+      {adError && (
+        <div className="text-center py-4 text-xs text-gray-600">
+          Ad blocked or failed to load
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default AdPlacement;
