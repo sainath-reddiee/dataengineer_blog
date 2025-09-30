@@ -1,3 +1,5 @@
+// src/pages/CategoryPage.jsx
+// FIXED: Single H1, optimized meta descriptions, proper heading hierarchy
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -11,19 +13,18 @@ const CategoryPage = () => {
   const { categoryName } = useParams();
   const formattedCategoryName = categoryName.charAt(0).toUpperCase() + categoryName.slice(1);
 
-  // Category descriptions for better SEO and user experience
+  // FIXED: Optimized descriptions (under 155 chars)
   const categoryDescriptions = {
-    snowflake: "Explore comprehensive tutorials and guides for Snowflake, the modern cloud data platform. Learn about data warehousing, analytics, and advanced Snowflake features.",
-    aws: "Discover AWS data services including S3, Redshift, Glue, Lambda, and more. Master cloud data engineering with Amazon Web Services.",
-    azure: "Learn Microsoft Azure data services and tools. From Azure Data Factory to Synapse Analytics, explore the Azure ecosystem for data engineers.",
-    sql: "Master SQL with advanced queries, optimization techniques, and best practices. From basic SELECT statements to complex data transformations.",
-    airflow: "Apache Airflow tutorials and guides for workflow orchestration. Learn to build, schedule, and monitor data pipelines with Airflow.",
-    dbt: "Data Build Tool (dbt) tutorials for modern data transformation. Learn analytics engineering and data modeling best practices.",
-    python: "Python for data engineering - libraries, frameworks, and practical examples. Master data processing with pandas, NumPy, and more.",
-    analytics: "Data analytics, visualization, and business intelligence tools. Learn to create insightful reports and dashboards."
+    snowflake: "Master Snowflake with comprehensive tutorials on data warehousing, analytics, and cloud data platform features.",
+    aws: "Learn AWS data services: S3, Redshift, Glue, Lambda. Master cloud data engineering with Amazon Web Services.",
+    azure: "Explore Azure data services and tools. From Data Factory to Synapse Analytics for data engineers.",
+    sql: "Master SQL with advanced queries, optimization techniques, and best practices for data transformation.",
+    airflow: "Apache Airflow tutorials for workflow orchestration. Build, schedule, and monitor data pipelines.",
+    dbt: "Data Build Tool (dbt) tutorials for modern data transformation and analytics engineering.",
+    python: "Python for data engineering - pandas, NumPy, and more. Master data processing with Python.",
+    analytics: "Data analytics, visualization, and BI tools. Create insightful reports and dashboards."
   };
 
-  // Official brand logos using image URLs from CDN
   const getCategoryIcon = (category) => {
     const lowerCategory = category.toLowerCase();
     
@@ -47,7 +48,6 @@ const CategoryPage = () => {
           alt={`${category} logo`}
           className="w-10 h-10 object-contain"
           onError={(e) => {
-            // Fallback to a default icon if image fails to load
             e.target.style.display = 'none';
             e.target.parentNode.innerHTML = '<div class="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center text-2xl">📁</div>';
           }}
@@ -55,7 +55,6 @@ const CategoryPage = () => {
       );
     }
     
-    // Default folder icon
     return (
       <svg viewBox="0 0 24 24" className="w-10 h-10" fill="currentColor">
         <path fill="#6366F1" d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/>
@@ -66,20 +65,20 @@ const CategoryPage = () => {
   const categoryDescription = categoryDescriptions[categoryName.toLowerCase()] || 
     `Discover articles and tutorials about ${formattedCategoryName} technology and best practices.`;
 
-  // Unique meta description for each category
+  // FIXED: Optimized meta description (under 155 chars)
   const metaDescription = categoryDescriptions[categoryName.toLowerCase()] || 
-    `Browse all ${formattedCategoryName} articles on DataEngineer Hub. Learn best practices, tutorials, and advanced techniques for ${formattedCategoryName}.`;
+    `Browse ${formattedCategoryName} articles on DataEngineer Hub. Learn best practices and advanced techniques.`;
 
   return (
     <>
       <MetaTags 
-        title={`${formattedCategoryName} Tutorials & Articles | DataEngineer Hub`}
+        title={`${formattedCategoryName} Tutorials & Articles`}
         description={metaDescription}
-        keywords={`${categoryName.toLowerCase()}, data engineering, ${formattedCategoryName} tutorials, ${formattedCategoryName} guides, ${formattedCategoryName} best practices`}
+        keywords={`${categoryName.toLowerCase()}, data engineering, ${formattedCategoryName} tutorials, ${formattedCategoryName} guides`}
+        type="website"
       />
       <div className="pt-1 pb-8">
         <div className="container mx-auto px-6">
-          {/* Navigation */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -98,7 +97,7 @@ const CategoryPage = () => {
             </Button>
           </motion.div>
 
-          {/* Category Header with H1 */}
+          {/* FIXED: Single H1 tag for the page */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -127,7 +126,6 @@ const CategoryPage = () => {
             </div>
           </motion.div>
           
-          {/* Posts Section with Enhanced Features */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -136,23 +134,23 @@ const CategoryPage = () => {
             <RecentPosts 
               category={categoryName.toLowerCase()} 
               showCategoryError={true}
-              initialLimit={9} // Show more posts initially for category pages
+              initialLimit={9}
               title={`All ${formattedCategoryName} Articles`}
-              showLoadMore={true} // Enable load more functionality
-              showViewToggle={true} // Enable grid/list view toggle
+              showLoadMore={true}
+              showViewToggle={true}
             />
           </motion.div>
 
-          {/* Category Navigation Links */}
+          {/* FIXED: Changed H3 to div to avoid heading hierarchy issues */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
             className="mt-16 p-6 bg-gradient-to-r from-blue-900/20 to-purple-900/20 backdrop-blur-sm border border-blue-400/20 rounded-2xl"
           >
-            <h3 className="text-xl font-bold mb-4 text-center gradient-text">
+            <div className="text-xl font-bold mb-4 text-center gradient-text">
               Explore Other Categories
-            </h3>
+            </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {Object.entries(categoryDescriptions).map(([slug, description]) => (
                 <Link
