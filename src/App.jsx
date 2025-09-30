@@ -1,5 +1,5 @@
 import React, { Suspense, lazy, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { Toaster } from '@/components/ui/toaster';
 import Layout from '@/components/Layout';
@@ -125,65 +125,63 @@ function App() {
   return (
     <ErrorBoundary>
       <MobileOptimization />
-      <Router>
-        <RouteChangeTracker />
-        <Routes>
-          <Route path="/" element={<Layout />}>
-            <Route index element={
-              <Suspense fallback={<LoadingFallback text="Loading Home..." />}>
-                <HomePage />
+      <RouteChangeTracker />
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={
+            <Suspense fallback={<LoadingFallback text="Loading Home..." />}>
+              <HomePage />
+            </Suspense>
+          } />
+          <Route path="articles" element={
+            <Suspense fallback={<LoadingFallback text="Loading Articles..." />}>
+              <AllArticlesPage />
+            </Suspense>
+          } />
+          <Route path="articles/:slug" element={
+            <Suspense fallback={<LoadingFallback text="Loading Article..." />}>
+              <ArticlePage />
+            </Suspense>
+          } />
+          <Route path="category/:categoryName" element={
+            <Suspense fallback={<LoadingFallback text="Loading Category..." />}>
+              <CategoryPage />
+            </Suspense>
+          } />
+          <Route path="about" element={
+            <Suspense fallback={<LoadingFallback text="Loading About..." />}>
+              <AboutPage />
+            </Suspense>
+          } />
+          <Route path="contact" element={
+            <Suspense fallback={<LoadingFallback text="Loading Contact..." />}>
+              <ContactPage />
+            </Suspense>
+          } />
+          <Route path="privacy-policy" element={
+            <Suspense fallback={<LoadingFallback text="Loading Privacy Policy..." />}>
+              <PrivacyPolicyPage />
+            </Suspense>
+          } />
+          <Route path="terms-of-service" element={
+            <Suspense fallback={<LoadingFallback text="Loading Terms..." />}>
+              <TermsOfServicePage />
+            </Suspense>
+          } />
+          <Route path="newsletter" element={
+            <Suspense fallback={<LoadingFallback text="Loading Newsletter..." />}>
+              <NewsletterPage />
+            </Suspense>
+          } />
+          {debugMode && (
+            <Route path="debug" element={
+              <Suspense fallback={<LoadingFallback text="Loading Debug..." />}>
+                <ApiDebugger />
               </Suspense>
             } />
-            <Route path="articles" element={
-              <Suspense fallback={<LoadingFallback text="Loading Articles..." />}>
-                <AllArticlesPage />
-              </Suspense>
-            } />
-            <Route path="articles/:slug" element={
-              <Suspense fallback={<LoadingFallback text="Loading Article..." />}>
-                <ArticlePage />
-              </Suspense>
-            } />
-            <Route path="category/:categoryName" element={
-              <Suspense fallback={<LoadingFallback text="Loading Category..." />}>
-                <CategoryPage />
-              </Suspense>
-            } />
-            <Route path="about" element={
-              <Suspense fallback={<LoadingFallback text="Loading About..." />}>
-                <AboutPage />
-              </Suspense>
-            } />
-            <Route path="contact" element={
-              <Suspense fallback={<LoadingFallback text="Loading Contact..." />}>
-                <ContactPage />
-              </Suspense>
-            } />
-            <Route path="privacy-policy" element={
-              <Suspense fallback={<LoadingFallback text="Loading Privacy Policy..." />}>
-                <PrivacyPolicyPage />
-              </Suspense>
-            } />
-            <Route path="terms-of-service" element={
-              <Suspense fallback={<LoadingFallback text="Loading Terms..." />}>
-                <TermsOfServicePage />
-              </Suspense>
-            } />
-            <Route path="newsletter" element={
-              <Suspense fallback={<LoadingFallback text="Loading Newsletter..." />}>
-                <NewsletterPage />
-              </Suspense>
-            } />
-            {debugMode && (
-              <Route path="debug" element={
-                <Suspense fallback={<LoadingFallback text="Loading Debug..." />}>
-                  <ApiDebugger />
-                </Suspense>
-              } />
-            )}
-          </Route>
-        </Routes>
-      </Router>
+          )}
+        </Route>
+      </Routes>
     </ErrorBoundary>
   );
 }
