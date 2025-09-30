@@ -57,17 +57,8 @@ const AdPlacement = ({ position = 'default', placeholder = 102 }) => {
   }, [location.pathname]);
 
   // Don't show ads in development unless explicitly enabled
-  if (import.meta.env.DEV && !import.meta.env.VITE_SHOW_ADS) {
-    return (
-      <div className="my-8 p-6 bg-gray-800/30 border border-gray-700 rounded-lg text-center">
-        <p className="text-sm text-gray-400">
-          📢 Ad Placement: {position} (Placeholder ID: {placeholderId})
-        </p>
-        <p className="text-xs text-gray-500 mt-2">
-          Ads hidden in development. Set VITE_SHOW_ADS=true to show.
-        </p>
-      </div>
-    );
+  if (import.meta.env.VITE_ADS_ENABLED === 'false' || import.meta.env.VITE_ADS_ENABLED === false) {
+    return null; // Don't render anything when ads are disabled
   }
 
   return (
