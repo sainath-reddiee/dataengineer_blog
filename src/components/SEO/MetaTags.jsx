@@ -14,26 +14,39 @@ const MetaTags = ({
   modifiedTime,
   category,
   tags = [],
-  noindex = false, // For pages you don't want indexed
+  noindex = false,
 }) => {
   const siteName = 'DataEngineer Hub';
   const twitterHandle = '@sainath29';
   const siteUrl = 'https://dataengineerhub.blog';
   
-  // Create compelling title
+  // Create compelling title (max 60 chars for SEO)
   const fullTitle = title 
     ? `${title} | ${siteName}` 
-    : `${siteName} - Master Data Engineering with Expert Tutorials & Guides`;
+    : `${siteName} - Master Data Engineering with Expert Tutorials`;
   
-  // Create compelling description
+  // Create description (120-160 chars for SEO)
   const fullDescription = description || 
     'Learn data engineering from industry experts. Get hands-on tutorials on Snowflake, AWS, Azure, SQL, Python, Airflow, dbt and more. Level up your data skills today.';
   
   const fullImage = image || `${siteUrl}/og-image.jpg`;
   const currentUrl = url || (typeof window !== 'undefined' ? window.location.href : siteUrl);
 
+  // Format dates properly (ISO 8601)
+  const formatDate = (date) => {
+    if (!date) return null;
+    try {
+      return new Date(date).toISOString();
+    } catch {
+      return null;
+    }
+  };
+
+  const formattedPublishedTime = formatDate(publishedTime);
+  const formattedModifiedTime = formatDate(modifiedTime || publishedTime);
+
   // Article Schema
-  const articleSchema = {
+  const articleSchema = type === 'article' ? {
     "@context": "https://schema.org",
     "@type": "Article",
     "headline": title,
@@ -59,56 +72,17 @@ const MetaTags = ({
         "height": 250
       }
     },
-    "datePublished": publishedTime,
-    "dateModified": modifiedTime || publishedTime,
+    "datePublished": formattedPublishedTime,
+    "dateModified": formattedModifiedTime,
     "mainEntityOfPage": {
       "@type": "WebPage",
       "@id": currentUrl
     },
     "articleSection": category,
     "keywords": tags.join(", ")
-  };
+  } : null;
 
-  // Website Schema
-  const websiteSchema = {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "@id": `${siteUrl}/#website`,
-    "url": siteUrl,
-    "name": siteName,
-    "description": fullDescription,
-    "publisher": {
-      "@type": "Organization",
-      "name": siteName,
-      "logo": {
-        "@type": "ImageObject",
-        "url": `${siteUrl}/logo.png`
-      }
-    },
-    "potentialAction": {
-      "@type": "SearchAction",
-      "target": `${siteUrl}/search?q={search_term_string}`,
-      "query-input": "required name=search_term_string"
-    }
-  };
-
-  // Organization Schema
-  const organizationSchema = {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "@id": `${siteUrl}/#organization`,
-    "name": siteName,
-    "url": siteUrl,
-    "logo": `${siteUrl}/logo.png`,
-    "description": "Expert data engineering tutorials and guides",
-    "sameAs": [
-      "https://twitter.com/sainath29",
-      "https://linkedin.com/company/dataengineerhub",
-      "https://github.com/dataengineerhub"
-    ]
-  };
-
-  // BreadcrumbList Schema (for better navigation understanding)
+  // BreadcrumbList Schema
   const breadcrumbSchema = type === 'article' && category ? {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -129,7 +103,7 @@ const MetaTags = ({
         "@type": "ListItem",
         "position": 3,
         "name": category,
-        "item": `${siteUrl}/category/${category.toLowerCase()}`
+        "item": `${siteUrl}/category/${encodeURIComponent(category.toLowerCase())}`
       },
       {
         "@type": "ListItem",
@@ -184,11 +158,13 @@ const MetaTags = ({
       <meta name="twitter:creator" content={twitterHandle} />
 
       {/* Article Specific */}
-      {type === 'article' && publishedTime && (
+      {type === 'article' && formattedPublishedTime && (
         <>
           <meta property="article:author" content={author} />
-          <meta property="article:published_time" content={publishedTime} />
-          {modifiedTime && <meta property="article:modified_time" content={modifiedTime} />}
+          <meta property="article:published_time" content={formattedPublishedTime} />
+          {formattedModifiedTime && (
+            <meta property="article:modified_time" content={formattedModifiedTime} />
+          )}
           {category && <meta property="article:section" content={category} />}
           {tags.map((tag, i) => (
             <meta property="article:tag" content={tag} key={`tag-${i}`} />
@@ -203,34 +179,16 @@ const MetaTags = ({
       <meta name="apple-mobile-web-app-capable" content="yes" />
       <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
-      {/* Performance Hints */}
-      <link rel="dns-prefetch" href="//fonts.googleapis.com" />
-      <link rel="dns-prefetch" href="//fonts.gstatic.com" />
-      <link rel="dns-prefetch" href="//app.dataengineerhub.blog" />
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-
       {/* Structured Data */}
-      {type === 'article' ? (
-        <>
-          <script type="application/ld+json">
-            {JSON.stringify(articleSchema)}
-          </script>
-          {breadcrumbSchema && (
-            <script type="application/ld+json">
-              {JSON.stringify(breadcrumbSchema)}
-            </script>
-          )}
-        </>
-      ) : (
-        <>
-          <script type="application/ld+json">
-            {JSON.stringify(websiteSchema)}
-          </script>
-          <script type="application/ld+json">
-            {JSON.stringify(organizationSchema)}
-          </script>
-        </>
+      {articleSchema && (
+        <script type="application/ld+json">
+          {JSON.stringify(articleSchema)}
+        </script>
+      )}
+      {breadcrumbSchema && (
+        <script type="application/ld+json">
+          {JSON.stringify(breadcrumbSchema)}
+        </script>
       )}
     </Helmet>
   );
