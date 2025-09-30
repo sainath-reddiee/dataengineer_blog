@@ -1,10 +1,9 @@
 // src/pages/HomePage.jsx
-// COMPLETE PRODUCTION VERSION - Single H1, All Features Intact
+// FIXED: Single H1, optimized meta tags, proper structure
 import React, { Suspense } from 'react';
 import Hero from '../components/Hero';
 import MetaTags from '../components/SEO/MetaTags';
 
-// Lazy load non-critical components for better performance
 const FeaturedPosts = React.lazy(() => import('../components/FeaturedPosts'));
 const TrendingPosts = React.lazy(() => import('../components/TrendingPosts'));
 const RecentPosts = React.lazy(() => import('../components/RecentPosts'));
@@ -12,7 +11,6 @@ const TechCategories = React.lazy(() => import('../components/TechCategories'));
 const Newsletter = React.lazy(() => import('../components/Newsletter'));
 const CallToAction = React.lazy(() => import('../components/CallToAction'));
 
-// Loading skeleton for better UX
 const SectionSkeleton = ({ height = "h-64" }) => (
   <div className={`${height} bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800 animate-pulse rounded-2xl mb-8`}>
     <div className="flex items-center justify-center h-full">
@@ -24,19 +22,15 @@ const SectionSkeleton = ({ height = "h-64" }) => (
 const HomePage = () => {
   return (
     <>
-      {/* FIXED: Optimized meta tags - Title 59 chars, Description 145 chars */}
       <MetaTags 
         title="Data Engineering Tutorials - Snowflake, AWS, Azure & More"
         description="Master data engineering with expert tutorials on Snowflake, AWS, Azure, SQL, Python, Airflow & dbt. Practical guides for data professionals."
-        keywords="data engineering tutorials, snowflake tutorial, aws data engineering, azure data engineering, sql optimization, python data engineering, apache airflow, dbt tutorial, data warehousing, cloud data platforms"
+        keywords="data engineering tutorials, snowflake tutorial, aws data engineering, azure data engineering, sql optimization, python data engineering, apache airflow, dbt tutorial"
         type="website"
       />
-      
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 text-white">
-        {/* Hero section contains the single H1 tag for the page */}
         <Hero />
         
-        {/* All other sections lazy loaded with suspense */}
         <Suspense fallback={<SectionSkeleton height="h-96" />}>
           <FeaturedPosts />
         </Suspense>
